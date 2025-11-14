@@ -6,6 +6,10 @@ Contains all constants, API keys, and system settings
 import os
 from pathlib import Path
 from typing import Dict, List
+from dotenv import load_dotenv  # Add this import
+
+# Load environment variables from .env file
+load_dotenv()  # Add this line
 
 # ============================================================================
 # PROJECT PATHS

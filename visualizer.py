@@ -2,6 +2,8 @@
 Visualization Module
 Generates plots and charts for experiment results
 """
+import matplotlib
+matplotlib.use('Agg')
 
 import pandas as pd
 import numpy as np

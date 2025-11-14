@@ -198,37 +198,58 @@ class ExperimentRunner:
         
         # Save summary statistics
         self._save_summary_stats(df, timestamp)
-    
+
     def _save_summary_stats(self, df: pd.DataFrame, timestamp: str):
         """Save summary statistics"""
         summary = {}
-        
+
         # Overall statistics
         summary['overall'] = {
             'total_responses': len(df),
-            'parse_success_rate': df['parse_success'].mean(),
-            'mean_cultural_alignment': df['cultural_alignment'].mean(),
-            'mean_stereotype_score': df['stereotype'].mean(),
+            'parse_success_rate': float(df['parse_success'].mean()),
+            'mean_cultural_alignment': float(df['cultural_alignment'].mean()),
+            'mean_stereotype_score': float(df['stereotype'].mean()),
         }
-        
-        # By model
-        summary['by_model'] = df.groupby('model').agg({
+
+        # By model - convert to JSON-serializable format
+        by_model = df.groupby('model').agg({
             'cultural_alignment': ['mean', 'std'],
             'stereotype': 'mean',
             'parse_success': 'mean'
-        }).to_dict()
-        
-        # By culture
-        summary['by_culture'] = df.groupby('culture').agg({
+        })
+        summary['by_model'] = {}
+        for model in by_model.index:
+            summary['by_model'][model] = {
+                'cultural_alignment_mean': float(by_model.loc[model, ('cultural_alignment', 'mean')]),
+                'cultural_alignment_std': float(by_model.loc[model, ('cultural_alignment', 'std')]),
+                'stereotype_mean': float(by_model.loc[model, 'stereotype']),
+                'parse_success_mean': float(by_model.loc[model, 'parse_success'])
+            }
+
+        # By culture - convert to JSON-serializable format
+        by_culture = df.groupby('culture').agg({
             'cultural_alignment': ['mean', 'std'],
             'stereotype': 'mean'
-        }).to_dict()
-        
-        # By category
-        summary['by_category'] = df.groupby('scenario_category').agg({
+        })
+        summary['by_culture'] = {}
+        for culture in by_culture.index:
+            summary['by_culture'][culture] = {
+                'cultural_alignment_mean': float(by_culture.loc[culture, ('cultural_alignment', 'mean')]),
+                'cultural_alignment_std': float(by_culture.loc[culture, ('cultural_alignment', 'std')]),
+                'stereotype_mean': float(by_culture.loc[culture, 'stereotype'])
+            }
+
+        # By category - convert to JSON-serializable format
+        by_category = df.groupby('scenario_category').agg({
             'cultural_alignment': 'mean',
             'stereotype': 'mean'
-        }).to_dict()
+        })
+        summary['by_category'] = {}
+        for category in by_category.index:
+            summary['by_category'][category] = {
+                'cultural_alignment_mean': float(by_category.loc[category, 'cultural_alignment']),
+                'stereotype_mean': float(by_category.loc[category, 'stereotype'])
+            }
         
         # Baseline bias analysis
         if 'baseline' in df['culture'].unique():

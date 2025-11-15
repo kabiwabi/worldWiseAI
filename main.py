@@ -223,8 +223,8 @@ class ExperimentRunner:
             summary['by_model'][model] = {
                 'cultural_alignment_mean': float(by_model.loc[model, ('cultural_alignment', 'mean')]),
                 'cultural_alignment_std': float(by_model.loc[model, ('cultural_alignment', 'std')]),
-                'stereotype_mean': float(by_model.loc[model, 'stereotype']),
-                'parse_success_mean': float(by_model.loc[model, 'parse_success'])
+                'stereotype_mean': float(by_model.loc[model, ('stereotype', 'mean')]),
+                'parse_success_mean': float(by_model.loc[model, ('parse_success', 'mean')])
             }
 
         # By culture - convert to JSON-serializable format
@@ -317,7 +317,7 @@ class ExperimentRunner:
         summary['model_comparison'] = {
             'f_statistic': float(f_stat),
             'p_value': float(p_value),
-            'significant': p_value < 0.05
+            'significant': bool(p_value < 0.05)  # ← ADD bool() wrapper
         }
 
         summary_file = config.RESULTS_DIR / f"summary_{timestamp}.json"

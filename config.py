@@ -40,19 +40,19 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 MODELS = {
     "gpt-4": {
         "provider": "openai",
-        "model_name": "gpt-4",
+        "model_name": "gpt-4o-mini",
         "max_tokens": 500,
         "temperature": 0.7,
     },
     "claude-sonnet": {
         "provider": "anthropic",
-        "model_name": "claude-sonnet-4-20250514",
+        "model_name": "claude-3-5-haiku-20241022",
         "max_tokens": 500,
         "temperature": 0.7,
     },
     "gemini": {
         "provider": "google",
-        "model_name": "gemini-1.5-flash",
+        "model_name": "gemini-2.5-flash-lite",
         "max_tokens": 500,
         "temperature": 0.7,
     },

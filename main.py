@@ -3,6 +3,7 @@ Main Experiment Pipeline
 Orchestrates the complete cultural bias measurement experiment
 """
 
+from scipy.stats import f_oneway
 import json
 import logging
 from pathlib import Path
@@ -295,7 +296,30 @@ class ExperimentRunner:
                         'all_distances': baseline_distances,
                         'interpretation': f"Baseline responses are closest to {closest_culture[0]} cultural values"
                     }
-        
+
+        # Scenario difficulty
+        scenario_stats = df[df['culture'] != 'baseline'].groupby('scenario_id')['cultural_alignment'].agg(
+            ['mean', 'std'])
+        summary['scenario_difficulty'] = {
+            'hardest': scenario_stats['mean'].idxmin(),
+            'hardest_score': float(scenario_stats['mean'].min()),
+            'easiest': scenario_stats['mean'].idxmax(),
+            'easiest_score': float(scenario_stats['mean'].max())
+        }
+
+        # Decision patterns
+        decision_dist = df['decision'].value_counts().to_dict()
+        summary['decision_distribution'] = {k: int(v) for k, v in decision_dist.items()}
+
+        # Model comparison
+        model_groups = [df[df['model'] == m]['cultural_alignment'].values for m in df['model'].unique()]
+        f_stat, p_value = f_oneway(*model_groups)
+        summary['model_comparison'] = {
+            'f_statistic': float(f_stat),
+            'p_value': float(p_value),
+            'significant': p_value < 0.05
+        }
+
         summary_file = config.RESULTS_DIR / f"summary_{timestamp}.json"
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2)

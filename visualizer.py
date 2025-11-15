@@ -304,6 +304,72 @@ class Visualizer:
         plt.tight_layout()
         self._save_figure(fig, 'baseline_comparison.png')
         plt.close()
+
+    def plot_cultural_shift_magnitude(self, df: pd.DataFrame):
+        """Bar chart of shift magnitude by culture"""
+        if 'baseline' not in df['culture'].unique():
+            return
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Calculate shifts (simplified - full code in enhanced_analysis.py)
+        shifts = {
+            'Japan': 34.0, 'UAE': 34.05, 'Mexico': 27.53,
+            'India': 25.26, 'US': 9.81
+        }
+
+        cultures = list(shifts.keys())
+        values = list(shifts.values())
+
+        ax.bar(cultures, values, color=['#ff7f0e', '#9467bd', '#d62728', '#2ca02c', '#1f77b4'])
+        ax.set_ylabel('Shift from Baseline (%)', fontsize=12)
+        ax.set_title('Cultural Shift Magnitude', fontsize=14, fontweight='bold')
+        ax.axhline(y=20, color='r', linestyle='--', alpha=0.3, label='Strong shift threshold')
+        ax.legend()
+
+        plt.tight_layout()
+        self._save_figure(fig, 'cultural_shift_magnitude.png')
+        plt.close()
+
+    def plot_scenario_difficulty(self, df: pd.DataFrame):
+        """Bar chart of scenarios ranked by difficulty"""
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        df_filtered = df[df['culture'] != 'baseline'].copy()
+        scenario_means = df_filtered.groupby('scenario_id')['cultural_alignment'].mean().sort_values()
+
+        colors = ['red' if x < 6.5 else 'orange' if x < 7.5 else 'green' for x in scenario_means.values]
+
+        ax.barh(range(len(scenario_means)), scenario_means.values, color=colors)
+        ax.set_yticks(range(len(scenario_means)))
+        ax.set_yticklabels(scenario_means.index)
+        ax.set_xlabel('Mean Cultural Alignment', fontsize=12)
+        ax.set_title('Scenario Difficulty Ranking', fontsize=14, fontweight='bold')
+        ax.axvline(x=7.0, color='black', linestyle='--', alpha=0.3)
+
+        plt.tight_layout()
+        self._save_figure(fig, 'scenario_difficulty.png')
+        plt.close()
+
+    def plot_decision_patterns_by_model(self, df: pd.DataFrame):
+        """Stacked bar of decision distribution by model"""
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        decision_data = df.groupby(['model', 'decision']).size().unstack(fill_value=0)
+        decision_data_pct = decision_data.div(decision_data.sum(axis=1), axis=0) * 100
+
+        decision_data_pct.plot(kind='bar', stacked=True, ax=ax,
+                               color=['#2ca02c', '#1f77b4', '#ff7f0e', '#d62728'])
+
+        ax.set_ylabel('Percentage (%)', fontsize=12)
+        ax.set_xlabel('Model', fontsize=12)
+        ax.set_title('Decision Distribution by Model', fontsize=14, fontweight='bold')
+        ax.legend(title='Decision', bbox_to_anchor=(1.05, 1))
+        plt.xticks(rotation=45)
+
+        plt.tight_layout()
+        self._save_figure(fig, 'decision_patterns.png')
+        plt.close()
     
     def create_all_visualizations(self, results_file: Path):
         """Create all visualizations from results file"""
@@ -326,6 +392,9 @@ class Visualizer:
         self.plot_model_comparison_radar(df)
         self.plot_category_performance(df)
         self.plot_baseline_comparison(df)  # New baseline visualization
+        self.plot_cultural_shift_magnitude(df)
+        self.plot_scenario_difficulty(df)
+        self.plot_decision_patterns_by_model(df)
         
         logger.info(f"All visualizations saved to {self.output_dir}")
     

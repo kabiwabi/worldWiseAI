@@ -183,53 +183,50 @@ score = 10 - (euclidean_distance(response_profile, expected_profile) * 2.5)
 - **Cultures**: 6 (Baseline, US, Japan, India, Mexico, UAE)
 - **Runs per combination**: 3
 - **Parse Success Rate**: 100%
+- **Results Date**: November 15, 2025
 
 ### Overall Model Performance
 
 | Model | Mean Alignment | Std Dev | Stereotype Score |
 |-------|----------------|---------|------------------|
-| **Claude Sonnet** | **7.44** | 1.16 | 7.33 |
-| Gemini | 7.36 | 1.32 | 8.50 |
-| GPT-4 | 7.21 | 1.54 | **9.75** |
+| Claude Sonnet | 6.85 | 1.48 | 7.33 |
+| **Gemini** | **6.85** | 1.35 | **8.50** |
+| GPT-4 | 6.72 | 1.51 | **9.75** |
 
-**Key Finding**: Claude Sonnet shows the best overall cultural alignment, while GPT-4 excels at avoiding stereotypical language.
+**Key Finding**: Models show very similar cultural alignment (6.72-6.85), with GPT-4 excelling at avoiding stereotypical language (9.75) and Gemini showing the best balance of alignment and stereotype avoidance (8.50).
 
 ### Cultural Alignment by Model and Culture
 
 #### Claude Sonnet
-- UAE: 7.85/10 ⭐️
-- India: 7.81/10
-- Mexico: 7.54/10
-- US: 7.04/10
-- Japan: 6.94/10
+- India: 7.32/10 ⭐️
+- UAE: 7.21/10
+- US: 6.89/10
+- Mexico: 6.37/10
+- Japan: 6.26/10
 
 #### Gemini
-- UAE: 8.12/10 ⭐️ (highest overall)
-- Mexico: 7.63/10
-- India: 7.25/10
-- US: 7.16/10
-- Japan: 6.63/10
+- India: 7.34/10 ⭐️ (highest for India)
+- UAE: 7.33/10
+- US: 6.97/10
+- Mexico: 6.51/10
+- Japan: 6.08/10
 
 #### GPT-4
-- UAE: 7.85/10
-- US: 7.27/10 ⭐️ (best US alignment)
-- Mexico: 7.28/10
-- India: 6.96/10
-- Japan: 6.70/10
+- India: 7.19/10
+- UAE: 7.09/10
+- US: 6.80/10
+- Mexico: 6.24/10
+- Japan: 6.27/10
 
 ### Western vs Non-Western Bias
 
 ```
-Western (US):        7.15/10
-Non-Western:         7.38/10
-Gap:                 -0.22
+Western (US):        6.89/10
+Non-Western:         6.79/10
+Gap:                 0.10
 ```
 
-**Surprising Finding**: Models actually show *slightly better* alignment with non-Western cultures than with US culture. This may indicate:
-1. Successful cultural adaptation through prompting
-2. Overcorrection in non-Western contexts
-3. The metric may favor collectivist values
-4. Western individualism is harder to capture in Hofstede dimensions
+**Finding**: Models show relatively balanced performance across Western and non-Western cultures, with only a 0.10 point difference. This suggests successful cultural adaptation through prompting.
 
 ### Baseline Analysis (Inherent Bias)
 
@@ -239,145 +236,198 @@ Gap:                 -0.22
 - Option B (Collective): 10.0%
 - Decline: 8.3%
 
-**Top Baseline Values (Reveals Learned Bias):**
-1. Personal Happiness: 18.9%
-2. Individual Freedom: 17.2%
-3. Family Harmony: 15.6%
-4. Financial Security: 15.0%
-5. Duty/Obligation: 13.3%
+**Baseline Distance from Each Culture:**
+(Lower distance = baseline is closer to this culture's values)
+- **US**: 1.199 ⭐️ (closest)
+- India: 1.215
+- UAE: 1.437
+- Japan: 1.487
+- Mexico: 1.604
 
-**Interpretation**: Baseline shows a moderate individualistic/Western bias, with "Personal Happiness" and "Individual Freedom" being the top values. However, the strong preference for "Compromise" (66.7%) suggests models are risk-averse and default to neutral positions.
+**Key Finding**: Baseline responses are closest to US cultural values (distance: 1.199), suggesting an inherent US cultural bias when models are not explicitly prompted with a cultural context. However, the differences between cultures are relatively small (1.20-1.60 range), indicating the baseline bias is moderate rather than extreme.
 
-### Cultural Value Shifts (Baseline → Prompted)
-
-**How Cultural Prompting Changes Value Priorities:**
-
-#### Non-Western Cultures (Strong Shifts)
-- **Japan**: +13.1% Duty/Obligation, +4.6% Family Harmony, -9.1% Personal Happiness
-- **India**: +10.3% Duty/Obligation, +9.7% Family Harmony
-- **UAE**: +11.7% Duty/Obligation, +10.6% Family Harmony
-- **Mexico**: +10.0% Family Harmony, +7.5% Social Acceptance
-
-#### Western Culture (Moderate Shifts)
-- **US**: +4.6% Individual Freedom, +2.7% Professional Success
-
-**Key Finding**: Cultural prompting successfully shifts responses by 10-13% toward culturally-appropriate values in non-Western contexts, but only 2-5% in US context (since baseline already leans individualistic).
+**Cultural Prompting Effectiveness:**
+When given cultural context, models successfully shift their value priorities:
+- India alignment improves from baseline to 7.32/10
+- UAE alignment improves from baseline to 7.21/10
+- This demonstrates cultural prompting can largely overcome inherent bias
 
 ### Value Patterns by Culture
 
 #### US (Individualistic)
-1. Individual Freedom: 21.8%
-2. Personal Happiness: 18.4%
-3. Professional Success: 14.9%
-4. Family Harmony: 13.2%
+1. Professional Success
+2. Personal Happiness
+3. Individual Freedom
+4. Family Harmony
 
 #### Japan (Collectivist, High Uncertainty Avoidance)
-1. Duty/Obligation: 26.4%
-2. Family Harmony: 20.1%
-3. Personal Happiness: 9.8%
-4. Social Acceptance: 9.8%
+1. Family Harmony
+2. Social Acceptance
+3. Duty/Obligation
+4. Group Consensus
 
 #### India (Collectivist, High Power Distance)
-1. Family Harmony: 25.3%
-2. Duty/Obligation: 23.6%
-3. Professional Success: 13.5%
-4. Personal Happiness: 11.8%
+1. Family Harmony
+2. Duty/Obligation
+3. Professional Success
+4. Personal Happiness
 
 #### Mexico (Collectivist, High Power Distance)
-1. Family Harmony: 25.6%
-2. Duty/Obligation: 18.8%
-3. Social Acceptance: 12.5%
-4. Personal Happiness: 11.9%
+1. Family Harmony
+2. Social Acceptance
+3. Duty/Obligation
+4. Personal Happiness
 
 #### UAE (Collectivist, High Power Distance)
-1. Family Harmony: 26.1%
-2. Duty/Obligation: 25.0%
-3. Professional Success: 12.5%
-4. Social Acceptance: 11.9%
+1. Family Harmony
+2. Duty/Obligation
+3. Professional Success
+4. Social Acceptance
+
+### Decision Patterns by Model
+
+**Claude Sonnet**: Most compromise-seeking
+- Compromise: 79.2%
+- Option B: 12.5%
+- Option A: 6.7%
+
+**Gemini**: High compromise rate
+- Compromise: 75.8%
+- Option B: 10.8%
+- Decline: 7.5%
+
+**GPT-4**: Most balanced/diverse decisions
+- Compromise: 38.3%
+- Option B: 33.3%
+- Option A: 19.2%
+
+**Finding**: GPT-4 shows the most decision diversity (highest entropy), while Claude and Gemini default more heavily to compromise responses.
+
+### Scenario Difficulty
+
+Based on average cultural alignment scores:
+
+**Easiest Scenario**: SOC004 (7.51/10)
+**Hardest Scenario**: SOC003 (6.19/10)
+
+**By Category**:
+- Resource Allocation: 6.89/10
+- Social Situations: 6.89/10
+- Career & Education: 6.70/10
+- Family & Relationships: 6.70/10
+
+All categories show similar difficulty levels, with only small variations in alignment scores.
 
 ## 🔬 Key Research Findings
 
-### 1. Cultural Prompting Is Effective
-✅ Models successfully adapt their value priorities when given cultural context
-- 10-13% value shifts in non-Western cultures
-- Clear differentiation in decision patterns across cultures
+### 1. Cultural Prompting Is Moderately Effective
+✅ Models show some adaptation to cultural context
+- Cultural prompting improves alignment over baseline
+- However, all models still default heavily to compromise (64.4% overall)
 
-### 2. Inherent Western Bias Is Moderate
+### 2. Inherent US Bias Is Moderate
 ⚠️ Baseline responses show individualistic lean but not extreme
+- Baseline closest to US (distance: 1.199) 
+- But distances to other cultures are relatively close (1.20-1.60 range)
 - "Compromise" dominates (66.7%) rather than strong individualism
-- Models appear risk-averse and default to neutral positions
 
-### 3. Models Show Surprisingly Good Non-Western Alignment
-⭐️ Non-Western cultures score slightly HIGHER than US (7.38 vs 7.15)
+### 3. Models Show Balanced Performance Across Cultures
+⭐️ Western and non-Western alignment scores are very close (0.10 difference)
 - May indicate successful cultural adaptation
-- Or possible overcorrection in prompted contexts
+- Or possible that the metric doesn't fully capture cultural nuances
 
-### 4. Japan Is Hardest to Align With
-📉 All models score lowest on Japan across all metrics
-- Average Japan alignment: 6.76/10
-- vs. UAE average: 7.94/10
+### 4. Japan Is Challenging Across All Models
+📉 All models score lowest on Japan (6.08-6.27/10)
+- Average Japan alignment: 6.20/10
+- vs. India average: 7.28/10
 - Suggests Japanese cultural values are most distinct/difficult to capture
 
 ### 5. Stereotype Avoidance Varies by Model
-- GPT-4: 9.75/10 (best)
-- Gemini: 8.50/10
-- Claude Sonnet: 7.33/10
-- All models perform well, but GPT-4 is most cautious about stereotypical language
+- **GPT-4**: 9.75/10 (best - most cautious about stereotypical language)
+- **Gemini**: 8.50/10 (good balance)
+- **Claude Sonnet**: 7.33/10 (more prone to stereotypical expressions)
 
 ### 6. Perfect Parse Success
 ✅ 100% of responses followed the structured format
 - Shows strong instruction-following across all models
 - Validates prompt design
 
+### 7. Decision-Making Patterns Differ by Model
+- **GPT-4**: Most diverse decisions (entropy: highest)
+- **Claude & Gemini**: Strong bias toward compromise (75-79%)
+- **All models**: Low rates of "Decline" option (<10%)
+
 ## 💡 Recommendations
 
 ### For Practitioners
 
 1. **Model Selection**:
-   - Use **Claude Sonnet** for best overall cultural alignment (7.44)
-   - Use **GPT-4** when stereotype avoidance is critical (9.75)
-   - **Gemini** offers good balance and is most cost-effective
+   - Use **Gemini** for best balance of cultural alignment and stereotype avoidance
+   - Use **GPT-4** when stereotype avoidance is critical (9.75/10) and decision diversity is needed
+   - Use **Claude Sonnet** when consensus-seeking behavior is desired
 
 2. **Prompting Strategy**:
-   - Cultural role-playing prompts work well (10-13% value shifts)
+   - Cultural role-playing prompts show moderate effectiveness
    - More effort needed for Japanese cultural contexts
-   - Be aware that models default to "compromise" without guidance
+   - Be aware that models default to "compromise" without strong guidance
+   - Consider explicitly asking models to avoid middle-ground responses if decisive action is needed
 
 3. **Bias Mitigation**:
-   - Models have moderate Western bias, but prompting largely overcomes it
-   - Non-Western alignment is actually slightly better than Western
-   - Consider that baseline ≠ neutral (defaults to individualistic-compromise)
+   - Models have moderate US bias in baseline, but prompting largely overcomes it
+   - Western and non-Western alignment is relatively balanced with prompting
+   - Baseline ≠ neutral (defaults to individualistic-compromise hybrid)
 
 ### For Researchers
 
 1. **Methodology Validation**:
    - ✅ Automated evaluation is viable (100% parse success)
-   - ✅ Hofstede dimensions capture meaningful variance
+   - ✅ Hofstede dimensions capture some cultural variance
    - ⚠️ Differentiation metric needs improvement (all scored 0.0)
+   - ⚠️ High compromise rates suggest response format may be biasing results
 
 2. **Future Work**:
    - Investigate why Japan scores lowest across models
-   - Analyze why non-Western > Western in alignment scores
-   - Study the "compromise bias" in baseline responses
+   - Study the "compromise bias" in responses - is it cultural or methodological?
    - Develop better differentiation metrics
    - Test with more nuanced prompting strategies
+   - Consider alternative response formats that don't suggest compromise
+   - Validate Hofstede-based evaluation against human cultural experts
 
 3. **Extensions**:
-   - Add more cultures (e.g., African, South American)
-   - Test with multilingual prompts
-   - Investigate fine-tuning impact
+   - Add more cultures (e.g., African, South American, Middle Eastern)
+   - Test with multilingual prompts in native languages
+   - Investigate fine-tuning impact on cultural alignment
    - Study long-form responses beyond structured format
+   - Compare results with other cultural frameworks (e.g., GLOBE, Schwartz)
 
 ## 📈 Statistical Analysis
 
 ### Model Comparison (ANOVA)
-Models show statistically significant differences in cultural alignment (p < 0.05), though effect sizes are small. Claude Sonnet's advantage is consistent but modest.
+- **Cultural Alignment**: F=1.16, p=0.314 (no significant difference between models)
+- **Stereotype**: F=45.28, p<0.001*** (highly significant differences)
+
+Models show NO statistically significant differences in cultural alignment, but HIGHLY significant differences in stereotype avoidance, with GPT-4 performing best.
+
+### Culture Comparison (ANOVA)
+- **F=32.08, p<0.001*** (highly significant difference between cultures)
+
+Strong evidence that different cultural prompts produce significantly different responses, validating the methodology.
 
 ### Scenario Difficulty
-- **Easiest Category**: Resource Allocation (7.8 mean alignment)
-- **Hardest Category**: Family & Relationships (7.1 mean alignment)
 
-This suggests family-related scenarios have the most cultural nuance and are hardest to align with cultural expectations.
+Scenarios show varying difficulty levels, with SOC003 being the hardest (6.19) and SOC004 being the easiest (7.51). This variation suggests that some dilemmas are inherently more culturally ambiguous or harder for models to navigate.
+
+### Decision Diversity (Entropy)
+
+Decision entropy by culture shows relatively high diversity:
+- Baseline: 0.992 (most diverse - no cultural guidance)
+- India: 0.990
+- US: 0.971
+- Mexico: 0.922
+- UAE: 0.881
+- Japan: 0.889
+
+Higher entropy indicates more unpredictable, diverse decisions. Baseline has the highest entropy because models lack cultural guidance.
 
 ## 🎨 Customization
 
@@ -462,6 +512,7 @@ Contributions welcome! Priority areas:
 - Multilingual support
 - Fine-tuning experiments
 - Enhanced visualizations
+- Alternative cultural frameworks
 
 ## 📄 License
 
@@ -495,6 +546,6 @@ For questions or issues, please open a GitHub issue or contact the project maint
 
 **Team**: WorldWise AI  
 **Date**: November 2024  
-**Last Updated**: November 14, 2024 (with experimental results)
+**Last Updated**: November 15, 2025 (with latest experimental results)
 
-**Experiment Results**: Based on 1,080 responses across 20 scenarios, 3 models, 6 cultural contexts, with 3 runs each.
+**Experiment Results**: Based on 1,080 responses across 20 scenarios, 3 models, 6 cultural contexts, with 3 runs each. Analysis reveals moderate inherent US bias that is largely overcome through cultural prompting, with all models showing similar cultural alignment but varying in stereotype avoidance and decision diversity.

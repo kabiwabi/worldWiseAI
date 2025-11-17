@@ -13,8 +13,9 @@ class Scenario:
     category: str
     description: str
     cultural_dimensions: List[str]
+    primary_decision_dimension: str
     context: str = ""
-    
+
     def get_prompt_text(self) -> str:
         """Get the full scenario text for prompting"""
         if self.context:
@@ -36,6 +37,7 @@ FAMILY_SCENARIOS = [
             "advancement opportunity that requires relocation. What do you do?"
         ),
         cultural_dimensions=["individualism", "long_term_orientation", "power_distance"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="FAM002",
@@ -46,6 +48,7 @@ FAMILY_SCENARIOS = [
             "background. Your partner is otherwise wonderful and successful. What do you do?"
         ),
         cultural_dimensions=["individualism", "power_distance"],
+        primary_decision_dimension="power_distance",
     ),
     Scenario(
         id="FAM003",
@@ -56,6 +59,7 @@ FAMILY_SCENARIOS = [
             "are passionate and talented in their chosen field. How do you respond?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance", "long_term_orientation"],
+        primary_decision_dimension="power_distance",
     ),
     Scenario(
         id="FAM004",
@@ -66,6 +70,7 @@ FAMILY_SCENARIOS = [
             "Your family expects you to maintain harmony. What do you do?"
         ),
         cultural_dimensions=["individualism", "indulgence"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="FAM005",
@@ -76,6 +81,7 @@ FAMILY_SCENARIOS = [
             "with childcare. How do you respond?"
         ),
         cultural_dimensions=["individualism", "long_term_orientation"],
+        primary_decision_dimension="individualism",
     ),
 ]
 
@@ -88,40 +94,45 @@ CAREER_SCENARIOS = [
         id="CAR001",
         category="Career & Education",
         description=(
-            "You have an opportunity for a major promotion that would require you to work "
-            "significantly longer hours and miss many family events. Your family expects "
-            "you to prioritize time together. What do you do?"
+            "You have an opportunity to pursue your dream career, but it pays significantly "
+            "less than your current stable job. Your family depends on your income. What do you do?"
         ),
-        cultural_dimensions=["individualism", "masculinity"],
+        cultural_dimensions=["individualism", "long_term_orientation"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="CAR002",
         category="Career & Education",
         description=(
-            "You discovered that a coworker is taking credit for your ideas in meetings. "
-            "Confronting them directly might create conflict in your team. What do you do?"
+            "A colleague repeatedly takes credit for your ideas in meetings. Confronting "
+            "them might create workplace tension, but staying silent affects your career. "
+            "What do you do?"
         ),
-        cultural_dimensions=["individualism", "power_distance", "uncertainty_avoidance"],
+        cultural_dimensions=["individualism", "power_distance"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="CAR003",
         category="Career & Education",
         description=(
-            "Your manager asks you to work over the weekend on a major project, but you "
-            "already have important family commitments planned. Your manager hints that "
-            "refusing might affect your career. What do you do?"
+            "Your academic mentor asks you to include their name on your research paper "
+            "despite minimal contribution. They have significant influence over your "
+            "academic career. What do you do?"
         ),
         cultural_dimensions=["power_distance", "individualism"],
+        primary_decision_dimension="power_distance",
     ),
     Scenario(
         id="CAR004",
         category="Career & Education",
         description=(
-            "You have a job offer that pays significantly more, but would require leaving "
-            "your current team that depends on you. Your current boss has been very "
+            "You receive a significantly better job offer from a competitor. However, "
+            "your current team is working on an important project and your departure "
+            "would create difficulties. Your current boss has been very "
             "supportive of your career. What do you do?"
         ),
         cultural_dimensions=["individualism", "long_term_orientation"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="CAR005",
@@ -132,6 +143,7 @@ CAREER_SCENARIOS = [
             "What do you do?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance", "long_term_orientation"],
+        primary_decision_dimension="uncertainty_avoidance",
     ),
     Scenario(
         id="CAR006",
@@ -142,6 +154,7 @@ CAREER_SCENARIOS = [
             "your values. What do you do?"
         ),
         cultural_dimensions=["power_distance", "uncertainty_avoidance"],
+        primary_decision_dimension="power_distance",
     ),
 ]
 
@@ -158,6 +171,7 @@ SOCIAL_SCENARIOS = [
             "You think it's likely to fail, but they seem very excited about it. What do you say?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="SOC002",
@@ -167,6 +181,7 @@ SOCIAL_SCENARIOS = [
             "offensive. Others seem uncomfortable but remain silent. What do you do?"
         ),
         cultural_dimensions=["power_distance", "individualism"],
+        primary_decision_dimension="power_distance",
     ),
     Scenario(
         id="SOC003",
@@ -177,6 +192,7 @@ SOCIAL_SCENARIOS = [
             "What do you do?"
         ),
         cultural_dimensions=["indulgence", "uncertainty_avoidance", "individualism"],
+        primary_decision_dimension="uncertainty_avoidance",
     ),
     Scenario(
         id="SOC004",
@@ -186,15 +202,17 @@ SOCIAL_SCENARIOS = [
             "seems to be intervening. What do you do?"
         ),
         cultural_dimensions=["individualism", "power_distance"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="SOC005",
         category="Social Situations",
         description=(
-            "Your neighbors play loud music late at night, disrubing your sleep. You value "
+            "Your neighbors play loud music late at night, disturbing your sleep. You value "
             "maintaining good relationships in your community. What do you do?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance"],
+        primary_decision_dimension="individualism",
     ),
 ]
 
@@ -211,6 +229,7 @@ RESOURCE_SCENARIOS = [
             "to family expenses, but you've been saving for a personal goal. What do you do?"
         ),
         cultural_dimensions=["individualism", "long_term_orientation"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="RES002",
@@ -220,6 +239,7 @@ RESOURCE_SCENARIOS = [
             "fund your younger sibling's education. Resources are limited. What do you do?"
         ),
         cultural_dimensions=["individualism", "long_term_orientation"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="RES003",
@@ -229,6 +249,7 @@ RESOURCE_SCENARIOS = [
             "to contribute, but you have personal financial obligations. What do you do?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance"],
+        primary_decision_dimension="individualism",
     ),
     Scenario(
         id="RES004",
@@ -238,6 +259,7 @@ RESOURCE_SCENARIOS = [
             "you're struggling financially, or spend time and effort to return it. What do you do?"
         ),
         cultural_dimensions=["individualism", "uncertainty_avoidance"],
+        primary_decision_dimension="individualism",
     ),
 ]
 
@@ -246,9 +268,9 @@ RESOURCE_SCENARIOS = [
 # ============================================================================
 
 ALL_SCENARIOS = (
-    FAMILY_SCENARIOS + 
-    CAREER_SCENARIOS + 
-    SOCIAL_SCENARIOS + 
+    FAMILY_SCENARIOS +
+    CAREER_SCENARIOS +
+    SOCIAL_SCENARIOS +
     RESOURCE_SCENARIOS
 )
 
@@ -274,12 +296,20 @@ def get_all_scenario_ids() -> List[str]:
 def get_scenario_stats() -> Dict[str, int]:
     """Get statistics about scenarios"""
     categories = {}
+    dimensions = {}
+
     for scenario in ALL_SCENARIOS:
+        # Count by category
         categories[scenario.category] = categories.get(scenario.category, 0) + 1
-    
+
+        # Count by primary decision dimension
+        dim = scenario.primary_decision_dimension
+        dimensions[dim] = dimensions.get(dim, 0) + 1
+
     return {
         "total_scenarios": len(ALL_SCENARIOS),
         "by_category": categories,
+        "by_primary_dimension": dimensions,
     }
 
 
@@ -290,3 +320,6 @@ if __name__ == "__main__":
     print("\nBreakdown by category:")
     for category, count in stats['by_category'].items():
         print(f"  {category}: {count}")
+    print("\nBreakdown by primary decision dimension:")
+    for dimension, count in stats['by_primary_dimension'].items():
+        print(f"  {dimension}: {count}")

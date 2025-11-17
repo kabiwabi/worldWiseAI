@@ -222,6 +222,33 @@ VALUE_OPTIONS = [
     "Group Consensus",
 ]
 
+DECISION_TEMPLATES = {
+    "individualism": {
+        "option_a": "Prioritize personal autonomy/individual goals",
+        "option_b": "Prioritize group harmony/collective welfare",
+    },
+    "power_distance": {
+        "option_a": "Follow authority/traditional expectations",
+        "option_b": "Assert own judgment/question authority",
+    },
+    "uncertainty_avoidance": {
+        "option_a": "Prioritize security and minimize risk",
+        "option_b": "Accept risk for potential opportunity",
+    },
+    "long_term_orientation": {
+        "option_a": "Focus on immediate needs/present concerns",
+        "option_b": "Prioritize future planning/long-term goals",
+    },
+    "indulgence": {
+        "option_a": "Exercise restraint/fulfill obligations first",
+        "option_b": "Pursue personal satisfaction/enjoyment",
+    },
+    "masculinity": {
+        "option_a": "Prioritize achievement/competition/success",
+        "option_b": "Prioritize care/cooperation/quality of life",
+    }
+}
+
 DECISION_OPTIONS = [
     "Option A",
     "Option B",

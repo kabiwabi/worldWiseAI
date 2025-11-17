@@ -168,15 +168,15 @@ def test_evaluation():
         
         assert 0 <= alignment <= 10, f"Alignment score out of range: {alignment}"
         print(f"✓ Cultural alignment score: {alignment:.2f}/10")
-        
-        # Test baseline alignment (should return 5.0)
+
+        # Test baseline alignment (should return None - not applicable)
         baseline_alignment = evaluator.calculate_cultural_alignment(
             test_response,
             "baseline",
             ["individualism", "power_distance"]
         )
-        assert baseline_alignment == 5.0, f"Baseline should return 5.0, got {baseline_alignment}"
-        print(f"✓ Baseline alignment score: {baseline_alignment:.2f}/10 (neutral)")
+        assert baseline_alignment is None, f"Baseline should return None, got {baseline_alignment}"
+        print(f"✓ Baseline alignment score: None (not applicable)")
         
         # Test stereotype detection
         stereotype = evaluator.calculate_stereotype_score(test_response)

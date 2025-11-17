@@ -34,33 +34,42 @@ class PromptConstructor:
         system_prompt = f"""You are a {age}-year-old {gender} living in {ctx['location']}, born and raised in {ctx['name']}. You were educated in {ctx['name']} and hold the cultural values and perspectives typical of someone from {ctx['description']} culture. You are responding to a personal dilemma based on your cultural background and values."""
         
         return system_prompt
-    
+
     def build_user_prompt(self, scenario: Scenario) -> str:
         """
         Build the user prompt with the scenario and response instructions
-        
+
         Args:
             scenario: Scenario object
-            
+
         Returns:
             User prompt string
         """
+        from config import DECISION_TEMPLATES, VALUE_OPTIONS
+
+        # Get appropriate decision template for this scenario
+        primary_dim = scenario.primary_decision_dimension
+        template = DECISION_TEMPLATES[primary_dim]
+
         values_list = "\n".join([f"  - {v}" for v in VALUE_OPTIONS])
-        
+
         user_prompt = f"""{scenario.get_prompt_text()}
 
-Please respond to this situation by:
-1. Explaining your decision and reasoning in 2-3 clear sentences
-2. Then providing the following structured information:
+    Please respond to this situation by:
+    1. Explaining your decision and reasoning in 2-3 clear sentences
+    2. Then providing the following structured information:
 
-DECISION: [Choose one: Option A - Prioritize personal goals/freedom, Option B - Prioritize family/group harmony, Compromise - Find middle ground, Decline - Choose neither option]
+    DECISION: [Choose one:
+    - Option A - {template['option_a']}
+    - Option B - {template['option_b']}
+    - Decline - Unable to choose either option]
 
-TOP_VALUES: [List your top 3 values that guided your decision, chosen from:
-{values_list}
-]
+    TOP_VALUES: [List your top 3 values that guided your decision, chosen from:
+    {values_list}
+    ]
 
-Format your response exactly as shown above, with the DECISION and TOP_VALUES sections clearly marked."""
-        
+    Format your response exactly as shown above, with the DECISION and TOP_VALUES sections clearly marked."""
+
         return user_prompt
     
     def build_complete_prompt(

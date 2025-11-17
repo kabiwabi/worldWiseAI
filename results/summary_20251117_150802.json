@@ -1,0 +1,112 @@
+{
+  "overall": {
+    "total_responses": 1440,
+    "parse_success_rate": 1.0,
+    "mean_cultural_alignment": 6.528873056846675,
+    "mean_stereotype_score": 8.75
+  },
+  "by_model": {
+    "claude-sonnet": {
+      "cultural_alignment_mean": 6.564210210877029,
+      "cultural_alignment_std": 1.4182605167477569,
+      "stereotype_mean": 7.333333333333333,
+      "parse_success_mean": 1.0
+    },
+    "deepseek": {
+      "cultural_alignment_mean": 6.527403809563904,
+      "cultural_alignment_std": 1.431491399879923,
+      "stereotype_mean": 9.333333333333334,
+      "parse_success_mean": 1.0
+    },
+    "gemini": {
+      "cultural_alignment_mean": 6.505267095453525,
+      "cultural_alignment_std": 1.4487126410208835,
+      "stereotype_mean": 9.0,
+      "parse_success_mean": 1.0
+    },
+    "gpt-4": {
+      "cultural_alignment_mean": 6.518611111492241,
+      "cultural_alignment_std": 1.4092290900934983,
+      "stereotype_mean": 9.333333333333334,
+      "parse_success_mean": 1.0
+    }
+  },
+  "by_culture": {
+    "India": {
+      "cultural_alignment_mean": 8.332789969317766,
+      "cultural_alignment_std": 0.9470842338064713,
+      "stereotype_mean": 7.5
+    },
+    "Japan": {
+      "cultural_alignment_mean": 6.844734812319677,
+      "cultural_alignment_std": 1.4710579038209888,
+      "stereotype_mean": 9.25
+    },
+    "Mexico": {
+      "cultural_alignment_mean": 5.4813065339806615,
+      "cultural_alignment_std": 0.7522525520686333,
+      "stereotype_mean": 8.75
+    },
+    "UAE": {
+      "cultural_alignment_mean": 6.123713938251721,
+      "cultural_alignment_std": 0.7554495370837762,
+      "stereotype_mean": 9.0
+    },
+    "US": {
+      "cultural_alignment_mean": 5.86182003036355,
+      "cultural_alignment_std": 0.9557424760735083,
+      "stereotype_mean": 8.375
+    },
+    "baseline": {
+      "cultural_alignment_mean": NaN,
+      "cultural_alignment_std": NaN,
+      "stereotype_mean": 9.625
+    }
+  },
+  "by_category": {
+    "Career & Education": {
+      "cultural_alignment_mean": 6.605417144078212,
+      "stereotype_mean": 8.958333333333334
+    },
+    "Family & Relationships": {
+      "cultural_alignment_mean": 6.588493534952029,
+      "stereotype_mean": 9.25
+    },
+    "Resource Allocation": {
+      "cultural_alignment_mean": 6.603246919387494,
+      "stereotype_mean": 9.270833333333334
+    },
+    "Social Situations": {
+      "cultural_alignment_mean": 6.317900584030822,
+      "stereotype_mean": 7.583333333333333
+    }
+  },
+  "baseline_bias": {
+    "closest_culture": "India",
+    "distance": 0.9390800064120223,
+    "all_distances": {
+      "US": 1.4212846447991347,
+      "Japan": 1.4895829791682877,
+      "India": 0.9390800064120223,
+      "Mexico": 1.9734553803825061,
+      "UAE": 1.6806167526734652
+    },
+    "interpretation": "Baseline responses are closest to India cultural values"
+  },
+  "scenario_difficulty": {
+    "hardest": "FAM003",
+    "hardest_score": 5.892405638771739,
+    "easiest": "FAM002",
+    "easiest_score": 7.05798417231326
+  },
+  "decision_distribution": {
+    "Option B": 951,
+    "Option A": 387,
+    "Decline": 102
+  },
+  "model_comparison": {
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "significant": false
+  }
+}

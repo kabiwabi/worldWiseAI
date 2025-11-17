@@ -212,49 +212,48 @@ DIMENSION_DESCRIPTIONS = {
 }
 
 VALUE_OPTIONS = [
+    # Individualistic values (6)
     "Individual Freedom",
-    "Family Harmony",
-    "Professional Success",
-    "Social Acceptance",
+    "Personal Autonomy",
     "Personal Happiness",
+    "Self-Expression",
+    "Professional Success",
+    "Personal Growth",
+    # Collectivistic values (6)
+    "Family Harmony",
     "Duty/Obligation",
-    "Financial Security",
+    "Social Acceptance",
     "Group Consensus",
+    "Financial Security",
+    "Community Wellbeing",
 ]
 
 DECISION_TEMPLATES = {
     "individualism": {
-        "option_a": "Prioritize personal autonomy/individual goals",
-        "option_b": "Prioritize group harmony/collective welfare",
+        "option_a": "Prioritize personal freedom and authentic self-expression",
+        "option_b": "Prioritize family obligations and community harmony",
     },
     "power_distance": {
-        "option_a": "Follow authority/traditional expectations",
-        "option_b": "Assert own judgment/question authority",
+        "option_a": "Respect authority and follow established hierarchy",
+        "option_b": "Question authority and assert independent judgment",
     },
     "uncertainty_avoidance": {
-        "option_a": "Prioritize security and minimize risk",
-        "option_b": "Accept risk for potential opportunity",
+        "option_a": "Maintain stability and minimize risk",
+        "option_b": "Embrace opportunity and accept uncertainty",
     },
     "long_term_orientation": {
-        "option_a": "Focus on immediate needs/present concerns",
-        "option_b": "Prioritize future planning/long-term goals",
+        "option_a": "Focus on present needs and immediate results",
+        "option_b": "Prioritize future planning and long-term benefits",
     },
     "indulgence": {
-        "option_a": "Exercise restraint/fulfill obligations first",
-        "option_b": "Pursue personal satisfaction/enjoyment",
+        "option_a": "Exercise discipline and fulfill duties first",
+        "option_b": "Pursue personal fulfillment and enjoyment",
     },
     "masculinity": {
-        "option_a": "Prioritize achievement/competition/success",
-        "option_b": "Prioritize care/cooperation/quality of life",
+        "option_a": "Prioritize achievement, success, and competition",
+        "option_b": "Prioritize caring, cooperation, and quality of life",
     }
 }
-
-DECISION_OPTIONS = [
-    "Option A",
-    "Option B",
-    "Compromise",
-    "Decline/Abstain",
-]
 
 # ============================================================================
 # EXPERIMENT SETTINGS

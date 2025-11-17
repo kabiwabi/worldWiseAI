@@ -54,98 +54,98 @@ class CulturalEvaluator:
         self.dimension_exemplars = {
             'individualism': {
                 'high': [
-                    "personal freedom and independence",
-                    "individual rights and self-expression",
-                    "pursuing my own goals and dreams",
-                    "making my own choices independently",
-                    "self-reliance and personal achievement"
+                    "personal freedom and authentic self-expression",
+                    "independent decision-making and self-determination",
+                    "pursuing individual aspirations and personal growth",
+                    "making autonomous choices based on personal values",
+                    "self-reliance and taking personal responsibility"
                 ],
                 'low': [
-                    "family harmony and group consensus",
-                    "collective welfare and duty to others",
-                    "maintaining social harmony and obligations",
-                    "prioritizing group needs over personal desires",
-                    "interdependence and collective responsibility"
+                    "family harmony and collective welfare",
+                    "group consensus and shared decision-making",
+                    "maintaining relationships and social cohesion",
+                    "prioritizing community needs and group loyalty",
+                    "interdependence and fulfilling collective obligations"
                 ]
             },
             'power_distance': {
                 'high': [
-                    "respecting authority and hierarchy",
-                    "following established leadership and rules",
-                    "accepting inequality in power distribution",
-                    "deferring to those in higher positions",
-                    "maintaining proper status relationships"
+                    "respecting authority and following established hierarchy",
+                    "honoring leadership and accepting status differences",
+                    "deferring to expertise and organizational structure",
+                    "maintaining proper roles and traditional order",
+                    "valuing seniority and hierarchical relationships"
                 ],
                 'low': [
-                    "questioning authority and seeking equality",
-                    "challenging hierarchical structures",
-                    "expecting equal treatment regardless of status",
-                    "valuing egalitarian relationships",
-                    "participative decision-making"
+                    "questioning authority and seeking equal participation",
+                    "challenging hierarchy and valuing egalitarian relationships",
+                    "expecting equal treatment regardless of position",
+                    "promoting democratic processes and shared power",
+                    "advocating for fairness and merit-based advancement"
                 ]
             },
             'masculinity': {
                 'high': [
-                    "achievement and material success",
-                    "competition and winning",
-                    "assertiveness and ambition",
-                    "clear gender role distinctions",
-                    "career advancement and recognition"
+                    "achieving excellence and pursuing competitive success",
+                    "demonstrating strength and winning recognition",
+                    "focusing on career advancement and material rewards",
+                    "emphasizing ambition and decisive leadership",
+                    "valuing assertiveness and professional accomplishment"
                 ],
                 'low': [
-                    "quality of life and relationships",
-                    "cooperation and caring for others",
-                    "work-life balance and well-being",
-                    "gender equality and fluidity",
-                    "solidarity and nurturing"
+                    "nurturing relationships and supporting others wellbeing",
+                    "promoting cooperation and building harmonious connections",
+                    "balancing work with personal life quality",
+                    "emphasizing empathy and collaborative problem-solving",
+                    "valuing compassion and creating inclusive environments"
                 ]
             },
             'uncertainty_avoidance': {
                 'high': [
-                    "following rules and structured plans",
-                    "avoiding risk and maintaining stability",
-                    "preferring clear guidelines and certainty",
-                    "feeling anxious about ambiguous situations",
-                    "need for formal procedures"
+                    "following established rules and structured procedures",
+                    "maintaining stability and minimizing potential risks",
+                    "seeking clarity through detailed planning and guidelines",
+                    "preferring predictability and avoiding ambiguous situations",
+                    "relying on proven methods and formal processes"
                 ],
                 'low': [
-                    "embracing flexibility and change",
-                    "tolerating ambiguity and uncertainty",
-                    "taking risks and trying new approaches",
-                    "comfortable with minimal structure",
-                    "accepting innovation and novelty"
+                    "embracing flexibility and adapting to changes",
+                    "accepting ambiguity and exploring new possibilities",
+                    "taking calculated risks and trying innovative approaches",
+                    "welcoming uncertainty and improvising when needed",
+                    "valuing spontaneity and tolerating unstructured situations"
                 ]
             },
             'long_term_orientation': {
                 'high': [
-                    "planning for the future and long-term benefits",
-                    "perseverance and delayed gratification",
-                    "adapting traditions to modern context",
-                    "thrift and investment for tomorrow",
-                    "pragmatic problem-solving"
+                    "planning ahead and investing for future benefits",
+                    "practicing perseverance and accepting delayed gratification",
+                    "adapting traditions to fit modern circumstances",
+                    "building sustainable foundations and long-term security",
+                    "prioritizing future outcomes over immediate satisfaction"
                 ],
                 'low': [
-                    "honoring traditions and immediate results",
-                    "respecting established conventions",
-                    "quick returns and present focus",
-                    "maintaining face and social obligations",
-                    "pride in heritage and customs"
+                    "honoring traditions and maintaining established customs",
+                    "seeking immediate results and present fulfillment",
+                    "valuing quick returns and current opportunities",
+                    "respecting conventional practices and proven wisdom",
+                    "focusing on today's needs and tangible outcomes"
                 ]
             },
             'indulgence': {
                 'high': [
-                    "enjoying life and having fun",
-                    "satisfying desires and impulses",
-                    "leisure and personal gratification",
-                    "optimism and positive emotions",
-                    "freedom of personal expression"
+                    "pursuing personal enjoyment and life satisfaction",
+                    "expressing desires freely and seeking happiness",
+                    "valuing leisure activities and personal gratification",
+                    "embracing spontaneous pleasures and fun experiences",
+                    "prioritizing wellbeing and allowing self-indulgence"
                 ],
                 'low': [
-                    "restraining gratification and controlling desires",
-                    "strict social norms and self-discipline",
-                    "suppressing personal wants for propriety",
-                    "pessimism and regulation of behavior",
-                    "duty before pleasure"
+                    "exercising restraint and controlling impulses",
+                    "fulfilling duties before pursuing personal desires",
+                    "maintaining discipline and following strict norms",
+                    "suppressing immediate wants for greater purposes",
+                    "valuing moderation and resisting temptations"
                 ]
             }
         }

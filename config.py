@@ -34,6 +34,7 @@ for directory in [DATA_DIR, RESULTS_DIR, VISUALIZATIONS_DIR, CACHE_DIR]:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 
 # ============================================================================
 # MODEL CONFIGURATIONS
@@ -57,6 +58,13 @@ MODELS = {
         "model_name": "gemini-2.5-flash-lite",
         "max_tokens": 500,
         "temperature": 0.7,
+    },
+    "deepseek": {
+        "provider": "deepseek",
+        "model_name": "deepseek-chat",
+        "max_tokens": 500,
+        "temperature": 0.7,
+        "base_url": "https://api.deepseek.com",
     },
 }
 

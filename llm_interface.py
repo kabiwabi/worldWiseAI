@@ -67,6 +67,20 @@ class LLMInterface:
                 logger.error("Google AI package not installed. Run: pip install google-generativeai")
                 raise
         return self._google_client
+
+    def _get_deepseek_client(self):
+        """Lazy load DeepSeek client (uses OpenAI SDK)"""
+        if not hasattr(self, '_deepseek_client') or self._deepseek_client is None:
+            try:
+                from openai import OpenAI
+                self._deepseek_client = OpenAI(
+                    api_key=config.DEEPSEEK_API_KEY,
+                    base_url="https://api.deepseek.com"
+                )
+            except ImportError:
+                logger.error("OpenAI package not installed. Run: pip install openai")
+                raise
+        return self._deepseek_client
     
     def _get_cache_key(self, model: str, system_prompt: str, user_prompt: str, temperature: float) -> str:
         """Generate cache key for a prompt"""
@@ -217,6 +231,44 @@ class LLMInterface:
         except Exception as e:
             logger.error(f"Google API error: {e}")
             raise
+
+    def call_deepseek(
+            self,
+            model_name: str,
+            system_prompt: str,
+            user_prompt: str,
+            temperature: float = 0.7,
+            max_tokens: int = 500
+    ) -> str:
+        """Call DeepSeek API (OpenAI-compatible)"""
+        client = self._get_deepseek_client()
+
+        # Check cache
+        cache_key = self._get_cache_key(model_name, system_prompt, user_prompt, temperature)
+        cached = self._get_cached_response(cache_key)
+        if cached:
+            return cached
+
+        logger.info(f"Calling DeepSeek API: {model_name}")
+
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+
+            result = response.choices[0].message.content
+            self._save_to_cache(cache_key, result)
+            return result
+
+        except Exception as e:
+            logger.error(f"DeepSeek API error: {e}")
+            raise
     
     def call_model(
         self,
@@ -250,6 +302,8 @@ class LLMInterface:
             return self.call_anthropic(model_name, system_prompt, user_prompt, temperature, max_tokens)
         elif provider == 'google':
             return self.call_google(model_name, system_prompt, user_prompt, temperature, max_tokens)
+        elif provider == 'deepseek':
+            return self.call_deepseek(model_name, system_prompt, user_prompt, temperature, max_tokens)
         else:
             raise ValueError(f"Unknown provider: {provider}")
     

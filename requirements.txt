@@ -25,3 +25,5 @@ scikit-learn>=1.3.0
 # Optional: For statistical analysis
 statsmodels>=0.14.0
 sentence-transformers>=2.7.0
+
+python-dotenv~=1.2.1

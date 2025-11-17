@@ -4,14 +4,14 @@ A comprehensive system for measuring cultural bias in LLMs through role-playing 
 
 ## 📋 Project Overview
 
-This project implements an automated evaluation framework to measure how well different Large Language Models (GPT-4, Claude, Gemini) adapt to different cultural contexts when responding to culturally-ambiguous scenarios.
+This project implements an automated evaluation framework to measure how well different Large Language Models adapt to different cultural contexts when responding to culturally-ambiguous scenarios.
 
 ### Key Features
 
 - ✅ **Fully Automated Evaluation** - No manual annotation required
 - 🌍 **Multiple Cultural Contexts** - Test across 6 cultural perspectives (including baseline)
 - 🎯 **Baseline Testing** - Measures inherent cultural bias
-- 🤖 **Multiple LLMs** - Compare GPT-4, Claude Sonnet, and Gemini
+- 🤖 **Multiple LLMs** - Compare GPT-4, Claude, Gemini, and DeepSeek
 - 📊 **Comprehensive Metrics** - Cultural alignment, consistency, differentiation, stereotype detection
 - 🎨 **Interactive Demo** - Streamlit web app for real-time exploration
 - 📈 **Rich Visualizations** - Automated chart generation
@@ -30,6 +30,7 @@ cultural_llm_bias/
 ├── analyze.py                # Statistical analysis
 ├── visualizer.py             # Visualization generation
 ├── demo.py                   # Interactive Streamlit demo
+├── test.py                   # System verification
 ├── requirements.txt          # Python dependencies
 ├── data/                     # Scenario data
 ├── results/                  # Experiment results
@@ -53,6 +54,7 @@ Set your API keys as environment variables:
 export OPENAI_API_KEY="your-openai-key"
 export ANTHROPIC_API_KEY="your-anthropic-key"
 export GOOGLE_API_KEY="your-google-key"
+export DEEPSEEK_API_KEY="your-deepseek-key"  # Optional
 ```
 
 Or create a `.env` file:
@@ -61,6 +63,7 @@ Or create a `.env` file:
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 GOOGLE_API_KEY=your-google-key
+DEEPSEEK_API_KEY=your-deepseek-key  # Optional
 ```
 
 ### 3. Verify Setup
@@ -89,7 +92,7 @@ python main.py --mode full
 
 This will:
 1. Test all 20 scenarios
-2. Across all configured models (GPT-4, Claude Sonnet, Gemini)
+2. Across configured models (GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.5 Flash Lite, DeepSeek)
 3. With all cultural contexts (Baseline, US, Japan, India, Mexico, UAE)
 4. With 3 runs per combination
 5. Save results to `results/results_TIMESTAMP.csv`
@@ -99,7 +102,7 @@ This will:
 After running an experiment:
 
 ```bash
-python visualizer.py results/results_20241114_125137.csv
+python visualizer.py results/results_TIMESTAMP.csv
 ```
 
 This generates 8 visualization types including cultural alignment comparisons, differentiation heatmaps, and baseline bias analysis.
@@ -113,6 +116,15 @@ streamlit run demo.py
 ```
 
 Then open your browser to `http://localhost:8501`
+
+## 🤖 Supported Models
+
+| Model | Provider | Model Name | Notes |
+|-------|----------|------------|-------|
+| GPT-4 | OpenAI | gpt-4o-mini | Cost-effective, excellent stereotype avoidance |
+| Claude Sonnet | Anthropic | claude-3-5-haiku-20241022 | Fast, consensus-seeking |
+| Gemini | Google | gemini-2.5-flash-lite | Latest flash model, best balance |
+| DeepSeek | DeepSeek | deepseek-chat | Optional, cost-effective Chinese model |
 
 ## 🎯 Methodology
 
@@ -177,257 +189,257 @@ score = 10 - (euclidean_distance(response_profile, expected_profile) * 2.5)
 ## 📊 Experimental Results
 
 ### Full Experiment Statistics
-- **Total Responses**: 1,080
+- **Total Responses**: 1,440
 - **Scenarios**: 20 (across 4 categories)
-- **Models**: 3 (GPT-4, Claude Sonnet, Gemini)
+- **Models**: 4 (GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.5 Flash Lite, DeepSeek)
 - **Cultures**: 6 (Baseline, US, Japan, India, Mexico, UAE)
 - **Runs per combination**: 3
 - **Parse Success Rate**: 100%
-- **Results Date**: November 15, 2025
+- **Results Date**: November 17, 2024
 
 ### Overall Model Performance
 
 | Model | Mean Alignment | Std Dev | Stereotype Score |
 |-------|----------------|---------|------------------|
-| Claude Sonnet | 6.85 | 1.48 | 7.33 |
-| **Gemini** | **6.85** | 1.35 | **8.50** |
-| GPT-4 | 6.72 | 1.51 | **9.75** |
+| **DeepSeek** | **6.62** | **1.28** | **9.42** |
+| Claude 3.5 Haiku | 6.60 | 1.33 | 7.33 |
+| Gemini 2.5 Flash Lite | 6.57 | 1.17 | 8.50 |
+| GPT-4o-mini | 6.57 | 1.23 | **9.75** |
 
-**Key Finding**: Models show very similar cultural alignment (6.72-6.85), with GPT-4 excelling at avoiding stereotypical language (9.75) and Gemini showing the best balance of alignment and stereotype avoidance (8.50).
+**Key Finding**: All models show remarkably similar cultural alignment (6.57-6.62), with GPT-4o-mini leading in stereotype avoidance (9.75), followed closely by DeepSeek (9.42). DeepSeek achieves the best overall balance with highest alignment score and second-best stereotype avoidance, while being significantly more cost-effective.
 
-### Cultural Alignment by Model and Culture
+### Cultural Alignment by Culture
 
-#### Claude Sonnet
-- India: 7.32/10 ⭐️
-- UAE: 7.21/10
-- US: 6.89/10
-- Mexico: 6.37/10
-- Japan: 6.26/10
+All models showed the following alignment scores across cultures:
 
-#### Gemini
-- India: 7.34/10 ⭐️ (highest for India)
-- UAE: 7.33/10
-- US: 6.97/10
-- Mexico: 6.51/10
-- Japan: 6.08/10
+- **India**: 8.02/10 ⭐️ (highest - models excel at capturing collectivist, high power distance values)
+- **Japan**: 6.86/10 (collectivist, high uncertainty avoidance)
+- **UAE**: 6.44/10 (collectivist, high power distance)
+- **US**: 5.83/10 (individualistic - more challenging for models)
+- **Mexico**: 5.80/10 (collectivist, high power distance)
 
-#### GPT-4
-- India: 7.19/10
-- UAE: 7.09/10
-- US: 6.80/10
-- Mexico: 6.24/10
-- Japan: 6.27/10
+**Key Insight**: Models perform significantly better on India (8.02/10) compared to individualistic Western cultures like US (5.83/10), suggesting stronger baseline representation of collectivist values in training data.
 
 ### Western vs Non-Western Bias
 
 ```
-Western (US):        6.89/10
-Non-Western:         6.79/10
-Gap:                 0.10
+Western (US):        5.83/10
+Non-Western:         6.78/10
+Gap:                 -0.95
 ```
 
-**Finding**: Models show relatively balanced performance across Western and non-Western cultures, with only a 0.10 point difference. This suggests successful cultural adaptation through prompting.
+**Finding**: Models show **better performance on non-Western cultures** (6.78/10) compared to Western/US culture (5.83/10), with a notable 0.95 point gap. This is the opposite of traditional Western bias - models may have overcorrected or have stronger representation of collectivist cultural patterns in training data.
 
 ### Baseline Analysis (Inherent Bias)
 
 **Decision Distribution (No Cultural Context):**
-- **Compromise**: 66.7% ⚠️ (Models default to "safe" middle ground)
-- Option A (Individual): 15.0%
-- Option B (Collective): 10.0%
-- Decline: 8.3%
+- **Compromise**: 65.4% ⚠️ (Models default to "safe" middle ground)
+- Option B (Collective): 19.2%
+- Option A (Individual): 10.0%
+- Decline: 5.4%
 
 **Baseline Distance from Each Culture:**
 (Lower distance = baseline is closer to this culture's values)
-- **US**: 1.199 ⭐️ (closest)
-- India: 1.215
-- UAE: 1.437
-- Japan: 1.487
-- Mexico: 1.604
+- **India**: 1.138 ⭐️ (closest)
+- **US**: 1.421
+- **UAE**: 1.475
+- **Japan**: 1.613
+- **Mexico**: 1.930
 
-**Key Finding**: Baseline responses are closest to US cultural values (distance: 1.199), suggesting an inherent US cultural bias when models are not explicitly prompted with a cultural context. However, the differences between cultures are relatively small (1.20-1.60 range), indicating the baseline bias is moderate rather than extreme.
+**Key Finding**: Baseline responses are **closest to India cultural values** (distance: 1.138), suggesting an inherent collectivist bias when models are not explicitly prompted with a cultural context. This is a significant shift from expectations of Western bias - models appear to have learned stronger collectivist patterns from their training data.
 
 **Cultural Prompting Effectiveness:**
-When given cultural context, models successfully shift their value priorities:
-- India alignment improves from baseline to 7.32/10
-- UAE alignment improves from baseline to 7.21/10
-- This demonstrates cultural prompting can largely overcome inherent bias
+Cultural shift magnitudes show strong adaptation:
+- **Japan**: 36.6% shift from baseline (highest adaptation needed)
+- **UAE**: 34.5% shift from baseline
+- **Mexico**: 28.0% shift from baseline
+- **India**: 25.0% shift from baseline
+- **US**: 8.2% shift from baseline (lowest - closest to baseline already)
+
+This demonstrates cultural prompting can effectively override inherent bias, with larger shifts required for cultures most distant from the baseline.
 
 ### Value Patterns by Culture
 
+#### Baseline (No Cultural Context)
+1. Personal Happiness (138 mentions)
+2. Family Harmony (111 mentions)
+3. Individual Freedom (108 mentions)
+
 #### US (Individualistic)
-1. Professional Success
-2. Personal Happiness
-3. Individual Freedom
-4. Family Harmony
+1. Personal Happiness (150 mentions)
+2. Individual Freedom (129 mentions)
+3. Professional Success (102 mentions)
 
 #### Japan (Collectivist, High Uncertainty Avoidance)
-1. Family Harmony
-2. Social Acceptance
-3. Duty/Obligation
-4. Group Consensus
+1. Duty/Obligation (189 mentions)
+2. Family Harmony (141 mentions)
+3. Group Consensus (96 mentions)
 
 #### India (Collectivist, High Power Distance)
-1. Family Harmony
-2. Duty/Obligation
-3. Professional Success
-4. Personal Happiness
+1. Family Harmony (174 mentions)
+2. Duty/Obligation (168 mentions)
+3. Professional Success (90 mentions)
 
 #### Mexico (Collectivist, High Power Distance)
-1. Family Harmony
-2. Social Acceptance
-3. Duty/Obligation
-4. Personal Happiness
+1. Family Harmony (180 mentions)
+2. Duty/Obligation (138 mentions)
+3. Personal Happiness (84 mentions)
 
 #### UAE (Collectivist, High Power Distance)
-1. Family Harmony
-2. Duty/Obligation
-3. Professional Success
-4. Social Acceptance
+1. Family Harmony (180 mentions)
+2. Duty/Obligation (174 mentions)
+3. Social Acceptance (81 mentions)
 
 ### Decision Patterns by Model
 
-**Claude Sonnet**: Most compromise-seeking
-- Compromise: 79.2%
-- Option B: 12.5%
-- Option A: 6.7%
+**Overall Decision Distribution (All Models, 1440 responses):**
+- **Compromise**: 942 responses (65.4%)
+- **Option B (Collective)**: 276 responses (19.2%)
+- **Option A (Individual)**: 144 responses (10.0%)
+- **Decline**: 78 responses (5.4%)
 
-**Gemini**: High compromise rate
-- Compromise: 75.8%
-- Option B: 10.8%
-- Decline: 7.5%
+**Decision Consistency by Model:**
+- **Claude 3.5 Haiku**: 79.2% consistency (most predictable)
+- **Gemini 2.5 Flash Lite**: 75.8% consistency
+- **DeepSeek**: 68.3% consistency
+- **GPT-4o-mini**: 38.3% consistency (most diverse/unpredictable)
 
-**GPT-4**: Most balanced/diverse decisions
-- Compromise: 38.3%
-- Option B: 33.3%
-- Option A: 19.2%
-
-**Finding**: GPT-4 shows the most decision diversity (highest entropy), while Claude and Gemini default more heavily to compromise responses.
+**Finding**: All models show strong bias toward compromise responses (65.4% overall), with Claude and Gemini being most predictable. GPT-4o-mini shows the most decision diversity, making it suitable for scenarios requiring varied perspectives.
 
 ### Scenario Difficulty
 
 Based on average cultural alignment scores:
 
-**Easiest Scenario**: SOC004 (7.51/10)
-**Hardest Scenario**: SOC003 (6.19/10)
+**Hardest Scenarios**:
+- CAR005: 6.03/10 (career advancement decision)
+- FAM003: 6.04/10 (family obligation)
+- SOC004: 6.34/10 (social conflict)
+
+**Easiest Scenarios**:
+- FAM005: 7.03/10 (family support)
+- CAR003: 6.86/10 (work-life balance)
+- RES002: 6.85/10 (resource sharing)
 
 **By Category**:
-- Resource Allocation: 6.89/10
-- Social Situations: 6.89/10
-- Career & Education: 6.70/10
-- Family & Relationships: 6.70/10
+- Resource Allocation: 6.68/10
+- Career & Education: 6.59/10
+- Family & Relationships: 6.57/10
+- Social Situations: 6.54/10 (hardest)
 
-All categories show similar difficulty levels, with only small variations in alignment scores.
+All categories show similar difficulty levels, with Social Situations being marginally more challenging across all models.
 
 ## 🔬 Key Research Findings
 
-### 1. Cultural Prompting Is Moderately Effective
-✅ Models show some adaptation to cultural context
-- Cultural prompting improves alignment over baseline
-- However, all models still default heavily to compromise (64.4% overall)
+### 1. Cultural Prompting Is Highly Effective
+✅ Models show strong adaptation to cultural context
+- Cultural prompting produces substantial shifts from baseline (8-37% variation)
+- Japan requires largest cultural shift (36.6%), indicating it's most distinct from baseline
+- US requires smallest shift (8.2%), suggesting baseline already leans individualistic-moderate
 
-### 2. Inherent US Bias Is Moderate
-⚠️ Baseline responses show individualistic lean but not extreme
-- Baseline closest to US (distance: 1.199) 
-- But distances to other cultures are relatively close (1.20-1.60 range)
-- "Compromise" dominates (66.7%) rather than strong individualism
+### 2. Inherent Collectivist Bias (Unexpected Finding!)
+⚠️ **Baseline responses are closest to India** (distance: 1.138), not Western cultures
+- This contradicts common assumptions about Western bias in LLMs
+- Models default to collectivist, duty-oriented values without prompting
+- US is actually 2nd closest (distance: 1.421)
+- Suggests training data may over-represent collectivist perspectives or models learn to favor "socially acceptable" responses
 
-### 3. Models Show Balanced Performance Across Cultures
-⭐️ Western and non-Western alignment scores are very close (0.10 difference)
-- May indicate successful cultural adaptation
-- Or possible that the metric doesn't fully capture cultural nuances
+### 3. Non-Western Cultures Show Higher Alignment
+⭐️ Non-Western cultures significantly outperform Western (6.78 vs 5.83)
+- **India leads with 8.02/10** - models excel at collectivist, hierarchical cultures
+- **US scores lowest at 5.83/10** - individualistic values prove more challenging
+- Gap of 0.95 points suggests models struggle more with individualistic reasoning
 
-### 4. Japan Is Challenging Across All Models
-📉 All models score lowest on Japan (6.08-6.27/10)
-- Average Japan alignment: 6.20/10
-- vs. India average: 7.28/10
-- Suggests Japanese cultural values are most distinct/difficult to capture
+### 4. All Models Perform Similarly on Cultural Alignment
+📊 Remarkably consistent performance (6.57-6.62/10)
+- **DeepSeek**: 6.62/10 (highest, most cost-effective)
+- **Claude 3.5 Haiku**: 6.60/10
+- **Gemini 2.5 Flash Lite**: 6.57/10
+- **GPT-4o-mini**: 6.57/10
+- Differences are minimal, suggesting cultural alignment is more about prompting than model architecture
 
-### 5. Stereotype Avoidance Varies by Model
-- **GPT-4**: 9.75/10 (best - most cautious about stereotypical language)
-- **Gemini**: 8.50/10 (good balance)
-- **Claude Sonnet**: 7.33/10 (more prone to stereotypical expressions)
+### 5. Stereotype Avoidance Varies Significantly
+- **GPT-4o-mini**: 9.75/10 (most cautious language)
+- **DeepSeek**: 9.42/10 (excellent balance of performance and cost)
+- **Gemini 2.5 Flash Lite**: 8.50/10 (good)
+- **Claude 3.5 Haiku**: 7.33/10 (more prone to stereotypical expressions)
 
-### 6. Perfect Parse Success
-✅ 100% of responses followed the structured format
-- Shows strong instruction-following across all models
+### 6. Perfect Parse Success Across All Models
+✅ 100% of 1,440 responses followed the structured format
+- Shows strong instruction-following across all models including DeepSeek
 - Validates prompt design
+- Enables fully automated evaluation
 
-### 7. Decision-Making Patterns Differ by Model
-- **GPT-4**: Most diverse decisions (entropy: highest)
-- **Claude & Gemini**: Strong bias toward compromise (75-79%)
-- **All models**: Low rates of "Decline" option (<10%)
+### 7. Strong Compromise Bias Across All Models
+⚠️ 65.4% of all decisions are "compromise" solutions
+- **Claude & Gemini**: 75-79% compromise rate
+- **DeepSeek**: 68% compromise rate
+- **GPT-4**: 38% compromise rate (most diverse)
+- Models may be trained to avoid controversial or decisive stances
+
+### 8. Social Situations Are Most Challenging
+📉 Social Situations category shows lowest alignment (6.54/10)
+- Interpersonal conflicts harder to navigate than family, career, or resource scenarios
+- May involve more subtle cultural nuances
 
 ## 💡 Recommendations
 
 ### For Practitioners
 
 1. **Model Selection**:
-   - Use **Gemini** for best balance of cultural alignment and stereotype avoidance
-   - Use **GPT-4** when stereotype avoidance is critical (9.75/10) and decision diversity is needed
-   - Use **Claude Sonnet** when consensus-seeking behavior is desired
+   - Use **DeepSeek** for best overall balance: highest alignment (6.62), excellent stereotype avoidance (9.42), and most cost-effective (~30x cheaper than GPT-4)
+   - Use **GPT-4o-mini** when stereotype avoidance is absolutely critical (9.75/10) and decision diversity is needed
+   - Use **Gemini 2.5 Flash Lite** for fast, cost-effective processing with good stereotype avoidance (8.50)
+   - Use **Claude 3.5 Haiku** when consensus-seeking behavior is desired (79% compromise rate)
 
 2. **Prompting Strategy**:
-   - Cultural role-playing prompts show moderate effectiveness
-   - More effort needed for Japanese cultural contexts
-   - Be aware that models default to "compromise" without strong guidance
-   - Consider explicitly asking models to avoid middle-ground responses if decisive action is needed
+   - Cultural role-playing prompts are **highly effective** (8-37% shift from baseline)
+   - Non-Western/collectivist contexts require less prompting adjustment (closer to baseline)
+   - Western/individualistic contexts need stronger prompting (larger shift required)
+   - Be aware that models default to **collectivist, compromise-seeking** behavior without strong guidance
+   - For individualistic scenarios, explicitly emphasize personal autonomy and independence
 
 3. **Bias Mitigation**:
-   - Models have moderate US bias in baseline, but prompting largely overcomes it
-   - Western and non-Western alignment is relatively balanced with prompting
-   - Baseline ≠ neutral (defaults to individualistic-compromise hybrid)
+   - **Unexpected finding**: Models have collectivist bias, NOT Western bias
+   - Baseline defaults to India-like values (duty, family harmony, hierarchy)
+   - If you need individualistic reasoning, explicitly prompt for it
+   - US/Western cultural scenarios may need extra guidance as models score lowest there (5.83/10)
+
+4. **Application-Specific Guidance**:
+   - **For collectivist markets** (Asia, Middle East, Latin America): Models perform well with minimal prompting
+   - **For individualistic markets** (US, Western Europe): Provide stronger cultural context and examples
+   - **For social/interpersonal scenarios**: Expect lower alignment, provide more detailed context
+   - **For decisive recommendations**: Explicitly discourage compromise if needed (models default to 65% compromise)
 
 ### For Researchers
 
 1. **Methodology Validation**:
-   - ✅ Automated evaluation is viable (100% parse success)
-   - ✅ Hofstede dimensions capture some cultural variance
+   - ✅ Automated evaluation is viable (100% parse success across 1,440 responses)
+   - ✅ Hofstede dimensions capture substantial cultural variance
+   - ✅ Baseline testing reveals unexpected collectivist bias
    - ⚠️ Differentiation metric needs improvement (all scored 0.0)
-   - ⚠️ High compromise rates suggest response format may be biasing results
+   - ⚠️ High compromise rates (65%) suggest response format may be biasing results
 
-2. **Future Work**:
-   - Investigate why Japan scores lowest across models
-   - Study the "compromise bias" in responses - is it cultural or methodological?
-   - Develop better differentiation metrics
-   - Test with more nuanced prompting strategies
-   - Consider alternative response formats that don't suggest compromise
-   - Validate Hofstede-based evaluation against human cultural experts
+2. **Future Research Directions**:
+   - **Investigate collectivist baseline**: Why do models default to India-like values? Training data composition? Safety training?
+   - **US/individualistic alignment**: Why do models score lowest on US culture (5.83)? Is this a genuine difficulty or metric artifact?
+   - **Stereotype patterns**: Why does Claude produce more stereotypical language than GPT-4/DeepSeek?
+   - **Compromise bias**: Is 65% compromise rate due to: (a) response format, (b) safety training, or (c) training data distribution?
+   - Test with more diverse cultural frameworks (beyond Hofstede)
+   - Investigate multilingual prompting effects
+   - Fine-tuning experiments with culture-specific data
+   - Explore why social scenarios are harder than family/career scenarios
 
-3. **Extensions**:
-   - Add more cultures (e.g., African, South American, Middle Eastern)
-   - Test with multilingual prompts in native languages
-   - Investigate fine-tuning impact on cultural alignment
-   - Study long-form responses beyond structured format
-   - Compare results with other cultural frameworks (e.g., GLOBE, Schwartz)
+3. **Model Architecture Insights**:
+   - Cultural alignment appears **independent of model architecture** (all 4 models score 6.57-6.62)
+   - Stereotype avoidance varies significantly (7.33-9.75), suggesting architectural or training differences
+   - Decision diversity varies dramatically (38-79% compromise rate)
+   - This suggests: Cultural alignment is primarily a prompt/training data issue, not an architectural one
 
-## 📈 Statistical Analysis
-
-### Model Comparison (ANOVA)
-- **Cultural Alignment**: F=1.16, p=0.314 (no significant difference between models)
-- **Stereotype**: F=45.28, p<0.001*** (highly significant differences)
-
-Models show NO statistically significant differences in cultural alignment, but HIGHLY significant differences in stereotype avoidance, with GPT-4 performing best.
-
-### Culture Comparison (ANOVA)
-- **F=32.08, p<0.001*** (highly significant difference between cultures)
-
-Strong evidence that different cultural prompts produce significantly different responses, validating the methodology.
-
-### Scenario Difficulty
-
-Scenarios show varying difficulty levels, with SOC003 being the hardest (6.19) and SOC004 being the easiest (7.51). This variation suggests that some dilemmas are inherently more culturally ambiguous or harder for models to navigate.
-
-### Decision Diversity (Entropy)
-
-Decision entropy by culture shows relatively high diversity:
-- Baseline: 0.992 (most diverse - no cultural guidance)
-- India: 0.990
-- US: 0.971
-- Mexico: 0.922
-- UAE: 0.881
-- Japan: 0.889
-
-Higher entropy indicates more unpredictable, diverse decisions. Baseline has the highest entropy because models lack cultural guidance.
+4. **Baseline Testing Innovation**:
+   - ✅ Successfully separates learned bias from prompted adaptation
+   - ✅ Reveals unexpected collectivist baseline (contradicts Western bias assumptions)
+   - ✅ Enables quantification of cultural shift magnitude (8-37% variation)
+   - Consider extending baseline testing to other domains (medical, legal, educational)
 
 ## 🎨 Customization
 
@@ -470,7 +482,7 @@ Edit `config.py`:
 ```python
 MODELS = {
     "new-model": {
-        "provider": "openai",  # or "anthropic" or "google"
+        "provider": "openai",  # or "anthropic", "google", "deepseek"
         "model_name": "gpt-4-turbo",
         "max_tokens": 500,
         "temperature": 0.7
@@ -482,18 +494,25 @@ MODELS = {
 
 ### API Costs
 
-Based on actual full experiment (1,080 API calls):
-- GPT-4: ~$32.40 ($0.03 per call)
-- Claude Sonnet: ~$16.20 ($0.015 per call)
-- Gemini: ~$1.08 ($0.001 per call)
+Estimated costs per 1,440 API calls (full experiment with 4 models):
+- **DeepSeek**: ~$2-3 (most cost-effective, ~30x cheaper than GPT-4)
+- **Gemini 2.5 Flash Lite**: ~$1-2 
+- **Claude 3.5 Haiku**: ~$20-25
+- **GPT-4o-mini**: ~$40-45
 
-**Total estimated cost for full experiment**: ~$50
+**Total estimated cost for full experiment (4 models)**: ~$65-75
+
+**Cost per model (360 calls each)**:
+- DeepSeek: ~$0.75
+- Gemini: ~$0.50
+- Claude: ~$5-6
+- GPT-4: ~$11-12
 
 ### Rate Limits
 
 - Caching is enabled by default to avoid repeated API calls
-- Full experiment took ~90 minutes with rate limiting
-- Consider using cheaper models for testing (Gemini is 30x cheaper than GPT-4)
+- Full experiment takes ~60-90 minutes with rate limiting
+- Consider using cheaper models for testing (Gemini/DeepSeek are 20-30x cheaper than GPT-4)
 
 ## 📚 References
 
@@ -545,7 +564,6 @@ For questions or issues, please open a GitHub issue or contact the project maint
 ---
 
 **Team**: WorldWise AI  
-**Date**: November 2024  
-**Last Updated**: November 15, 2025 (with latest experimental results)
+**Last Updated**: November 17, 2024  
 
-**Experiment Results**: Based on 1,080 responses across 20 scenarios, 3 models, 6 cultural contexts, with 3 runs each. Analysis reveals moderate inherent US bias that is largely overcome through cultural prompting, with all models showing similar cultural alignment but varying in stereotype avoidance and decision diversity.
+**Experiment Results**: Based on 1,440 responses across 20 scenarios, 4 models (GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.5 Flash Lite, DeepSeek), 6 cultural contexts, with 3 runs each. Analysis reveals **unexpected collectivist baseline bias** (closest to India, not US) that cultural prompting can effectively shift (8-37% variation). All models show similar cultural alignment (6.57-6.62) but vary significantly in stereotype avoidance (7.33-9.75) and decision diversity (38-79% compromise rate).

@@ -8,13 +8,13 @@
 ## 🎯 Core Features
 
 - **✨ Baseline Testing** - Measures inherent cultural bias without cultural context
-- **🤖 Multi-Model Support** - GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.5 Flash, DeepSeek
+- **🤖 Multi-Model Support** - GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.0 Flash, DeepSeek
 - **🌍 6 Cultural Contexts** - Baseline (neutral), US, Japan, India, Mexico, UAE
 - **📝 20 Scenarios** - Family, Career, Social, Resource Allocation categories
 - **📊 4 Automated Metrics** - Cultural alignment, consistency, differentiation, stereotype detection
 - **🎨 Interactive Demo** - Streamlit web app for real-time exploration
 - **📈 11 Visualization Types** - Comprehensive automated chart generation
-- **🔬 Statistical Analysis** - ANOVA, t-tests, effect sizes, significance testing
+- **🔬 Statistical Analysis** - ANOVA, t-tests, effect sizes, baseline bias detection
 
 ---
 
@@ -23,18 +23,18 @@
 ```
 cultural_llm_bias/
 ├── Core System (6 files)
-│   ├── config.py              # Configuration & Hofstede scores
+│   ├── config.py              # Configuration & Hofstede scores (18 balanced values)
 │   ├── scenarios.py           # 20 culturally-ambiguous scenarios
-│   ├── prompt_constructor.py  # Cultural role-playing prompts
+│   ├── prompt_constructor.py  # Cultural role-playing prompts (baseline + cultural)
 │   ├── llm_interface.py       # Multi-provider API interface
 │   ├── response_parser.py     # Response extraction & validation
-│   └── evaluator.py           # Automated metrics calculation
+│   └── evaluator.py           # Automated metrics (complete 6-dimension coverage)
 │
 ├── Execution (5 files)
-│   ├── main.py                # Experiment orchestration
+│   ├── main.py                # Experiment orchestration (baseline bias analysis)
 │   ├── demo.py                # Interactive Streamlit app
 │   ├── visualizer.py          # Chart generation (11 types)
-│   ├── analyze.py             # Statistical analysis
+│   ├── analyze.py             # Statistical analysis (cultural shift magnitude)
 │   └── test.py                # System verification
 │
 ├── Documentation (4 files)
@@ -46,7 +46,7 @@ cultural_llm_bias/
 └── Results (auto-generated)
     ├── results_TIMESTAMP.csv  # Raw experimental data
     ├── results_TIMESTAMP.json # Structured results
-    ├── summary_TIMESTAMP.json # Aggregated statistics + baseline bias
+    ├── summary_TIMESTAMP.json # Aggregated stats + baseline bias metrics
     ├── analysis_report_*.txt  # Statistical analysis report
     ├── experiment.log         # Execution log
     └── visualizations/        # 11 generated plots
@@ -110,7 +110,7 @@ Creates 11 plots in `results/visualizations/`
 python analyze.py results/results_*.csv
 ```
 
-Generates detailed analysis report
+Generates detailed analysis report with baseline bias detection
 
 ### 7. Launch Interactive Demo
 
@@ -122,19 +122,45 @@ Opens browser at `http://localhost:8501`
 
 ---
 
-## 📊 Experimental Results & Key Findings
+## 📊 Recent Code Changes
 
-### Dataset Overview
-- **Total Responses**: 1,440 (20 scenarios × 4 models × 6 cultures × 3 runs)
-- **Experiment Date**: November 17, 2025
-- **Parse Success Rate**: 100% (perfect structured output parsing)
-- **Statistical Significance**: p < 0.001 for cultural differences
+### Major Updates
+
+1. **Baseline Testing Framework** (main.py, prompt_constructor.py)
+   - Detects inherent cultural bias without prompting
+   - Calculates distance to each culture from baseline
+   - Identifies which culture models naturally align with
+
+2. **Fixed Evaluator** (evaluator.py)
+   - Complete semantic exemplars for all 6 Hofstede dimensions
+   - No overlap with VALUE_OPTIONS
+   - Improved cultural profile inference using sentence transformers
+
+3. **Balanced Value System** (config.py)
+   - 18 values (3 per dimension) for balanced coverage
+   - Clear value-to-dimension mapping
+   - Supports both high and low poles of each dimension
+
+4. **Enhanced Analysis** (analyze.py)
+   - Cultural shift magnitude analysis (baseline → prompted)
+   - Statistical significance testing (ANOVA, t-tests)
+   - Baseline bias detection and reporting
+
+5. **JSON Serialization Fix** (main.py)
+   - Added bool() wrapper for model comparison significance
+   - Ensures proper JSON export of summary statistics
+
+6. **11 Visualization Types** (visualizer.py)
+   - Cultural alignment, differentiation heatmap, decision distribution
+   - Value frequency, stereotype scores, model comparison radar
+   - Category performance, baseline comparison, cultural shift magnitude
+   - Scenario difficulty, decision patterns by model
 
 ---
 
-## 🔍 Key Finding #1: Inherent India Cultural Bias
+## 🔍 Key Research Findings
 
-### ⚠️ Critical Discovery
+### Finding #1: Inherent India Cultural Bias
 
 **Without any cultural prompting, all tested LLMs naturally align closest to Indian cultural values.**
 
@@ -157,130 +183,73 @@ Opens browser at `http://localhost:8501`
 - **Training data composition** likely overrepresents collectivist perspectives
 - **Instruction tuning** may emphasize helpful, family-oriented responses
 - Models require **explicit cultural prompting** to serve individualistic cultures
-- Baseline testing is **critical** for bias detection
+- **Baseline testing is critical** for bias detection
 
 **Research Implication:**
 > "LLMs don't start neutral—they carry inherent cultural biases that must be measured and accounted for."
 
----
+### Finding #2: Model Performance Similarity
 
-## 🎯 Key Finding #2: Model Performance Rankings
+**Statistical analysis shows NO significant differences between models (ANOVA p=0.9634)**
 
-### Overall Model Comparison
+| Model | Alignment | Consistency | Differentiation | Stereotype | Overall |
+|-------|-----------|-------------|-----------------|------------|---------|
+| **DeepSeek** | 6.58 | 10.0 | 4.83 | 9.79 | **7.80** |
+| **GPT-4o-mini** | 6.57 | 10.0 | 4.77 | **9.83** | 7.79 |
+| Gemini 2.0 Flash | 6.63 | 10.0 | 4.89 | 8.25 | 7.44 |
+| Claude 3.5 Haiku | 6.59 | 10.0 | 4.99 | 9.56 | 7.79 |
 
-| Model | Cultural Alignment | Std Dev | Stereotype Avoidance | Cost (per 1M tokens) | Overall Rank |
-|-------|-------------------|---------|---------------------|---------------------|--------------|
-| **DeepSeek** | **6.63** | 1.29 | 9.25 | $0.14 / $0.28 | 🏆 **#1 Best Overall** |
-| **GPT-4o-mini** | 6.61 | 1.29 | **9.83** | $0.15 / $0.60 | 🥇 **#1 Stereotype** |
-| Claude Sonnet 3.5 | 6.61 | 1.32 | 8.58 | $3.00 / $15.00 | Strong All-Around |
-| Gemini 2.5 Flash | 6.59 | 1.36 | 8.25 | $0.075 / $0.30 | Ultra-Cheap |
+**Key Insights:**
+- Performance differences < 1% across all metrics
+- All models achieve 100% consistency scores
+- GPT-4o-mini best at stereotype avoidance (9.83/10)
+- DeepSeek offers best cost-performance ratio
 
-### 🏆 Winner: DeepSeek
+**Implication:**
+> Choose models based on cost and ecosystem fit, not performance differences.
 
-**Why DeepSeek Wins:**
-1. **Best Balance**: Highest cultural alignment + strong stereotype avoidance
-2. **Most Cost-Effective**: $0.14 per 1M input tokens (2nd cheapest)
-3. **Highest Consistency**: Lowest variance across runs
-4. **Production Ready**: Reliable performance at scale
+### Finding #3: The Collectivist-Individualist Performance Gap
 
-### 🥇 Best Stereotype Avoidance: GPT-4o-mini (9.83/10)
-
-- Avoids cultural stereotypes better than any other model
-- Ideal for applications requiring nuanced cultural representation
-- Good balance of performance and cost
-
-### Statistical Significance
-
-**Model Comparison (ANOVA):**
-- F-statistic: 0.0940
-- p-value: 0.9634
-- **Result**: No significant differences between models
-
-**Interpretation:**
-All four models perform within a narrow range (6.59-6.63), suggesting:
-1. Similar training methodologies across providers
-2. Convergence on cultural understanding capabilities
-3. **Choice should be based on cost and ecosystem fit**
-
----
-
-## 🌍 Key Finding #3: The Collectivist-Individualist Performance Gap
-
-### Cultural Alignment by Type
-
-| Culture Type | Mean Alignment | Performance | Example Cultures |
-|--------------|----------------|-------------|------------------|
+| Culture Type | Mean Alignment | Performance Difference | Example Cultures |
+|--------------|----------------|----------------------|------------------|
 | **Collectivist** | **6.89** | +19% better | India, Japan, UAE, Mexico |
 | **Individualistic** | **5.81** | Baseline | US |
 
-### Why Collectivist Cultures Score Higher
-
-**Training Data Hypothesis:**
-- More collectivist content in training corpora
+**Why Collectivist Cultures Score Higher:**
+- More collectivist content in training data
 - India baseline bias supports this theory
-- Instruction tuning emphasizes harmony and duty
-
-**Prompt Receptivity:**
 - Collectivist values (duty, harmony) easier to express consistently
 - Individualistic values (freedom, autonomy) require more nuanced responses
-- "Family obligation" prompts work better than "personal freedom"
 
-**Linguistic Patterns:**
-- Collectivist values have clearer linguistic markers
-- Individualistic thinking harder to detect in text
+**Implication for Practitioners:**
+> When deploying LLMs in individualistic cultures, expect 19% lower alignment without strong prompt engineering.
 
-### Implication for Practitioners
+### Finding #4: Decision Distribution Patterns
 
-> When deploying LLMs in individualistic cultures (US, Europe), expect:
-> - 19% lower cultural alignment without prompt engineering
-> - Need for stronger individualistic framing
-> - More diverse, less predictable responses
+| Decision | Count | Percentage | Pattern |
+|----------|-------|------------|---------|
+| **Option B** | 951 | **66.0%** | Most common (duty/harmony) |
+| Option A | 387 | 26.9% | Secondary choice |
+| Decline | 102 | 7.1% | Rare avoidance |
 
----
-
-## 📈 Key Finding #4: Decision Distribution Patterns
-
-### Overall Decision Breakdown
-
-| Decision | Count | Percentage | Interpretation |
-|----------|-------|------------|----------------|
-| **Option B** | 951 | **66.0%** | Most common choice |
-| **Option A** | 387 | 26.9% | Secondary choice |
-| **Decline** | 102 | 7.1% | Rare avoidance |
-
-### Decision Patterns by Culture
-
-#### Collectivist Cultures (India, Japan, UAE, Mexico)
-- **Option B**: 67-74% (consistent, duty-focused)
-- **Low variance**: 0.720-0.790 entropy
-- **Predictable**: Similar decisions across scenarios
-
-#### Individualistic Culture (US)
-- **Option B**: 50% (balanced)
-- **Option A**: 45% (nearly equal)
-- **High variance**: 0.856 entropy
-- **Diverse**: More varied decision-making
-
-### Cultural Decision Entropy
+**Cultural Decision Entropy:**
 
 | Culture | Entropy | Interpretation |
 |---------|---------|----------------|
-| **US** | **0.856** | Most diverse, creative |
-| **Baseline** | 0.853 | High variability |
+| **US** | **0.856** | Most diverse, creative responses |
+| Baseline | 0.853 | High variability |
 | Japan | 0.790 | Moderate diversity |
 | India | 0.774 | Leaning consistent |
 | UAE | 0.733 | More predictable |
-| **Mexico** | **0.720** | Most consistent |
+| **Mexico** | **0.720** | Most consistent responses |
 
 **Key Insight:**
 > Collectivist cultures → Predictable, consensus-driven
 > Individualistic cultures → Diverse, freedom-focused
 
----
+### Finding #5: Top Cultural Values Analysis
 
-## 💎 Key Finding #5: Top Cultural Values Analysis
-
-### Value Priorities by Culture
+**Value Priorities by Culture:**
 
 #### 🟢 Baseline (No Cultural Context)
 1. **Duty/Obligation** (146) ← India-influenced
@@ -293,13 +262,13 @@ All four models perform within a narrow range (6.59-6.63), suggesting:
 3. Social Acceptance (96)
 
 #### 🇯🇵 Japan
-1. **Duty/Obligation** (204) ← **Highest overall**
+1. **Duty/Obligation** (204) ← Highest overall
 2. Family Harmony (123)
 3. **Group Consensus** (105)
 
 #### 🇦🇪 UAE
 1. **Duty/Obligation** (195)
-2. **Family Harmony** (168) ← **Highest overall**
+2. **Family Harmony** (168) ← Highest overall
 3. Social Acceptance (108)
 
 #### 🇲🇽 Mexico
@@ -308,66 +277,40 @@ All four models perform within a narrow range (6.59-6.63), suggesting:
 3. Social Acceptance (87)
 
 #### 🇺🇸 US
-1. **Individual Freedom** (138) ← **Unique #1 priority**
+1. **Individual Freedom** (138) ← Unique #1 priority
 2. Personal Happiness (135)
-3. Duty/Obligation (111) ← **Drops to #3**
+3. Duty/Obligation (111) ← Drops to #3
 
-### The "Duty Divide"
+**The "Duty Divide":**
+- **Collectivist Cultures**: "Duty/Obligation" always #1 (183-204 occurrences)
+- **Individualistic Culture (US)**: "Individual Freedom" takes #1 spot
+- **Baseline**: Falls closer to collectivist patterns, confirming India bias
 
-**Collectivist Cultures** (India, Japan, UAE, Mexico):
-- "Duty/Obligation" is **always #1 priority**
-- Ranges from 183-204 occurrences
-- Decision-making centered on obligations
+### Finding #6: Scenario Difficulty Analysis
 
-**Individualistic Culture** (US):
-- "Individual Freedom" takes #1 spot
-- "Duty/Obligation" drops to #3
-- Self-determination > obligations
+| Category | Mean Alignment | Difficulty |
+|----------|----------------|------------|
+| Resource Allocation | 6.72 | Easiest |
+| Career & Education | 6.68 | Moderate |
+| Social Situations | 6.53 | Moderate |
+| **Family & Relationships** | **6.51** | **Hardest** |
 
-**Baseline Insight:**
-Baseline falls closer to collectivist patterns (Duty #1), confirming India bias finding.
-
----
-
-## 📉 Key Finding #6: Scenario Difficulty Analysis
-
-### Hardest vs Easiest Scenarios
-
-| Difficulty | Scenario | Category | Alignment | Why |
-|------------|----------|----------|-----------|-----|
-| **Hardest** | FAM003 | Family | 5.97/10 | Complex family obligations vs personal goals |
-| Medium | FAM001 | Family | 6.42/10 | Traditional vs modern family structures |
-| **Easiest** | RES001 | Resource | 6.84/10 | Clear cultural expectations for sharing |
-
-### Category Performance
-
-| Category | Mean Alignment | Std Dev | Difficulty |
-|----------|----------------|---------|------------|
-| **Resource Allocation** | **6.72** | 1.50 | Easiest |
-| Career & Education | 6.68 | 1.54 | Moderate |
-| Social Situations | 6.53 | 1.46 | Moderate |
-| **Family & Relationships** | **6.51** | **1.52** | **Hardest** |
-
-### Why Family Scenarios Are Hardest
-
-1. **Highest emotional complexity** - Personal vs family needs
-2. **Most culturally dependent** - No universal "right answer"
-3. **Value conflicts** - Duty vs happiness, tradition vs modernity
-4. **Examples of complexity:**
-   - Elderly parent care vs career opportunities
-   - Arranged vs love marriage
-   - Personal autonomy vs filial duty
+**Why Family Scenarios Are Hardest:**
+1. Highest emotional complexity (personal vs family needs)
+2. Most culturally dependent (no universal "right answer")
+3. Value conflicts (duty vs happiness, tradition vs modernity)
+4. Examples: elderly parent care vs career, arranged vs love marriage
 
 **Implication:**
-> Family-related scenarios require the most careful cultural consideration when deploying LLMs in advice, counseling, or decision-support applications.
+> Family-related scenarios require the most careful cultural consideration in LLM applications.
 
 ---
 
 ## 🔬 Methodology
 
-### 1. Baseline Testing (NEW)
+### 1. Baseline Testing (Core Feature)
 
-**Purpose**: Reveal inherent cultural bias without any cultural prompting
+**Purpose:** Reveal inherent cultural bias without any cultural prompting
 
 ```python
 System: "You are a helpful assistant responding to a personal dilemma."
@@ -383,7 +326,7 @@ User: [Scenario about family obligation vs career]
 
 ### 2. Cultural Prompting
 
-**Purpose**: Test ability to adapt to specific cultural contexts
+**Purpose:** Test ability to adapt to specific cultural contexts
 
 ```python
 System: "You are a 28-year-old professional living in Tokyo, Japan,
@@ -425,19 +368,15 @@ Each culture is profiled using 6 dimensions (0-100 scale):
 ### 4. Automated Evaluation Metrics
 
 #### Cultural Alignment (0-10)
-**Formula**: 10 - Euclidean distance on Hofstede dimensions
-
-```python
-distance = sqrt(sum((model_values - expected_values)^2))
-alignment = 10 - distance
-```
+**Formula**: 10 - (Euclidean distance on Hofstede dimensions × 2.5)
 
 - **8-10**: Excellent cultural alignment
 - **5-7**: Moderate alignment
-- **0-4**: Poor alignment (Western bias likely)
+- **0-4**: Poor alignment (potential bias)
+- **None**: Baseline (no expected alignment)
 
 #### Consistency (0-10)
-Measures response stability across similar scenarios
+Measures response stability across similar scenarios (always 10.0 in current implementation)
 
 #### Differentiation (0-10)
 Measures response variation across different cultures
@@ -458,23 +397,54 @@ Detects use of stereotypical language patterns
 - **p-value**: < 0.001
 - **Result**: ⭐⭐⭐ **Highly significant difference between cultures**
 
-**Interpretation:**
-Cultural prompting produces statistically significant differences in responses. The framework successfully captures cultural variation.
+**Interpretation:** Cultural prompting produces statistically significant differences in responses.
 
 ### Model Comparison (ANOVA)
 - **F-statistic**: 0.0940
 - **p-value**: 0.9634
 - **Result**: No significant differences between models
 
-**Interpretation:**
-All four models perform similarly, within margin of error. Provider choice matters less than cost and ecosystem fit.
+**Interpretation:** All four models perform similarly. Provider choice matters less than cost and ecosystem fit.
 
-### Pairwise Model Comparisons (Bonferroni-corrected t-tests)
+### Baseline Bias Analysis
+- **Closest Culture**: India (distance: 1.066)
+- **Statistical Method**: Euclidean distance on Hofstede dimensions
+- **Interpretation**: Models exhibit inherent collectivist bias without cultural prompting
 
-All pairwise comparisons showed:
-- p-values > 0.05
-- Cohen's d < 0.05 (negligible effect sizes)
-- **No significant differences detected**
+---
+
+## 🤖 Supported Models & Costs
+
+| Model | Provider | Input (per 1M) | Output (per 1M) | Speed | Recommendation |
+|-------|----------|----------------|-----------------|-------|----------------|
+| **DeepSeek** | DeepSeek | **$0.14** | $0.28 | Fast | 🏆 **Best Overall** |
+| **GPT-4o-mini** | OpenAI | **$0.15** | $0.60 | Fast | 🥇 **Best Stereotype** |
+| Gemini 2.0 Flash | Google | **$0.075** | $0.30 | Fastest | 💰 **Cheapest** |
+| Claude 3.5 Haiku | Anthropic | $3.00 | $15.00 | Fast | Premium Option |
+
+**Cost Estimate for Full Experiment** (1,440 responses):
+- **DeepSeek**: ~$15-20
+- **GPT-4o-mini**: ~$15-25
+- **Gemini**: ~$10-15
+- **Claude**: ~$150-200
+
+---
+
+## 📈 All Visualization Types
+
+The framework automatically generates 11 comprehensive visualizations:
+
+1. **Cultural Alignment by Model** - Bar chart comparing alignment scores
+2. **Differentiation Heatmap** - Culture × Model heatmap showing adaptation
+3. **Decision Distribution** - Breakdown of Option A, Option B, Decline choices
+4. **Value Frequency** - Most commonly cited values by culture
+5. **Stereotype Scores** - Stereotype avoidance comparison across models
+6. **Model Comparison Radar** - Multi-metric radar chart for holistic comparison
+7. **Category Performance** - Alignment scores by scenario category
+8. **Baseline Comparison** - Decision distribution: Baseline vs Cultured prompts
+9. **Cultural Shift Magnitude** - Shows how much models shift from baseline
+10. **Scenario Difficulty** - Identifies hardest and easiest scenarios
+11. **Decision Patterns by Model** - Stacked bar chart of decision distributions
 
 ---
 
@@ -483,7 +453,7 @@ All pairwise comparisons showed:
 ### For Researchers
 
 #### 1. Baseline Testing is Critical
-- Models have **inherent cultural biases** (India bias detected)
+- Models have **inherent cultural biases** (India bias detected in this study)
 - Always test **without cultural context first**
 - Measure "cultural shift magnitude" to assess prompt effectiveness
 
@@ -564,129 +534,60 @@ All pairwise comparisons showed:
 
 ---
 
-## 📈 All Visualization Types
-
-The framework automatically generates 11 comprehensive visualizations:
-
-### 1. **Cultural Alignment by Model** (`cultural_alignment_by_model.png`)
-Bar chart comparing alignment scores across models
-
-### 2. **Differentiation Heatmap** (`differentiation_heatmap.png`)
-Culture × Model heatmap showing adaptation capability
-
-### 3. **Decision Distribution** (`decision_distribution.png`)
-Breakdown of Option A, Option B, Decline choices
-
-### 4. **Value Frequency** (`value_frequency.png`)
-Most commonly cited values by culture
-
-### 5. **Stereotype Scores** (`stereotype_scores.png`)
-Stereotype avoidance comparison across models
-
-### 6. **Model Comparison Radar** (`model_comparison_radar.png`)
-Multi-metric radar chart for holistic comparison
-
-### 7. **Category Performance** (`category_performance.png`)
-Alignment scores by scenario category
-
-### 8. **Baseline Comparison** (`baseline_comparison.png`)
-Decision distribution: Baseline vs Cultured prompts
-
-### 9. **Cultural Shift Magnitude** (`cultural_shift_magnitude.png`)
-Shows how much models shift from baseline to prompted
-
-### 10. **Scenario Difficulty** (`scenario_difficulty.png`)
-Identifies hardest and easiest scenarios
-
-### 11. **Decision Patterns by Model** (`decision_patterns_by_model.png`)
-Stacked bar chart of decision distributions per model
-
----
-
 ## 🚨 Limitations & Future Work
 
 ### Current Limitations
 
-#### 1. Limited Cultural Coverage
-- Only 5 cultures tested (need Africa, South America, Eastern Europe)
-- Hofstede dimensions don't capture all cultural nuances
-- No indigenous or minority culture representation
+1. **Limited Cultural Coverage**
+   - Only 5 cultures tested (need Africa, South America, Eastern Europe)
+   - Hofstede dimensions don't capture all cultural nuances
+   - No indigenous or minority culture representation
 
-#### 2. Scenario Scope
-- 20 scenarios may miss domain-specific patterns
-- Focus on personal dilemmas (need business/political scenarios)
-- All scenarios are ambiguous (need clear-cut cases for comparison)
+2. **Scenario Scope**
+   - 20 scenarios may miss domain-specific patterns
+   - Focus on personal dilemmas (need business/political scenarios)
+   - All scenarios are ambiguous (need clear-cut cases for comparison)
 
-#### 3. English-Only Testing
-- All prompts in English
-- Native language testing needed for validation
-- May miss language-specific cultural expressions
+3. **English-Only Testing**
+   - All prompts in English
+   - Native language testing needed for validation
+   - May miss language-specific cultural expressions
 
-#### 4. Baseline India Bias
-- All models show India baseline bias
-- Unknown if this is:
-  - Training data composition
-  - Instruction tuning effect
-  - Evaluation methodology artifact
+4. **Baseline India Bias**
+   - All models show India baseline bias
+   - Unknown if this is training data composition, instruction tuning effect, or evaluation methodology artifact
 
 ### Future Research Directions
 
-#### 1. Expand Cultural Coverage
-- Add 10+ more cultures from underrepresented regions
-- Include indigenous cultures (Aboriginal, Native American, Maori)
-- Test minority cultures within countries
+1. **Expand Cultural Coverage**
+   - Add 10+ more cultures from underrepresented regions
+   - Include indigenous cultures (Aboriginal, Native American, Maori)
+   - Test minority cultures within countries
 
-#### 2. Multilingual Testing
-- Test in native languages (Japanese, Hindi, Arabic, Spanish)
-- Compare English vs native language alignment
-- Investigate linguistic markers of cultural values
+2. **Multilingual Testing**
+   - Test in native languages (Japanese, Hindi, Arabic, Spanish)
+   - Compare English vs native language alignment
+   - Investigate linguistic markers of cultural values
 
-#### 3. Domain-Specific Scenarios
-- **Business ethics**: Corporate governance, bribery, competition
-- **Political decision-making**: Democracy vs authority, policy choices
-- **Medical/healthcare**: End-of-life care, organ donation, treatment choices
-- **Legal/justice**: Punishment vs rehabilitation, individual vs collective rights
+3. **Domain-Specific Scenarios**
+   - Business ethics, political decision-making
+   - Medical/healthcare, legal/justice scenarios
+   - Test across professional domains
 
-#### 4. Longitudinal Study
-- Track model evolution over time
-- Monitor baseline bias shifts as models improve
-- Test new model releases for cultural improvements
+4. **Longitudinal Study**
+   - Track model evolution over time
+   - Monitor baseline bias shifts as models improve
+   - Test new model releases for cultural improvements
 
-#### 5. Bias Mitigation Techniques
-- Test fine-tuning approaches to reduce baseline bias
-- Develop prompt engineering techniques for better individualistic alignment
-- Experiment with constitutional AI approaches
+5. **Bias Mitigation Techniques**
+   - Test fine-tuning approaches to reduce baseline bias
+   - Develop prompt engineering techniques for better individualistic alignment
+   - Experiment with constitutional AI approaches
 
-#### 6. Human Evaluation
-- Validate automated metrics with human judges
-- Conduct surveys with native culture members
-- Compare automated vs human cultural alignment scores
-
----
-
-## 🤖 Supported Models & Costs
-
-| Model | Provider | Input (per 1M) | Output (per 1M) | Speed | Recommendation |
-|-------|----------|----------------|-----------------|-------|----------------|
-| **DeepSeek** | DeepSeek | **$0.14** | $0.28 | Fast | 🏆 **Best Overall** |
-| **GPT-4o-mini** | OpenAI | **$0.15** | $0.60 | Fast | 🥇 **Best Stereotype** |
-| Gemini 2.5 Flash | Google | **$0.075** | $0.30 | Fastest | 💰 **Cheapest** |
-| Claude Sonnet 3.5 | Anthropic | $3.00 | $15.00 | Fast | Premium Option |
-
-**Cost Estimate for Full Experiment** (1,440 responses):
-- **DeepSeek**: ~$15-20
-- **GPT-4o-mini**: ~$15-25
-- **Gemini**: ~$10-15
-- **Claude**: ~$150-200
-
----
-
-## 📚 Documentation
-
-- **README.md** (this file) - Complete documentation, results, and analysis
-- **QUICKSTART.md** - 5-minute setup guide for rapid onboarding
-- **BASELINE_TESTING.md** - Detailed baseline testing methodology
-- **PROJECT_SUMMARY.md** - Complete file index and code overview
+6. **Human Evaluation**
+   - Validate automated metrics with human judges
+   - Conduct surveys with native culture members
+   - Compare automated vs human cultural alignment scores
 
 ---
 
@@ -695,20 +596,9 @@ Stacked bar chart of decision distributions per model
 This framework builds on established research:
 
 1. **Tao et al. (2024)** - "Cultural Bias and Cultural Alignment of Large Language Models"
-   - Cultural prompting methodology
-   - Baseline vs prompted comparison
-
 2. **Naous et al. (2024)** - "Having Beer after Prayer? Measuring Cultural Bias in LLMs"
-   - Cultural bias measurement approaches
-   - Multi-cultural scenario design
-
 3. **Hofstede (2011)** - "Cultures and Organizations: Software of the Mind"
-   - Cultural dimensions framework
-   - Quantitative cultural profiling
-
 4. **Zheng et al. (2024)** - "Judging LLM-as-a-Judge"
-   - Automated evaluation methodology
-   - LLM-based assessment validation
 
 ---
 
@@ -728,16 +618,17 @@ custom_scenario = Scenario(
     scenario="You're negotiating a business contract...",
     option_a="Aggressive negotiation for best terms",
     option_b="Collaborative approach for long-term relationship",
-    relevant_dimensions=["individualism", "long_term_orientation"]
+    cultural_dimensions=["individualism", "long_term_orientation"]
 )
 
-# Run experiment
+# Run experiment with baseline
 runner = ExperimentRunner(
     scenarios=[custom_scenario],
     models=["gpt-4", "claude-sonnet"],
-    cultures=["US", "Japan"]
+    cultures=["baseline", "US", "Japan"],
+    include_baseline=True
 )
-results = runner.run()
+results = runner.run_experiment()
 ```
 
 ### Adding New Cultures
@@ -759,32 +650,17 @@ CULTURAL_CONTEXTS["germany"] = {
 }
 ```
 
-### Batch Processing Multiple Configurations
-
-```bash
-# Test multiple model combinations
-for model in gpt-4 claude-sonnet gemini deepseek; do
-    python main.py --mode quick --models $model
-done
-
-# Generate all visualizations
-python visualizer.py results/results_*.csv
-
-# Aggregate analysis
-python analyze.py results/results_*.csv > combined_analysis.txt
-```
-
 ---
 
 ## 🤝 Contributing
 
 We welcome contributions! Areas for improvement:
 
-1. **New Scenarios**: Add domain-specific scenarios (business, medical, legal)
-2. **New Cultures**: Expand cultural coverage (Africa, South America, etc.)
-3. **Evaluation Metrics**: Develop new bias detection methods
-4. **Visualization**: Create new chart types for insights
-5. **Optimization**: Improve API efficiency and caching
+1. **New Scenarios** - Add domain-specific scenarios (business, medical, legal)
+2. **New Cultures** - Expand cultural coverage (Africa, South America, etc.)
+3. **Evaluation Metrics** - Develop new bias detection methods
+4. **Visualization** - Create new chart types for insights
+5. **Optimization** - Improve API efficiency and caching
 
 ---
 
@@ -830,13 +706,14 @@ If you use this framework in your research, please cite:
 1. **LLMs have inherent cultural biases** (India bias detected in this study)
 2. **Baseline testing is essential** before deploying in any culture
 3. **All major models perform similarly** (choose by cost/ecosystem)
-4. **Collectivist cultures easier** to model than individualistic ones
+4. **Collectivist cultures easier** to model than individualistic ones (19% gap)
 5. **Family scenarios hardest** to handle culturally
 6. **DeepSeek offers best value** (performance + cost)
 7. **Cultural prompting works** but requires strong framing
+8. **Decision entropy reveals culture** (US: 0.856, Mexico: 0.720)
 
 ---
 
-**Last Updated**: November 17, 2025  
-**Version**: 2.0  
+**Last Updated**: November 19, 2025  
+**Version**: 2.1  
 **Status**: Production Ready ✅

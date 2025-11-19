@@ -76,11 +76,8 @@ cultural_llm_bias/
 │                              # - API key validation
 │                              # - Component testing
 │
-├── Documentation (4 files)
-│   ├── README.md              # This file
-│   ├── QUICKSTART.md          # 5-minute setup guide
-│   ├── BASELINE_TESTING.md    # Baseline methodology
-│   └── PROJECT_SUMMARY.md     # Complete file index
+├── READEME.md (Documentation)
+│
 │
 └── Results (auto-generated)
     ├── results_TIMESTAMP.csv  # Raw experimental data

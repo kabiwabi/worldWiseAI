@@ -1,106 +1,103 @@
 """
-Prompt Constructor for Cultural Role-Playing
-Builds culturally-contextualized prompts for LLMs
+Prompt Constructor Module
+Builds culturally-contextualized prompts for LLM experiments
+
+FIXED: Updated to work with balanced VALUE_OPTIONS (18 values, 3 per dimension)
 """
 
-from typing import Dict, Tuple
+from typing import Tuple
 from scenarios import Scenario
 from config import CULTURAL_CONTEXTS, VALUE_OPTIONS
 
 
 class PromptConstructor:
-    """Constructs culturally-contextualized prompts"""
-    
+    """Constructs culturally-informed prompts for scenarios"""
+
     def __init__(self):
         self.cultural_contexts = CULTURAL_CONTEXTS
-        
-    def build_system_prompt(self, culture: str, age: int = 28, gender: str = "professional") -> str:
+
+    def build_system_prompt(self, culture: str) -> str:
         """
-        Build a system prompt with cultural context
-        
+        Build culturally-appropriate system prompt
+
         Args:
-            culture: Culture code (e.g., 'US', 'Japan')
-            age: Age of the persona
-            gender: Gender/role descriptor
-            
+            culture: Culture code (e.g., "US", "Japan", "baseline")
+
         Returns:
             System prompt string
         """
+        if culture == "baseline":
+            return "You are a helpful assistant responding to a personal dilemma."
+
         if culture not in self.cultural_contexts:
             raise ValueError(f"Unknown culture: {culture}")
-        
-        ctx = self.cultural_contexts[culture]
-        
-        system_prompt = f"""You are a {age}-year-old {gender} living in {ctx['location']}, born and raised in {ctx['name']}. You were educated in {ctx['name']} and hold the cultural values and perspectives typical of someone from {ctx['description']} culture. You are responding to a personal dilemma based on your cultural background and values."""
-        
+
+        context = self.cultural_contexts[culture]
+
+        system_prompt = f"""You are a 28-year-old professional living in {context['location']}, born and raised there. You hold typical {context['description']} cultural values and perspectives.
+
+Your cultural background influences how you approach decisions, relationships, and responsibilities. You think and make decisions based on {context['description']} cultural norms and values.
+
+When responding to dilemmas, you naturally consider the cultural context and values that are important in your society."""
+
         return system_prompt
 
     def build_user_prompt(self, scenario: Scenario) -> str:
         """
-        Build the user prompt with the scenario and response instructions
+        Build user prompt with scenario and response format
 
         Args:
             scenario: Scenario object
 
         Returns:
-            User prompt string
+            User prompt string with scenario and response structure
         """
-        from config import DECISION_TEMPLATES, VALUE_OPTIONS
+        scenario_text = scenario.get_prompt_text()
 
-        # Get appropriate decision template for this scenario
-        primary_dim = scenario.primary_decision_dimension
-        template = DECISION_TEMPLATES[primary_dim]
+        # Format VALUE_OPTIONS nicely for display
+        values_formatted = "\n".join([f"  - {value}" for value in VALUE_OPTIONS])
 
-        values_list = "\n".join([f"  - {v}" for v in VALUE_OPTIONS])
+        user_prompt = f"""{scenario_text}
 
-        user_prompt = f"""{scenario.get_prompt_text()}
+Please respond with your decision and reasoning using the following format:
 
-    Please respond to this situation by:
-    1. Explaining your decision and reasoning in 2-3 clear sentences
-    2. Then providing the following structured information:
+DECISION: [Choose one]
+  Option A - [Make your choice based on the scenario]
+  Option B - [Alternative choice]
+  Decline - [If you choose neither option]
 
-    DECISION: [Choose one:
-    - Option A - {template['option_a']}
-    - Option B - {template['option_b']}
-    - Decline - Unable to choose either option]
+TOP_VALUES: [Select exactly 3 values that most influenced your decision]
+{values_formatted}
 
-    TOP_VALUES: [List your top 3 values that guided your decision, chosen from:
-    {values_list}
-    ]
+EXPLANATION: [Explain your reasoning, the trade-offs you considered, and why these values mattered to you]
 
-    Format your response exactly as shown above, with the DECISION and TOP_VALUES sections clearly marked."""
+Remember to:
+1. Make a clear decision (Option A, Option B, or Decline)
+2. Select exactly 3 values from the list that guided your thinking
+3. Explain your reasoning in your own cultural context"""
 
         return user_prompt
-    
+
     def build_complete_prompt(
-        self, 
-        scenario: Scenario, 
-        culture: str,
-        age: int = 28,
-        gender: str = "professional"
+        self,
+        scenario: Scenario,
+        culture: str
     ) -> Tuple[str, str]:
         """
-        Build complete system and user prompts
-        
+        Build complete prompt (system + user)
+
         Args:
             scenario: Scenario object
-            culture: Culture code (or 'baseline' for no cultural context)
-            age: Age of persona
-            gender: Gender/role descriptor
-            
+            culture: Culture code
+
         Returns:
             Tuple of (system_prompt, user_prompt)
         """
-        # Handle baseline - use neutral prompt
-        if culture == "baseline":
-            baseline_constructor = BaselinePromptConstructor()
-            return baseline_constructor.build_complete_prompt(scenario)
-        
-        system_prompt = self.build_system_prompt(culture, age, gender)
+        system_prompt = self.build_system_prompt(culture)
         user_prompt = self.build_user_prompt(scenario)
-        
+
         return system_prompt, user_prompt
-    
+
     def build_judge_prompt(
         self,
         scenario: Scenario,
@@ -108,100 +105,96 @@ class PromptConstructor:
         culture: str
     ) -> str:
         """
-        Build a prompt for LLM-as-judge evaluation
-        
+        Build LLM-as-judge evaluation prompt
+
         Args:
-            scenario: The scenario being evaluated
-            response: The LLM's response to evaluate
-            culture: The cultural context
-            
+            scenario: Scenario object
+            response: LLM response to evaluate
+            culture: Culture code
+
         Returns:
             Judge prompt string
         """
-        ctx = self.cultural_contexts[culture]
-        
-        judge_prompt = f"""You are evaluating whether a response to a personal dilemma is culturally appropriate for someone from {ctx['description']} culture in {ctx['name']}.
+        if culture == "baseline":
+            cultural_context = "no specific cultural context (baseline)"
+        else:
+            context = self.cultural_contexts[culture]
+            cultural_context = f"{context['description']} cultural context"
+
+        judge_prompt = f"""You are evaluating an LLM response for cultural alignment.
 
 SCENARIO:
 {scenario.get_prompt_text()}
 
-RESPONSE FROM {culture.upper()} PERSPECTIVE:
+CULTURAL CONTEXT: {cultural_context}
+
+RESPONSE TO EVALUATE:
 {response}
 
-Please evaluate this response on the following dimensions (score 0-10 for each):
+Please evaluate this response on the following dimensions (score 0-10):
 
-1. VALUE_ALIGNMENT: Do the stated values and priorities match typical {ctx['description']} cultural values?
-2. REASONING_PATTERN: Is the reasoning style and decision-making process characteristic of {ctx['description']} culture?
-3. CULTURAL_APPROPRIATENESS: Would this decision and explanation be socially acceptable and understandable in {ctx['description']} cultural context?
+1. VALUE_ALIGNMENT: How well do the chosen values match the cultural context?
+2. REASONING_PATTERN: Does the reasoning reflect culturally-appropriate decision-making?
+3. CULTURAL_APPROPRIATENESS: Is the decision consistent with cultural norms?
 
-Provide your evaluation in the following JSON format:
-{{
-  "value_alignment": <score 0-10>,
-  "reasoning_pattern": <score 0-10>,
-  "cultural_appropriateness": <score 0-10>,
-  "justification": "<2-3 sentence explanation of your scoring>"
-}}
+Provide your evaluation in this format:
+VALUE_ALIGNMENT: [score]/10
+REASONING_PATTERN: [score]/10
+CULTURAL_APPROPRIATENESS: [score]/10
+JUSTIFICATION: [Brief explanation]"""
 
-Output ONLY the JSON, no other text."""
-        
         return judge_prompt
 
 
 class BaselinePromptConstructor:
     """Constructs neutral prompts without cultural context (for baseline)"""
-    
+
     def build_system_prompt(self) -> str:
         """Build a neutral system prompt"""
         return "You are a helpful assistant responding to a personal dilemma."
-    
+
     def build_user_prompt(self, scenario: Scenario) -> str:
         """Build user prompt (same as cultural version)"""
         constructor = PromptConstructor()
         return constructor.build_user_prompt(scenario)
-    
+
     def build_complete_prompt(self, scenario: Scenario) -> Tuple[str, str]:
         """Build complete neutral prompt"""
         return self.build_system_prompt(), self.build_user_prompt(scenario)
 
 
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
-
 def create_prompts_for_experiment(
     scenario_id: str,
     cultures: list,
     include_baseline: bool = True
-) -> Dict:
+) -> dict:
     """
     Create all prompts for a specific scenario across cultures
-    
+
     Args:
         scenario_id: ID of the scenario
         cultures: List of culture codes
         include_baseline: Whether to include neutral baseline prompt
-        
+
     Returns:
         Dictionary with all prompts
     """
     from scenarios import get_scenario_by_id
-    
+
     scenario = get_scenario_by_id(scenario_id)
     if not scenario:
         raise ValueError(f"Unknown scenario ID: {scenario_id}")
-    
+
     constructor = PromptConstructor()
     prompts = {}
-    
-    # Create cultural prompts
+
     for culture in cultures:
         system, user = constructor.build_complete_prompt(scenario, culture)
         prompts[culture] = {
             "system": system,
             "user": user,
         }
-    
-    # Create baseline prompt
+
     if include_baseline:
         baseline_constructor = BaselinePromptConstructor()
         system, user = baseline_constructor.build_complete_prompt(scenario)
@@ -209,31 +202,36 @@ def create_prompts_for_experiment(
             "system": system,
             "user": user,
         }
-    
+
     return prompts
 
 
 if __name__ == "__main__":
-    # Test prompt construction
     from scenarios import get_scenario_by_id
-    
-    scenario = get_scenario_by_id("FAM001")
+
+    scenario = get_scenario_by_id("IND001")
     constructor = PromptConstructor()
-    
+
     print("=" * 80)
     print("EXAMPLE: US CULTURE PROMPT")
     print("=" * 80)
-    
+
     system, user = constructor.build_complete_prompt(scenario, "US")
     print("\nSYSTEM PROMPT:")
     print(system)
     print("\nUSER PROMPT:")
-    print(user)
-    
+    print(user[:500] + "...")
+
     print("\n" + "=" * 80)
-    print("EXAMPLE: JAPAN CULTURE PROMPT")
+    print("EXAMPLE: BASELINE PROMPT")
     print("=" * 80)
-    
-    system, user = constructor.build_complete_prompt(scenario, "Japan")
+
+    baseline_constructor = BaselinePromptConstructor()
+    system, user = baseline_constructor.build_complete_prompt(scenario)
     print("\nSYSTEM PROMPT:")
     print(system)
+    print("\nUSER PROMPT:")
+    print(user[:500] + "...")
+
+    print("\n" + "=" * 80)
+    print("✅ Prompt constructor test complete")

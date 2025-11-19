@@ -312,7 +312,7 @@ class Visualizer:
 
         fig, ax = plt.subplots(figsize=(10, 6))
 
-        # Calculate shifts (simplified - full code in enhanced_analysis.py)
+        # Calculate shifts (simplified - full code in analyze.py)
         shifts = {
             'Japan': 34.0, 'UAE': 34.05, 'Mexico': 27.53,
             'India': 25.26, 'US': 9.81

@@ -51,7 +51,7 @@ def test_scenarios():
         print(f"✓ Loaded {len(ALL_SCENARIOS)} scenarios")
         
         # Test getting a scenario
-        scenario = get_scenario_by_id("FAM001")
+        scenario = get_scenario_by_id("IND001")
         assert scenario is not None, "Failed to get scenario FAM001"
         print(f"✓ Retrieved scenario: {scenario.id}")
         
@@ -75,7 +75,7 @@ def test_prompt_construction():
         from scenarios import get_scenario_by_id
         from prompt_constructor import PromptConstructor
         
-        scenario = get_scenario_by_id("FAM001")
+        scenario = get_scenario_by_id("IND001")
         constructor = PromptConstructor()
         
         system, user = constructor.build_complete_prompt(scenario, "US")

@@ -10,10 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-from typing import List, Dict
 import logging
 
-import config
+from core import config
 
 logger = logging.getLogger(__name__)
 
@@ -197,13 +196,7 @@ class Visualizer:
     
     def plot_model_comparison_radar(self, df: pd.DataFrame):
         """Create radar chart comparing models across metrics"""
-        from matplotlib.patches import Circle, RegularPolygon
-        from matplotlib.path import Path
-        from matplotlib.projections.polar import PolarAxes
-        from matplotlib.projections import register_projection
-        from matplotlib.spines import Spine
-        from matplotlib.transforms import Affine2D
-        
+
         # Aggregate metrics by model
         metrics = ['cultural_alignment', 'consistency', 'differentiation', 'stereotype']
         model_scores = df.groupby('model')[metrics].mean()

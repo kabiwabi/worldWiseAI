@@ -3,11 +3,10 @@ LLM Interface Module
 Handles API calls to different LLM providers (OpenAI, Anthropic, Google)
 """
 
-import os
 import json
 import time
 import hashlib
-from typing import Dict, Optional, Tuple
+from typing import Optional
 from pathlib import Path
 import logging
 

@@ -4,29 +4,29 @@ Verifies that all components are working correctly
 """
 
 import sys
-from pathlib import Path
+
 
 def test_imports():
     """Test that all modules can be imported"""
     print("Testing imports...")
     
     try:
-        import config
+        from core import config
         print("✓ config")
-        
-        import scenarios
+
+        from core import scenarios
         print("✓ scenarios")
-        
-        import prompt_constructor
+
+        from core import prompt_constructor
         print("✓ prompt_constructor")
-        
-        import llm_interface
+
+        from core import llm_interface
         print("✓ llm_interface")
-        
-        import response_parser
+
+        from core import response_parser
         print("✓ response_parser")
-        
-        import evaluator
+
+        from core import evaluator
         print("✓ evaluator")
         
         import visualizer
@@ -45,7 +45,7 @@ def test_scenarios():
     print("\nTesting scenarios...")
     
     try:
-        from scenarios import ALL_SCENARIOS, get_scenario_by_id, get_scenario_stats
+        from core.scenarios import ALL_SCENARIOS, get_scenario_by_id, get_scenario_stats
         
         assert len(ALL_SCENARIOS) > 0, "No scenarios loaded"
         print(f"✓ Loaded {len(ALL_SCENARIOS)} scenarios")
@@ -72,8 +72,8 @@ def test_prompt_construction():
     print("\nTesting prompt construction...")
     
     try:
-        from scenarios import get_scenario_by_id
-        from prompt_constructor import PromptConstructor
+        from core.scenarios import get_scenario_by_id
+        from core.prompt_constructor import PromptConstructor
         
         scenario = get_scenario_by_id("IND001")
         constructor = PromptConstructor()
@@ -106,7 +106,7 @@ def test_response_parsing():
     print("\nTesting response parsing...")
     
     try:
-        from response_parser import ResponseParser
+        from core.response_parser import ResponseParser
         
         parser = ResponseParser()
         
@@ -144,8 +144,8 @@ def test_evaluation():
     print("\nTesting evaluation...")
     
     try:
-        from response_parser import ParsedResponse
-        from evaluator import CulturalEvaluator
+        from core.response_parser import ParsedResponse
+        from core.evaluator import CulturalEvaluator
         
         evaluator = CulturalEvaluator()
         
@@ -194,9 +194,9 @@ def test_evaluation():
 def test_api_keys():
     """Test if API keys are configured"""
     print("\nChecking API keys...")
-    
-    import config
-    
+
+    from core import config
+
     keys_found = []
     keys_missing = []
     

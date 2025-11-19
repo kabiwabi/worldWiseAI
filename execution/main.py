@@ -6,18 +6,17 @@ Orchestrates the complete cultural bias measurement experiment
 from scipy.stats import f_oneway
 import json
 import logging
-from pathlib import Path
 from typing import Dict, List
 from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
 
-import config
-from scenarios import ALL_SCENARIOS, get_scenario_by_id
-from prompt_constructor import PromptConstructor
-from llm_interface import LLMInterface
-from response_parser import ResponseParser
-from evaluator import CulturalEvaluator
+from core import config
+from core.scenarios import ALL_SCENARIOS, get_scenario_by_id
+from core.prompt_constructor import PromptConstructor
+from core.llm_interface import LLMInterface
+from core.response_parser import ResponseParser
+from core.evaluator import CulturalEvaluator
 
 # Set up logging
 logging.basicConfig(
@@ -258,8 +257,8 @@ class ExperimentRunner:
             non_baseline_data = df[df['culture'] != 'baseline']
             
             # Calculate which culture baseline is closest to
-            from evaluator import calculate_baseline_bias
-            from response_parser import ParsedResponse
+            from core.evaluator import calculate_baseline_bias
+            from core.response_parser import ParsedResponse
             
             baseline_responses = []
             for _, row in baseline_data.iterrows():
@@ -274,7 +273,7 @@ class ExperimentRunner:
             
             if baseline_responses:
                 # Get all scenario dimensions
-                from scenarios import get_scenario_by_id
+                from core.scenarios import get_scenario_by_id
                 all_dimensions = set()
                 for sid in df['scenario_id'].unique():
                     scenario = get_scenario_by_id(sid)

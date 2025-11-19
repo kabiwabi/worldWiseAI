@@ -279,70 +279,6 @@ Opens browser at `http://localhost:8501`
 
 ---
 
-## 📊 Recent Code Changes & Improvements
-
-### Major Updates (November 2025)
-
-#### 1. **30 Balanced Scenarios** (scenarios.py)
-- **Previous:** 20 scenarios across 4 categories
-- **Current:** 30 scenarios perfectly balanced:
-  - 5 scenarios per Hofstede dimension (6 dimensions)
-  - 21 distinct categories
-  - Complete cultural dimension coverage
-- **Validation system:** Automated balance checking
-- **Impact:** More comprehensive cultural bias detection
-
-#### 2. **Baseline Testing Framework** (main.py, prompt_constructor.py)
-- **New feature:** Detects inherent cultural bias without prompting
-- **Method:** "Baseline" culture with no cultural context in system prompt
-- **Metrics:** Calculates Euclidean distance to each culture's Hofstede scores
-- **Discovery:** All tested models naturally align closest to Indian cultural values
-- **Impact:** Critical for understanding model pre-training biases
-
-#### 3. **Fixed Evaluator** (evaluator.py)
-- **Previous:** Incomplete semantic exemplars
-- **Current:** Complete coverage of all 6 Hofstede dimensions
-- **Method:** Sentence transformer embeddings for semantic similarity
-- **Exemplars:** Abstract, academic language with no VALUE_OPTIONS overlap
-- **Impact:** More accurate cultural profile inference
-
-#### 4. **Balanced Value System** (config.py)
-- **Design:** 18 values total (3 per dimension)
-- **Coverage:** Both high and low poles of each dimension
-- **Mapping:** Clear value-to-dimension relationship
-- **Examples:**
-  - Individualism: Personal Autonomy, Self-Determination, Family Harmony
-  - Power Distance: Respect for Authority, Hierarchical Order, Egalitarian Values
-  - Masculinity: Achievement & Success, Competition & Recognition, Work-Life Balance
-- **Impact:** Balanced assessment across all cultural dimensions
-
-#### 5. **Enhanced Analysis** (analyze.py)
-- **New:** Cultural shift magnitude analysis (baseline → prompted)
-- **New:** Baseline bias detection and reporting
-- **Improved:** Statistical significance testing (ANOVA, t-tests, Cohen's d)
-- **New:** Value pattern analysis by culture
-- **New:** Category difficulty ranking
-- **Impact:** Deeper insights into model behavior
-
-#### 6. **DeepSeek Integration** (llm_interface.py)
-- **Added:** DeepSeek API support (OpenAI-compatible)
-- **Configuration:** Separate API key and base URL
-- **Performance:** Best cost-performance ratio ($0.14 per 1M input tokens)
-- **Impact:** More affordable experimentation
-
-#### 7. **JSON Serialization Fix** (main.py)
-- **Bug:** `bool(p_value < 0.05)` causing JSON export errors
-- **Fix:** Added explicit `bool()` wrapper for numpy boolean values
-- **Impact:** summary_TIMESTAMP.json now exports correctly
-
-#### 8. **11 Visualization Types** (visualizer.py)
-- **Expanded:** From 7 to 11 comprehensive visualizations
-- **New charts:** Baseline comparison, cultural shift magnitude, decision patterns
-- **Format:** High-resolution PNG (300 DPI)
-- **Impact:** Better insights and publication-ready figures
-
----
-
 ## 🔍 Key Research Findings
 
 ### Dataset Overview (Full Experiment)
@@ -1151,8 +1087,8 @@ This framework builds on established research:
 ### Custom Scenario Testing
 
 ```python
-from scenarios import Scenario
-from main import ExperimentRunner
+from core.scenarios import Scenario
+from execution.main import ExperimentRunner
 
 # Define custom scenario
 custom_scenario = Scenario(
@@ -1220,7 +1156,7 @@ python main.py --scenarios PDI001 PDI002 PDI003 PDI004 PDI005  # Power Distance 
 ### Custom Value Analysis
 
 ```python
-from config import VALUE_DIMENSION_MAPPING, VALUE_OPTIONS
+from core.config import VALUE_DIMENSION_MAPPING, VALUE_OPTIONS
 import pandas as pd
 
 # Load results
@@ -1229,18 +1165,19 @@ df = pd.read_csv('results/results_TIMESTAMP.csv')
 # Analyze value frequency by culture
 for culture in df['culture'].unique():
     culture_data = df[df['culture'] == culture]
-    
+
     # Extract all values
     all_values = []
     for values_list in culture_data['top_values']:
         if isinstance(values_list, str):
             values_list = eval(values_list)
         all_values.extend(values_list)
-    
+
     # Count frequency
     from collections import Counter
+
     value_counts = Counter(all_values)
-    
+
     print(f"\n{culture}:")
     for value, count in value_counts.most_common(5):
         dimension, pole = VALUE_DIMENSION_MAPPING[value]

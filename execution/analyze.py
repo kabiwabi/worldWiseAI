@@ -6,10 +6,8 @@ Analyzes experiment results and generates insights
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from collections import Counter, defaultdict
-import json
+from collections import Counter
 from scipy import stats
-from scipy.stats import entropy
 import sys
 
 
@@ -45,10 +43,10 @@ def analyze_cultural_bias(df: pd.DataFrame):
         non_baseline_data = df[df['culture'] != 'baseline']
         
         # Calculate baseline profile and compare to each culture
-        from evaluator import calculate_baseline_bias
-        from response_parser import ParsedResponse
-        import config
-        
+        from core.evaluator import calculate_baseline_bias
+        from core.response_parser import ParsedResponse
+        from core import config
+
         baseline_responses = []
         for _, row in baseline_data.iterrows():
             baseline_responses.append(ParsedResponse(
@@ -62,7 +60,7 @@ def analyze_cultural_bias(df: pd.DataFrame):
         
         if baseline_responses:
             # Get dimensions
-            from scenarios import get_scenario_by_id
+            from core.scenarios import get_scenario_by_id
             all_dimensions = set()
             for sid in df['scenario_id'].unique():
                 scenario = get_scenario_by_id(sid)

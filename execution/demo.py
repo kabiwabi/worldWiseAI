@@ -7,14 +7,13 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from pathlib import Path
 
-import config
-from scenarios import ALL_SCENARIOS, get_scenario_by_id
-from prompt_constructor import PromptConstructor
-from llm_interface import LLMInterface
-from response_parser import ResponseParser
-from evaluator import CulturalEvaluator
+from core import config
+from core.scenarios import ALL_SCENARIOS, get_scenario_by_id
+from core.prompt_constructor import PromptConstructor
+from core.llm_interface import LLMInterface
+from core.response_parser import ResponseParser
+from core.evaluator import CulturalEvaluator
 
 # Page config
 st.set_page_config(

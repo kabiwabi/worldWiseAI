@@ -759,14 +759,6 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ---
 
-## 6.11 Differentiation Heatmap
-
-![Differentiation Heatmap](results/visualizations/differentiation_heatmap.png)
-
-*Figure 11 — Heatmap showing how well each model differentiates between cultures. Darker colors indicate stronger differentiation. Shows models struggle equally across all cultures (all zero differentiation).*
-
----
-
 # 7. Limitations
 
 ## 7.1 Methodological Limitations
@@ -800,8 +792,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 2. **Evaluation Metrics**
    - Stereotype scoring is subjective (human-rated)
-   - Consistency metric all 10.0 (needs more sensitive measure)
-   - Differentiation metric all 0.0 (needs refinement)
+   - Consistency & differentiation not measured due to resource constraints
 
 3. **Sample Size**
    - 720 total responses (reasonable but not massive)

@@ -681,7 +681,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.1 Baseline Cultural Bias
 
-![Baseline Comparison](baseline_comparison.png)
+![Baseline Comparison](results/visualizations/baseline_comparison.png)
 
 *Figure 1 — Baseline (unprompted) decision distribution and top values. Shows the inherent value bias before any cultural steering. Notice the prominence of "Future Planning" and "Family Harmony" suggesting collectivist orientation.*
 
@@ -689,7 +689,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.2 Cultural Alignment by Model and Culture
 
-![Cultural Alignment by Model](cultural_alignment_by_model.png)
+![Cultural Alignment by Model](results/visualizations/cultural_alignment_by_model.png)
 
 *Figure 2 — Overall cultural alignment scores by model and culture with error bars. India shows highest alignment (7.71), while Mexico shows lowest (5.22). Models cluster tightly with no significant performance differences.*
 
@@ -697,7 +697,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.3 Cultural Shift Magnitude
 
-![Cultural Shift Magnitude](cultural_shift_magnitude.png)
+![Cultural Shift Magnitude](results/visualizations/cultural_shift_magnitude.png)
 
 *Figure 3 — Total Variation Distance (TVD) showing how strongly each cultural persona shifts the model from baseline. India and Japan create largest shifts, US creates smallest (model already close to US baseline).*
 
@@ -705,7 +705,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.4 Category Performance
 
-![Category Performance](category_performance.png)
+![Category Performance](results/visualizations/category_performance.png)
 
 *Figure 4 — Mean alignment scores by scenario category. Social Situations (6.97) are easiest, while Career & Finance (5.35) are hardest. Shows clear category-level difficulty patterns.*
 
@@ -713,7 +713,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.5 Scenario Difficulty Ranking
 
-![Scenario Difficulty](scenario_difficulty.png)
+![Scenario Difficulty](results/visualizations/scenario_difficulty.png)
 
 *Figure 5 — Individual scenario difficulty ranking. Long-Term Orientation (LTO) scenarios consistently rank as most difficult, followed by Uncertainty Avoidance (UAI) scenarios.*
 
@@ -721,7 +721,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.6 Decision Distribution by Culture
 
-![Decision Distribution](decision_distribution.png)
+![Decision Distribution](results/visualizations/decision_distribution.png)
 
 *Figure 6 — Stacked bar chart showing how often each culture chooses Option A, Option B, or Decline. US shows strongest preference for Option A (60.8%), while Mexico shows most balance (50/49).*
 
@@ -729,7 +729,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.7 Decision Patterns by Model
 
-![Decision Patterns](decision_patterns.png)
+![Decision Patterns](results/visualizations/decision_patterns.png)
 
 *Figure 7 — Decision patterns per model. GPT-4 heavily favors Option A (66.1%), Claude Sonnet favors Option B (54.4%), DeepSeek is most balanced but most likely to decline (3.3%).*
 
@@ -737,7 +737,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.8 Value Frequencies by Culture
 
-![Value Frequency](value_frequency.png)
+![Value Frequency](results/visualizations/value_frequency.png)
 
 *Figure 8 — Top values by culture shown as horizontal bar chart. Mexico shows strongest "Family Harmony" emphasis (86), US uniquely prioritizes "Achievement & Success" (61).*
 
@@ -745,7 +745,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.9 Stereotype Scores by Model and Culture
 
-![Stereotype Scores](stereotype_scores.png)
+![Stereotype Scores](results/visualizations/stereotype_scores.png)
 
 *Figure 9 — Box plots showing distribution of human-rated stereotype scores. GPT-4 shows highest stereotyping (8.53 mean), Gemini shows lowest (6.77). Significant variance across models (p < 0.001).*
 
@@ -753,7 +753,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.10 Model Comparison Radar
 
-![Model Comparison Radar](model_comparison_radar.png)
+![Model Comparison Radar](results/visualizations/model_comparison_radar.png)
 
 *Figure 10 — Multi-dimensional radar plot comparing models across Cultural Alignment, Stereotyping (inverted), Consistency, and Differentiation. Shows models cluster tightly on most metrics except stereotyping.*
 
@@ -761,7 +761,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ## 6.11 Differentiation Heatmap
 
-![Differentiation Heatmap](differentiation_heatmap.png)
+![Differentiation Heatmap](results/visualizations/differentiation_heatmap.png)
 
 *Figure 11 — Heatmap showing how well each model differentiates between cultures. Darker colors indicate stronger differentiation. Shows models struggle equally across all cultures (all zero differentiation).*
 
@@ -998,12 +998,6 @@ If you use WorldWiseAI in your research, please cite:
   url={https://github.com/yourusername/worldwiseai}
 }
 ```
-
----
-
-## License
-
-[Specify your license here]
 
 ---
 

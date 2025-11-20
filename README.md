@@ -274,26 +274,104 @@ This suggests the baseline is closer to **Indian/Asian collectivist values** rat
 
 ---
 
+
+
+
 ## 4.5 Cultural Shift Magnitude
 
-**Total Variation Distance (TVD) - How much does each culture shift the model from baseline?**
+**Understanding TVD:** Total Variation Distance measures how much the *distribution of values cited* changes between baseline and prompted responses. This is DIFFERENT from Hofstede dimensional similarity.
 
-Analysis of value distributions shows:
+### Actual Results
 
-**Highest Shifts:**
-1. **India** - Largest TVD (strongest influence on model reasoning)
-2. **Japan** - High TVD (strong collectivist shift)
-3. **Mexico** - Moderate-high TVD
+**Cultures Ranked by Shift Magnitude (TVD):**
 
-**Lowest Shifts:**
-1. **US** - Smallest TVD (model already resembles US norms)
-2. **UAE** - Low TVD
+| Rank | Culture | TVD | Interpretation |
+|------|---------|-----|----------------|
+| 1 | **Japan** | 47.81% | Largest shift - most dramatic value redistribution |
+| 2 | **India** | 46.45% | Very large shift - explicit persona activates distinct values |
+| 3 | **UAE** | 44.95% | Large shift |
+| 4 | **Mexico** | 43.14% | Large shift |
+| 5 | **US** | 23.83% | **Smallest shift** - baseline already uses similar values |
 
-**Interpretation:**
-- The model "accepts" **US cultural framing more easily**, possibly because US norms are embedded in training corpora
-- **Collectivist cultures** require larger shifts from baseline
-- **India** prompts produce the strongest behavioral changes
+**Average Shift:** 41.24%
 
+### Key Value Shifts by Culture
+
+**US (23.83% TVD - Smallest):**
+- ↑ Achievement & Success: +8.7%
+- ↑ Personal Autonomy: +5.5%
+- ↓ Stability & Security: -2.7%
+
+**India (46.45% TVD - Second Largest):**
+- ↑ Family Harmony: +12.6% (from 26 → 71 mentions)
+- ↑ Stability & Security: +9.6%
+- ↑ Respect for Authority: +7.4%
+- ↓ Personal Autonomy: -6.4%
+
+**Japan (47.81% TVD - Largest):**
+- ↑ Respect for Authority: +10.1%
+- ↑ Stability & Security: +7.5%
+- ↑ Family Harmony: +7.2%
+- ↑ Perseverance & Patience: +7.1%
+- ↓ Personal Autonomy: -6.7%
+
+**Mexico (43.14% TVD):**
+- ↑ Family Harmony: +17.8% (largest single value shift)
+- ↑ Respect for Authority: +6.7%
+- ↓ Achievement & Success: -5.5%
+
+**UAE (44.95% TVD):**
+- ↑ Family Harmony: +12.5%
+- ↑ Respect for Authority: +9.0%
+- ↑ Stability & Security: +7.0%
+- ↑ Tradition & Heritage: +5.7%
+
+### Critical Insight: The Paradox Resolved
+
+**At first glance, this seems contradictory:**
+- Baseline is closest to India in Hofstede space (distance: 1.075)
+- But India prompting causes second-largest value shift (TVD: 46.45%)
+- Meanwhile US is farther from baseline (distance: 1.367)
+- But US prompting causes smallest value shift (TVD: 23.83%)
+
+**The Resolution - Two Different Metrics:**
+
+1. **Hofstede Dimensional Distance** measures similarity in the 6-dimensional cultural space
+   - Baseline scores similarly to India on IDV, PDI, MAS, UAI, LTO, IVR dimensions
+
+2. **TVD (Value Distribution Shift)** measures change in which specific values are cited and how often
+   - Baseline achieves its dimensional scores through a DIFFERENT vocabulary of values
+
+**Why US Has Small TVD:**
+- Baseline already emphasizes Achievement & Success (#2 value, 31 mentions)
+- Baseline already uses individualist, autonomy-oriented language
+- US prompting just tweaks the existing value distribution (+8.7% Achievement)
+- The baseline "speaks US value language" even if dimensionally different
+
+**Why India Has Large TVD:**
+- Baseline's dimensional similarity to India is achieved through different value combinations
+- India prompting activates STEREOTYPICALLY INDIAN value language
+- Family Harmony increases dramatically: 26 → 71 mentions (nearly 3x increase!)
+- Explicit cultural persona causes shift to more collectivist vocabulary
+- The model must change WHAT it talks about, not just HOW MUCH
+
+### Interpretation
+
+**The small US shift suggests:**
+- Baseline training data already contains US-centric value vocabulary
+- "Neutral" language in training is actually US-inflected
+- US prompting doesn't require fundamental value reframing
+
+**The large collectivist culture shifts suggest:**
+- Baseline uses individualist vocabulary to achieve its dimensional scores
+- Explicit cultural personas trigger shift to collectivist value language
+- India, Japan, Mexico, UAE prompting requires more dramatic value reframing
+- The model must actively suppress individualist values and elevate collectivist ones
+
+**Key Takeaway:**
+TVD reveals that the baseline's "closeness to India" (in dimensional space) is somewhat superficial. When explicitly prompted with Indian cultural identity, the model must still make substantial changes to its value vocabulary and emphasis patterns. The US requires minimal change because the baseline already uses US-compatible value language, even if the dimensional profile differs.
+
+---
 ---
 
 ## 4.6 Scenario Analysis
@@ -463,9 +541,12 @@ Analysis of value distributions shows:
 - Gap of 2.5 points suggests significant training data imbalances
 
 ### 5. **Cultural Shift Patterns**
-- US cultural prompts shift models least (already close to baseline)
-- India/Japan prompts create largest behavioral shifts
-- Collectivist cultures require more substantial reasoning changes
+- US cultural prompts cause smallest value distribution shift (TVD: 23.83%)
+- Japan/India prompts cause largest shifts (TVD: 47.81%, 46.45%)
+- Paradox resolved: Baseline is dimensionally India-like but lexically US-like
+- US requires minimal shift because baseline already uses US value vocabulary (Achievement, Personal Autonomy)
+- Collectivist cultures require dramatic vocabulary reframing despite dimensional similarity
+- TVD measures value vocabulary shift, not Hofstede dimensional distance
 
 ## 5.2 Implications
 

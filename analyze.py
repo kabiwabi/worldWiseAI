@@ -91,8 +91,7 @@ def analyze_cultural_bias(df: pd.DataFrame):
                 print(f"\n⚠️  INHERENT BIAS DETECTED:")
                 print(f"  Baseline responses are CLOSEST to: {closest[0]}")
                 print(f"  Distance: {closest[1]:.3f}")
-                print(f"\n  This suggests the model has an inherent {closest[0]} cultural bias")
-                print(f"  when not explicitly prompted with a cultural context.")
+                print(f"\n  The models baseline reasoning most closely resembles {closest[0]} culture.")
     
     # Calculate mean alignment per culture (excluding baseline)
     culture_data = df[df['culture'] != 'baseline'] if has_baseline else df

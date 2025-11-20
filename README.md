@@ -581,49 +581,40 @@ This suggests the baseline is closer to **Indian/Asian collectivist values** rat
 
 ## 4.8 Value Pattern Analysis
 
-### Top Values by Culture
+### Top Values by Culture (Frequency Counts)
 
-**India:**
-1. Family Harmony (71)
-2. Stability & Security (51)
-3. Future Planning (47)
-
-**Japan:**
-1. Family Harmony (52)
-2. Future Planning (44)
-3. Stability & Security (43)
-
-**Mexico:**
-1. Family Harmony (86)
-2. Stability & Security (32)
-3. Future Planning (32)
-
-**UAE:**
-1. Family Harmony (70)
-2. Future Planning (44)
-3. Stability & Security (42)
-
-**US:**
-1. Achievement & Success (61)
-2. Personal Autonomy (39)
-3. Future Planning (35)
-
-**Baseline:**
-1. Future Planning (37)
-2. Achievement & Success (31)
-3. Family Harmony (26)
+| Rank | India | Japan | Mexico | UAE | US | Baseline |
+|------|-------|-------|---------|-----|----|---------| 
+| **1** | Family Harmony (71) | Family Harmony (52) | Family Harmony (86) | Family Harmony (70) | Achievement & Success (61) | Future Planning (37) |
+| **2** | Stability & Security (51) | Future Planning (44) | Stability & Security (32) | Future Planning (44) | Personal Autonomy (39) | Achievement & Success (31) |
+| **3** | Future Planning (47) | Stability & Security (43) | Future Planning (32) | Stability & Security (42) | Future Planning (35) | Family Harmony (26) |
 
 ### Cross-Cultural Value Patterns
 
-**Universal Themes:**
-- **Family Harmony** dominates in collectivist cultures (India, Mexico, UAE, Japan)
-- **Future Planning** appears in top 3 for all cultures
-- **Stability & Security** is universal concern
+#### Universal Themes
 
-**Cultural Distinctiveness:**
-- **US** uniquely emphasizes Achievement & Personal Autonomy
-- **Mexico** shows strongest Family Harmony emphasis (86 mentions)
-- **India** balances collectivism with future orientation
+| Theme | Observation | Frequency Range |
+|-------|-------------|-----------------|
+| **Family Harmony** | Dominates in collectivist cultures (India, Japan, Mexico, UAE) | 52-86 mentions |
+| **Future Planning** | Appears in top 3 for all cultures | 32-47 mentions |
+| **Stability & Security** | Universal concern across all cultures | 32-51 mentions |
+
+#### Cultural Distinctiveness
+
+| Culture | Distinctive Pattern | Key Metrics |
+|---------|---------------------|-------------|
+| **US** | Uniquely emphasizes Achievement & Personal Autonomy | Achievement (61), Autonomy (39) |
+| **Mexico** | Strongest Family Harmony emphasis | 86 mentions (highest) |
+| **India** | Balances collectivism with future orientation | Family (71), Future (47) |
+| **Baseline** | Lower Family Harmony emphasis | Only 26 mentions vs. 52-86 in collectivist cultures |
+
+### Key Insights
+
+- **Collectivist Dominance:** Family Harmony is the #1 value in India, Japan, Mexico, and UAE, suggesting strong collectivist orientation across these cultures
+- **US Exceptionalism:** United States is the only culture prioritizing Achievement & Success and Personal Autonomy over Family Harmony
+- **Universal Future Orientation:** Future Planning appears in the top 3 values for every culture tested, indicating cross-cultural importance of long-term thinking
+- **Mexico's Family Focus:** Mexico shows the strongest emphasis on Family Harmony (86 mentions), significantly higher than other cultures
+- **Baseline Bias:** The unprompted baseline shows weaker Family Harmony emphasis (26 mentions), aligning more closely with individualistic patterns
 
 ---
 

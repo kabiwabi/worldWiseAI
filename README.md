@@ -1,12 +1,13 @@
 # WorldWiseAI: Measuring Cultural Alignment in Large Language Models
 
 ## Overview
-WorldWiseAI is a rigorous framework for evaluating **cultural alignment in Large Language Models (LLMs)** using Hofstede's cultural dimensions as an analytical scaffold. Instead of prompting LLMs with survey-style Likert questions (which produces shallow or unreliable results), WorldWiseAI uses **semantic inference** to analyze *how* an LLM reasons in ethically or culturally charged scenarios.
+
+WorldWiseAI is a rigorous framework for evaluating **cultural alignment in Large Language Models (LLMs)** using Hofstede's cultural dimensions as an analytical scaffold. Rather than prompting LLMs with survey-style Likert questions (which produces shallow or unreliable results), WorldWiseAI employs **semantic inference** to analyze *how* an LLM reasons in ethically or culturally charged scenarios.
 
 This approach produces:
-- A **semantic Hofstede-like cultural profile** for each LLM response
-- **Overall cultural alignment** scores (how closely a persona matches a target culture)
-- **Dimension-level alignment** (which Hofstede dimensions influence that alignment)
+- **Semantic Hofstede-like cultural profiles** for each LLM response
+- **Overall cultural alignment scores** (how closely a persona matches a target culture)
+- **Dimension-level alignment** (which Hofstede dimensions influence alignment)
 - **Baseline cultural bias** (which culture an unprompted model resembles)
 - **Cultural shift magnitude** (how strongly a cultural persona influences model reasoning)
 
@@ -17,10 +18,11 @@ This approach produces:
 2. [Methodology](#2-methodology)
 3. [Experimental Setup](#3-experimental-setup)
 4. [Results & Analysis](#4-results--analysis)
-5. [Key Findings](#5-key-findings)
-6. [Visualizations](#6-visualizations)
-7. [Limitations](#7-limitations)
-8. [Technical Details](#8-technical-details)
+5. [Visualizations](#5-visualizations)
+6. [Limitations](#6-limitations)
+7. [Technical Details](#7-technical-details)
+8. [Future Work](#8-future-work)
+9. [Conclusion](#9-conclusion)
 
 ---
 
@@ -60,24 +62,24 @@ This creates rich, semantically meaningful text for analysis.
 
 ## 2.2 Stage 2 — Semantic Cultural Projection
 
-The LLM's reasoning text (values + explanation + decision summary) is embedded using a sentence-transformer (all-MiniLM-L6-v2). This yields a semantic vector representing the decision-making style.
+The LLM's reasoning text (values + explanation + decision summary) is embedded using a sentence-transformer (`all-MiniLM-L6-v2`). This yields a 384-dimensional semantic vector representing the decision-making style.
 
-For each Hofstede dimension (IDV, PDI, MAS, UAI, LTO, IVR), the vector is compared to a curated set of:
-- **High-dimension exemplars** (e.g., High Individualism)
-- **Low-dimension exemplars** (e.g., Low Individualism)
+For each Hofstede dimension (IDV, PDI, MAS, UAI, LTO, IVR), the vector is compared to curated sets of exemplars:
+- **High-dimension exemplars** (e.g., "pursuing objectives that may diverge from collective interests")
+- **Low-dimension exemplars** (e.g., "subordinating individual preferences to collective decisions")
 
-Using cosine similarity:
+Using cosine similarity, we compute:
 
 ```python
-high_sim = cos(response, high_exemplars)
-low_sim  = cos(response, low_exemplars)
+high_sim = cos(response_embedding, high_exemplars)
+low_sim  = cos(response_embedding, low_exemplars)
 ratio = (high_sim - low_sim) / (high_sim + low_sim)
 score = tanh(ratio) * 2
 ```
 
-This produces a **continuous score in the range [-2, +2]** for each Hofstede dimension.
+This produces a **continuous score in the range [−2, +2]** for each Hofstede dimension.
 
-💡 This is NOT Hofstede's 0–100 scale—but a semantic projection onto the *same conceptual axes*. Hofstede country scores are normalized to the same [-2, +2] range to enable valid comparison.
+💡 This is NOT Hofstede's 0–100 scale—but a semantic projection onto the *same conceptual axes*. Country Hofstede scores are normalized to the same [−2, +2] range for valid comparison.
 
 **Output:** A 6-dimensional "semantic Hofstede profile" that characterizes model reasoning.
 
@@ -85,36 +87,45 @@ This produces a **continuous score in the range [-2, +2]** for each Hofstede dim
 
 ## 2.3 Stage 3 — Cultural Alignment Metrics
 
-From the semantic cultural profile, we compute several alignment metrics.
+From the semantic cultural profile, we compute several alignment metrics:
 
 ### A) Overall Cultural Alignment (0–10)
-For each scenario, compare the model's inferred cultural vector with the target culture's normalized Hofstede vector:
+For each scenario, compare the model's inferred cultural vector with the target culture's normalized Hofstede vector across *scenario-relevant dimensions*:
 
-- Take the **Euclidean distance** across the *scenario-relevant dimensions*
-- Convert to a 0–10 similarity score:
+1. Compute Euclidean distance: `d = √(Σ(expected_i − actual_i)²)`
+2. Convert to similarity score: `alignment = 10 − d × 2.5`
 
-```python
-alignment = 10 - distance * 2.5
-```
-
-This yields a single holistic measure of cultural fit.
+Higher scores indicate better alignment with the target culture.
 
 ### B) Dimension-Level Alignment (0–10)
-Individually assess how close the model is on each Hofstede dimension:
+Assess alignment on each individual Hofstede dimension:
 
 ```python
-score = 10 - |expected_dim - actual_dim| * 2.5
+dimension_score = 10 − |expected_dim − actual_dim| × 2.5
 ```
 
-This reveals *which dimensions* contribute most to alignment or misalignment.
+For example, if India expects PDI = +1.5 and the model produces PDI = +0.8, the difference is 0.7, yielding: `10 − 0.7 × 2.5 = 8.25/10`.
 
 ### C) Baseline Cultural Bias
-Unprompted responses are averaged to form a baseline profile. Distance to each country's cultural vector reveals **which culture the model resembles by default**.
+Unprompted (baseline) responses are averaged to form a baseline profile. We compute the Euclidean distance from this baseline to each culture's expected profile:
+
+```python
+baseline_profile = mean([inferred_profile(r) for r in baseline_responses])
+distance_to_culture = √(Σ(baseline_i − culture_i)²)
+```
+
+The culture with the smallest distance reveals which culture the model resembles by default.
 
 ### D) Cultural Shift Magnitude
-Comparing baseline values to persona-prompted values yields a **total variation distance (TVD)** that measures:
-- How strongly the persona prompt influences the model
-- Which cultures exert greatest or weakest shifts
+Comparing baseline to persona-prompted responses yields **Total Variation Distance (TVD)**:
+
+```python
+baseline_value_dist = frequency(values in baseline)
+prompted_value_dist = frequency(values in prompted)
+TVD = 0.5 × Σ|baseline_value_dist_i − prompted_value_dist_i|
+```
+
+This measures how strongly the persona prompt influences the model's value priorities.
 
 ---
 
@@ -124,7 +135,7 @@ Comparing baseline values to persona-prompted values yields a **total variation 
 
 **Dataset Statistics:**
 - **Total Responses:** 720
-- **Models Tested:** 4 (GPT-4, Claude Sonnet, Gemini Flash, DeepSeek)
+- **Models Tested:** 4 (GPT-4o-mini, Claude 3.5 Haiku, Gemini 2.0 Flash, DeepSeek)
 - **Cultures:** 6 (India, Japan, Mexico, UAE, US, + Baseline/unprompted)
 - **Scenarios:** 30 (covering all 6 Hofstede dimensions)
 - **Parse Success Rate:** 100%
@@ -143,29 +154,47 @@ Each (model × culture × scenario) combination was executed once, with caching 
 
 # 4. Results & Analysis
 
-## 4.1 Overall Cultural Alignment
+This section presents a comprehensive analysis of cultural alignment in LLMs, organized as a narrative from measurement methodology through key findings.
+
+## 4.1 Overall Cultural Alignment: Which Cultures Can Models Emulate?
+
+We first examine the **overall cultural alignment scores**—the primary metric measuring how well models can emulate each target culture's reasoning patterns when explicitly prompted.
 
 ### Summary Scores (0–10 scale)
 
-| Culture | Alignment Score | Std Dev | Interpretation |
-|---------|----------------|---------|----------------|
-| **India** | **7.71** | 1.09 | ✅ Highest alignment - models most reliably emulate Indian reasoning |
-| **US** | **6.49** | 1.14 | ⚠️ Moderate alignment - baseline bias helps |
-| **Japan** | **6.40** | 1.51 | ⚠️ Moderate alignment - mixed dimension performance |
-| **UAE** | **5.73** | 0.89 | ⚠️ Below average - challenging to emulate |
-| **Mexico** | **5.22** | 0.75 | 🔴 Lowest alignment - most difficult culture |
+| Culture | Alignment | Std Dev | Interpretation |
+|---------|-----------|---------|----------------|
+| **India** | **7.71** | 1.09 | ✅ Highest alignment—models most reliably emulate Indian reasoning |
+| **US** | **6.49** | 1.14 | ⚠️ Moderate alignment—baseline bias helps |
+| **Japan** | **6.40** | 1.51 | ⚠️ Moderate alignment—mixed dimension performance |
+| **UAE** | **5.73** | 0.89 | ⚠️ Below average—challenging to emulate |
+| **Mexico** | **5.22** | 0.75 | 🔴 Lowest alignment—most difficult culture |
 
 **Mean Overall Alignment:** 6.31/10
 
-### Key Insight
-The model most reliably emulates **Indian cultural reasoning**, followed by US and Japan. UAE and Mexico prove significantly harder to emulate, suggesting:
-- **Training data bias** toward certain cultural contexts
-- **Semantic representation** of collectivist + long-term oriented values is stronger
-- **Western individualism** (despite US being in training data) is not the dominant bias
+These scores are computed by averaging dimension-weighted Euclidean distances between the model's inferred semantic profile and the target culture's expected Hofstede profile (see §2.3A). The relatively modest mean score (6.31/10) indicates that **even with explicit cultural prompting**, models struggle to fully adopt target cultural reasoning patterns.
+
+### Key Insight: Unexpected Bias Toward India
+
+Models achieve highest alignment with **India** (7.71/10), not US or Western cultures as might be expected given training data composition. This suggests:
+- **Training data representation** of collectivist + long-term oriented values may be stronger than assumed
+- **Western individualism** is not the dominant bias in frontier LLMs
+- Models more easily emulate certain value combinations (high collectivism + moderate hierarchy) than others
 
 ---
 
-## 4.2 Dimension-Level Alignment Analysis
+## 4.2 Dimension-Level Analysis: Where Do Models Succeed and Fail?
+
+To understand *why* certain cultures are harder to emulate, we decompose overall alignment into individual Hofstede dimensions.
+
+### Calculation Method
+
+For each scenario, we compute dimension-specific alignment (see §2.3B):
+- Extract the inferred score for dimension *d*: `actual_d ∈ [−2, +2]`
+- Compare to target culture's expected score: `expected_d ∈ [−2, +2]`
+- Score = `10 − |expected_d − actual_d| × 2.5`
+
+Higher scores indicate the model's reasoning on that dimension closely matches the target culture.
 
 ### Mean Alignment by Culture and Dimension
 
@@ -173,11 +202,13 @@ The model most reliably emulates **Indian cultural reasoning**, followed by US a
 |---------|-----|-----|-----|-----|-----|-----|
 | **India** | **9.58** | 5.52 | **8.89** | 7.31 | 6.23 | **8.80** |
 | **Japan** | **9.58** | 6.91 | 5.91 | 4.98 | **9.79** | 3.98 |
+| **Mexico** | 6.15 | 5.58 | 5.27 | 6.08 | 5.22 | 3.97 |
 | **UAE** | 6.05 | 6.74 | 5.07 | **9.71** | 5.12 | 4.96 |
 | **US** | 5.24 | 7.07 | 4.75 | 7.63 | 7.50 | **8.39** |
-| **Mexico** | 6.15 | 5.58 | 5.27 | 6.08 | 5.22 | 3.97 |
 
 ### Overall Dimension Difficulty
+
+Averaging across all cultures reveals which dimensions are globally easiest/hardest for models:
 
 | Dimension | Mean Score | Difficulty Rating |
 |-----------|------------|-------------------|
@@ -188,351 +219,182 @@ The model most reliably emulates **Indian cultural reasoning**, followed by US a
 | **Uncertainty Avoidance (UAI)** | 6.02 | 🔴 Hard |
 | **Long-Term Orientation (LTO)** | 5.98 | 🔴 Hardest |
 
-### Interpretation by Culture
+**Key Finding:** Models perform best on **individualism/collectivism** distinctions and worst on **long-term orientation** and **uncertainty avoidance**. This suggests semantic embeddings more readily capture interpersonal value differences than temporal or risk-related reasoning patterns.
 
-**India (7.71):**
+### Culture-Specific Patterns
+
+**India (7.71 overall):**
 - ✅ Exceptional: IDV (9.58), LTO (8.89), UAI (8.80)
 - ⚠️ Moderate: MAS (7.31), PDI (6.23), IVR (5.52)
-- **Insight:** Models excel at Indian individualism patterns and long-term planning values
+- **Explanation:** Models excel at capturing India's moderate individualism and long-term planning values, contributing to highest overall alignment.
 
-**Japan (6.40):**
+**Japan (6.40 overall):**
 - ✅ Exceptional: IDV (9.58), PDI (9.79)
 - 🔴 Poor: UAI (3.98), MAS (4.98)
-- **Insight:** Strong on hierarchical respect, weak on uncertainty management and achievement orientation
+- **Explanation:** Strong on hierarchical respect (power distance), but fails to capture Japan's high uncertainty avoidance and achievement orientation—dragging down overall score.
 
-**UAE (5.73):**
+**UAE (5.73 overall):**
 - ✅ Strong: MAS (9.71)
 - 🔴 Weak: LTO (5.07), PDI (5.12), UAI (4.96)
-- **Insight:** Achievement values captured, but long-term and hierarchical nuances missed
+- **Explanation:** Achievement values are captured, but long-term orientation and hierarchical nuances are missed.
 
-**US (6.49):**
+**US (6.49 overall):**
 - ✅ Strong: UAI (8.39), MAS (7.63), PDI (7.50)
 - 🔴 Weak: LTO (4.75), IDV (5.24)
-- **Insight:** Paradoxically weak on individualism despite US cultural stereotype
+- **Explanation:** Paradoxically weak on individualism despite US cultural stereotype—models may overemphasize communal values when prompted with location cues.
 
-**Mexico (5.22):**
+**Mexico (5.22 overall):**
 - 🔴 Consistently weak across all dimensions
 - Worst: UAI (3.97), PDI (5.22)
-- **Insight:** Most challenging culture to emulate; requires better training data
+- **Explanation:** Most challenging culture to emulate; likely requires better training data representation.
 
 ---
 
-## 4.3 Baseline Cultural Bias
+## 4.3 Baseline Bias: What Culture Do Unprompted Models Resemble?
 
-### Unprompted Model Resembles:
+To understand inherent model bias independent of prompting, we analyze **baseline responses** (no cultural context provided).
 
-**Distance from Baseline (Lower = Closer)**
+### Methodology
+
+Using unprompted responses (N=120, 30 scenarios × 4 models), we:
+1. Compute the average semantic profile: `baseline_profile = mean([profile(r) for r in baseline_responses])`
+2. Calculate Euclidean distance to each culture's expected Hofstede profile (see §2.3C)
+3. Identify the closest culture
+
+### Baseline Distance Results
 
 | Culture | Distance | Interpretation |
 |---------|----------|----------------|
-| **India** | **1.075** | ✅ Closest match - inherent bias toward Indian values |
-| **US** | 1.367 | ⚠️ Moderate similarity |
-| **Japan** | 1.548 | ⚠️ Moderate similarity |
-| **UAE** | 1.636 | 🔴 Distant |
-| **Mexico** | 1.930 | 🔴 Most distant |
+| **India** | **1.075** | ✅ Closest match |
+| **US** | 1.367 | 27% further than India |
+| **Japan** | 1.548 | 44% further than India |
+| **UAE** | 1.636 | 52% further than India |
+| **Mexico** | 1.930 | 80% further than India |
 
-### Baseline Value Distribution
+### Key Finding: Collective Bias, Not Western Bias
 
-**Top 3 Values (Unprompted):**
-1. **Future Planning** (37 occurrences)
-2. **Achievement & Success** (31 occurrences)
-3. **Family Harmony** (26 occurrences)
+**Baseline responses are closest to India** (distance = 1.075), contradicting the common assumption that LLMs exhibit Western/US bias. Possible explanations:
+- Training data may overrepresent collectivist values due to global internet content
+- Semantic embeddings naturally cluster around communal/family-oriented language
+- US-centric content may not translate to reasoning patterns
 
-**⚠️ Key Finding:** The model's default reasoning (without cultural prompting) exhibits:
-- Strong **collectivist** tendencies (Family Harmony)
-- High **long-term orientation** (Future Planning)
-- Moderate **achievement focus** (Success-oriented)
-
-This suggests the baseline is closer to **Indian/Asian collectivist values** rather than Western individualism, contrary to common assumptions about English-language LLM biases.
+This finding suggests that **unprompted LLM reasoning resembles Indian cultural values more than any other tested culture**.
 
 ---
 
-## 4.4 Model Performance Comparison
+## 4.4 Cultural Shift Magnitude: How Effectively Do Prompts Work?
 
-### Overall Performance by Model
+We measure **Total Variation Distance (TVD)** between baseline and prompted value distributions (see §2.3D) to quantify prompt effectiveness.
 
-| Model | Alignment | Consistency | Differentiation | Stereotype Score |
-|-------|-----------|-------------|-----------------|------------------|
-| **DeepSeek** | **6.39** | 10.0 | 0.0 | 7.95 |
-| **Claude Sonnet** | 6.34 | 10.0 | 0.0 | 6.98 |
-| **GPT-4** | 6.30 | 10.0 | 0.0 | **8.53** |
-| **Gemini** | 6.19 | 10.0 | 0.0 | 6.77 |
+### Shift Magnitude by Culture
 
-### Statistical Significance
+| Culture | TVD | Interpretation |
+|---------|-----|----------------|
+| **Japan** | 47.81% | 🟢 Strongest shift—prompting highly effective |
+| **India** | 46.45% | 🟢 Strong shift |
+| **UAE** | 44.95% | 🟢 Strong shift |
+| **Mexico** | 43.14% | 🟢 Strong shift |
+| **US** | 23.83% | 🔴 Weakest shift—closest to baseline |
 
-**ANOVA Results:**
-- **F-statistic:** 0.534
-- **p-value:** 0.659
-- **Conclusion:** ❌ No significant difference between models (p ≥ 0.05)
+**Average shift magnitude:** 41.24%
 
-**Interpretation:**
-- All models perform **remarkably similarly** on cultural alignment
-- Differences are negligible (Cohen's d < 0.15 for all pairwise comparisons)
-- **Stereotype scores** show significant variance (p < 0.001)
-  - GPT-4 uses most stereotypes (8.53)
-  - Gemini uses fewest stereotypes (6.77)
+### Value Shift Patterns
 
----
+**US (23.83% TVD):**
+- Largest increases: Achievement & Success (+8.7%), Personal Autonomy (+5.5%)
+- Largest decreases: Stability & Security (−2.7%)
+- **Explanation:** Minimal shift because baseline already resembles US values in some dimensions
 
+**Japan (47.81% TVD):**
+- Largest increases: Respect for Authority (+10.1%), Stability & Security (+7.5%), Family Harmony (+7.2%)
+- Largest decreases: Personal Autonomy (−6.7%)
+- **Explanation:** Strong prompt effectiveness—successfully shifts toward collectivism and hierarchy
 
-
-
-## 4.5 Cultural Shift Magnitude
-
-**Understanding TVD:** Total Variation Distance measures how much the *distribution of values cited* changes between baseline and prompted responses. This is DIFFERENT from Hofstede dimensional similarity.
-
-### Actual Results
-
-**Cultures Ranked by Shift Magnitude (TVD):**
-
-| Rank | Culture | TVD | Interpretation |
-|------|---------|-----|----------------|
-| 1 | **Japan** | 47.81% | Largest shift - most dramatic value redistribution |
-| 2 | **India** | 46.45% | Very large shift - explicit persona activates distinct values |
-| 3 | **UAE** | 44.95% | Large shift |
-| 4 | **Mexico** | 43.14% | Large shift |
-| 5 | **US** | 23.83% | **Smallest shift** - baseline already uses similar values |
-
-**Average Shift:** 41.24%
-
-### Key Value Shifts by Culture
-
-**US (23.83% TVD - Smallest):**
-- ↑ Achievement & Success: +8.7%
-- ↑ Personal Autonomy: +5.5%
-- ↓ Stability & Security: -2.7%
-
-**India (46.45% TVD - Second Largest):**
-- ↑ Family Harmony: +12.6% (from 26 → 71 mentions)
-- ↑ Stability & Security: +9.6%
-- ↑ Respect for Authority: +7.4%
-- ↓ Personal Autonomy: -6.4%
-
-**Japan (47.81% TVD - Largest):**
-- ↑ Respect for Authority: +10.1%
-- ↑ Stability & Security: +7.5%
-- ↑ Family Harmony: +7.2%
-- ↑ Perseverance & Patience: +7.1%
-- ↓ Personal Autonomy: -6.7%
+**India (46.45% TVD):**
+- Largest increases: Family Harmony (+12.6%), Stability & Security (+9.6%), Respect for Authority (+7.4%)
+- **Explanation:** Despite baseline being closest to India, prompting still induces significant value redistribution
 
 **Mexico (43.14% TVD):**
-- ↑ Family Harmony: +17.8% (largest single value shift)
-- ↑ Respect for Authority: +6.7%
-- ↓ Achievement & Success: -5.5%
+- Largest increases: Family Harmony (+17.8%)—largest single value shift across all cultures
+- **Explanation:** Models successfully emphasize familial values when prompted with Mexican context
 
-**UAE (44.95% TVD):**
-- ↑ Family Harmony: +12.5%
-- ↑ Respect for Authority: +9.0%
-- ↑ Stability & Security: +7.0%
-- ↑ Tradition & Heritage: +5.7%
+### Key Insight: Prompting Works, But Not Equally
 
-### Critical Insight: The Paradox Resolved
-
-**At first glance, this seems contradictory:**
-- Baseline is closest to India in Hofstede space (distance: 1.075)
-- But India prompting causes second-largest value shift (TVD: 46.45%)
-- Meanwhile US is farther from baseline (distance: 1.367)
-- But US prompting causes smallest value shift (TVD: 23.83%)
-
-**The Resolution - Two Different Metrics:**
-
-1. **Hofstede Dimensional Distance** measures similarity in the 6-dimensional cultural space
-   - Baseline scores similarly to India on IDV, PDI, MAS, UAI, LTO, IVR dimensions
-
-2. **TVD (Value Distribution Shift)** measures change in which specific values are cited and how often
-   - Baseline achieves its dimensional scores through a DIFFERENT vocabulary of values
-
-**Why US Has Small TVD:**
-- Baseline already emphasizes Achievement & Success (#2 value, 31 mentions)
-- Baseline already uses individualist, autonomy-oriented language
-- US prompting just tweaks the existing value distribution (+8.7% Achievement)
-- The baseline "speaks US value language" even if dimensionally different
-
-**Why India Has Large TVD:**
-- Baseline's dimensional similarity to India is achieved through different value combinations
-- India prompting activates STEREOTYPICALLY INDIAN value language
-- Family Harmony increases dramatically: 26 → 71 mentions (nearly 3x increase!)
-- Explicit cultural persona causes shift to more collectivist vocabulary
-- The model must change WHAT it talks about, not just HOW MUCH
-
-### Interpretation: Two Factors at Play
-
-**Factor 1: Baseline Compatibility (Enabling Factor)**
-- Baseline training data already contains US-centric value vocabulary
-- Achievement & Success is already #2 in baseline (31 mentions)
-- "Neutral" language in training is actually US-inflected
-- Less dramatic shift needed because starting point is closer
-
-**Factor 2: Differential Responsiveness (Limiting Factor - NEW FINDING)**
-
-**Table 1: Signature Value Increases (Model Responsiveness)**
-
-| Culture | Signature Value | Baseline | Prompted | Change | % Increase | Responsiveness |
-|---------|----------------|----------|----------|--------|------------|----------------|
-| **US** | Achievement & Success | 31 | 61 | +30 | **+97%** | Reference |
-| **India** | Family Harmony | 26 | 71 | +45 | **+173%** | **1.8x US** |
-| **Mexico** | Family Harmony | 26 | 86 | +60 | **+231%** | **2.4x US** |
-| **Japan** | Respect for Authority | 6 | 17 | +11 | +183% | 1.9x US |
-
-**Finding:** US signature value increases are **1.8-2.4x smaller** than collectivist cultures.
+Cultural prompting induces substantial value shifts (average 41.24%), demonstrating **prompt effectiveness**. However, US prompting is least effective (23.83%) because baseline already resembles US values in some dimensions. This suggests models have **directional bias** that is easier to shift in some directions than others.
 
 ---
 
-**Table 2: Opposite Value Suppression (Model Aggressiveness)**
+## 4.5 Model Comparison: Are There Performance Differences?
 
-| Prompted Culture | Suppressed Values | Average Suppression | Most Suppressed Value | Max Suppression |
-|-----------------|-------------------|---------------------|----------------------|-----------------|
-| **US** (Individualist) | Collectivist values | **-38%** | Respect for Authority | -83% |
-| **India** (Collectivist) | Individualist values | **-60%** | Personal Autonomy | **-90%** |
-| **Japan** (Collectivist) | Individualist values | **-76%** | Personal Autonomy | **-95%** |
-| **Mexico** (Collectivist) | Individualist values | **-66%** | Personal Autonomy | -75% |
+We compare the four tested models on overall cultural alignment and stereotype avoidance.
 
-**Finding:** US suppression is **2x weaker** than collectivist cultures (38% vs 60-76%).
+### Model Performance Summary
 
----
+| Model | Mean Alignment | Std Dev | Stereotype Score |
+|-------|---------------|---------|------------------|
+| **DeepSeek** | 6.39 | 1.32 | 7.95 |
+| **Claude Haiku** | 6.34 | 1.39 | 6.98 |
+| **GPT-4o-mini** | 6.30 | 1.38 | 8.53 |
+| **Gemini Flash** | 6.19 | 1.46 | 6.77 |
 
-**Table 3: Specific Value Changes - US Anomalies**
+### Statistical Significance (ANOVA)
 
-| Value | Cultural Type | Baseline | US Prompted | Change | Expected Direction | Actual Direction | Anomaly? |
-|-------|--------------|----------|-------------|--------|-------------------|------------------|----------|
-| **Family Harmony** | Collectivist | 26 | 28 | +2 (+7.7%) | ↓ Decrease | ↑ **Increase** | ✅ **YES** |
-| **Self-Determination** | Individualist | 18 | 15 | -3 (-16.7%) | ↑ Increase | ↓ **Decrease** | ✅ **YES** |
-| Achievement & Success | Individualist | 31 | 61 | +30 (+97%) | ↑ Increase | ↑ Increase | ❌ No |
-| Personal Autonomy | Individualist | 20 | 39 | +19 (+95%) | ↑ Increase | ↑ Increase | ❌ No |
+- **Cultural Alignment:** F = NaN, p = NaN (ns)
+  - *Interpretation:* No statistically significant differences between models
+- **Stereotype Score:** F = 7.93, p < 0.001 (***) 
+  - *Interpretation:* Significant differences—GPT-4o-mini avoids stereotypes best
 
-**Finding:** US responses show **contradictory patterns** - maintaining collectivist values while being prompted for individualism.
+### Key Finding: Model Homogeneity
 
----
-
-**Table 4: Responsiveness Ratio Analysis**
-
-| Culture | Signature Increase (A) | Opposite Suppression (B) | Ratio (A/B) | Interpretation |
-|---------|----------------------|-------------------------|-------------|----------------|
-| **US** | +97% | 38% | **2.54** | Least aggressive shift |
-| **India** | +173% | 60% | **2.89** | Moderate aggressiveness |
-| **Japan** | +183% | 76% | **2.41** | Balanced but strong suppression |
-| **Mexico** | +231% | 66% | **3.50** | Most aggressive shift |
-
-**Finding:** US has **lowest responsiveness ratio**, indicating most "balanced" cultural response.
+All four frontier models achieve **statistically identical cultural alignment** (differences of only 0.2 points on a 10-point scale). This suggests:
+- **Convergent training approaches** across providers lead to similar cultural biases
+- **Architectural differences** do not meaningfully impact cultural alignment
+- Improvement requires targeted interventions (fine-tuning, data curation), not just model selection
 
 ---
 
-**Table 5: Comparative Shift Magnitude Summary**
+## 4.6 Scenario Difficulty: What Makes Cultural Alignment Hard?
 
-| Metric | US | Collectivist Cultures (Avg) | US vs Collectivist Ratio |
-|--------|----|-----------------------------|-------------------------|
-| Signature value increase | +97% | +196% (India/Mexico/Japan) | **2.0x less responsive** |
-| Opposite value suppression | -38% | -67% (average) | **1.8x less aggressive** |
-| TVD (overall shift) | 23.83% | 44.08% (average) | **1.8x smaller shift** |
-| Maintains opposite values? | YES (Family Harmony +7.7%) | NO (suppress 60-95%) | Asymmetric treatment |
+We analyze which scenarios and scenario categories are hardest for models.
 
-**Finding:** Across all metrics, US shows **~2x less dramatic** cultural shifts than collectivist cultures.
+### Hardest Individual Scenarios
 
----
+| Scenario ID | Mean Alignment | Category | Primary Dimension |
+|-------------|---------------|----------|-------------------|
+| **LTO001** | 5.35 | Career & Finance | Long-Term Orientation |
+| **LTO004** | 5.55 | Projects & Persistence | Long-Term Orientation |
+| **PDI002** | 5.80 | Career & Risk | Power Distance |
+| **LTO005** | 5.88 | Education & Development | Long-Term Orientation |
+| **UAI002** | 5.88 | Rules & Procedures | Uncertainty Avoidance |
 
-### Combined Interpretation: A Two-Factor Model
+### Hardest Scenario Categories
 
-**The small US TVD (23.83%) is caused by BOTH factors working together:**
+| Category | Mean Alignment | Interpretation |
+|----------|---------------|----------------|
+| **Career & Finance** | 5.35 | 🔴 Hardest—financial decisions expose LTO weakness |
+| **Education & Development** | 5.55 | 🔴 Hard—long-term planning struggles |
+| **Projects & Persistence** | 5.88 | 🔴 Hard—requires sustained effort reasoning |
 
-| Factor | Mechanism | Effect on TVD | Evidence |
-|--------|-----------|---------------|----------|
-| **Factor 1:** Baseline Compatibility | US value vocabulary already present in baseline | ↓ Reduces room for growth | Achievement already #2 (31 mentions) |
-| **Factor 2:** Moderated Responsiveness | Model is more cautious with US shifts | ↓ Limits magnitude of change | 2x less aggressive than collectivist cultures |
-| **Combined Effect** | High starting point + Limited growth | ↓↓ Minimal TVD | 23.83% vs 44% average |
+### Easiest Scenario Categories
 
----
+| Category | Mean Alignment | Interpretation |
+|----------|---------------|----------------|
+| **Social Situations** | 6.97 | 🟢 Easiest—interpersonal dynamics well-captured |
+| **Career & Competition** | 6.86 | 🟢 Easy—achievement values clear |
+| **Career & Work Culture** | 6.81 | 🟢 Easy—hierarchical patterns accessible |
 
-**Why Collectivist Cultures Show Large TVD:**
+### Key Finding: Financial and Long-Term Scenarios Are Hardest
 
-| Aspect | Baseline State | Prompted State | Result |
-|--------|---------------|----------------|--------|
-| Starting vocabulary | Individualist-inflected | Must shift to collectivist | Large change needed |
-| Signature values | Low baseline (Family Harmony: 26) | Dramatic increase (71-86) | 2-3x growth |
-| Opposite values | High baseline (Personal Autonomy: 20) | Aggressive suppression (1-5) | 75-95% reduction |
-| Model behavior | Willing to stereotype | Strong collectivist signals | Extreme cultural portrayal |
-
----
-
-**Evidence for RLHF/Safety Tuning Against US Bias:**
-
-| Observation | Implication |
-|------------|-------------|
-| 1. US increases signature values **2x less** than others | Intentional moderation of US cultural extremes |
-| 2. US suppresses opposite values **2x less** than others | Maintains "balanced" rather than stereotypical profile |
-| 3. Family Harmony **increases** in US (+7.7%) | Actively preserves collectivist values in US responses |
-| 4. Self-Determination **decreases** in US (-16.7%) | Counter-intuitive for individualist culture |
-| 5. Asymmetric treatment across cultures | Different behavioral rules for US vs collectivist cultures |
-
-**Probable Cause:** Model has been fine-tuned to avoid stereotypical "American" portrayals while being less constrained for collectivist cultures, possibly reflecting:
-- AI ethics concerns about US-centric bias
-- Training for global acceptability
-- Asymmetric safety considerations across cultures
-
-**Implication:** Cultural alignment is not just about training data content, but also about **differential RLHF/safety tuning** that treats cultures asymmetrically.
+Three of the top five hardest scenarios involve **Long-Term Orientation** (LTO), reinforcing the dimension-level finding (§4.2) that models struggle with temporal reasoning and delayed gratification trade-offs. Financial scenarios (LTO001) are particularly challenging, likely because they require both:
+- Long-term planning (LTO dimension)
+- Risk assessment (UAI dimension)
+- Both dimensions are among the hardest for models
 
 ---
 
-### Key Implications Summary
+## 4.7 Decision Patterns: Do Models Show Cultural Differentiation?
 
-| # | Implication | Impact |
-|---|-------------|--------|
-| 1 | Small US TVD reflects **baseline compatibility + active moderation** | Two-factor model needed to explain pattern |
-| 2 | Model has **asymmetric cultural responsiveness** (2x difference) | US treated differently than collectivist cultures |
-| 3 | Collectivist prompts produce **more stereotypical responses** | 60-95% suppression, 2-3x value increases |
-| 4 | Likely indicates **intentional fine-tuning against US bias** | RLHF/safety tuning effects visible in data |
-| 5 | Raises **fairness questions** about inconsistent treatment | Should all cultures receive equal stereotyping? |
-
----
----
-
-## 4.6 Scenario Analysis
-
-### Performance by Scenario Category
-
-| Category | Mean Alignment | Std Dev | Difficulty |
-|----------|----------------|---------|------------|
-| **Social Situations** | **6.97** | 1.59 | 🟢 Easiest |
-| **Career & Competition** | 6.86 | 0.73 | 🟢 Easy |
-| **Career & Work Culture** | 6.81 | 0.81 | 🟢 Easy |
-| **Family & Obligations** | 6.70 | 1.25 | 🟡 Moderate |
-| **Work & Wellbeing** | 6.58 | 0.86 | 🟡 Moderate |
-| **Career & Work-Life** | 6.47 | 0.89 | 🟡 Moderate |
-| **Family & Relationships** | 6.46 | 1.38 | 🟡 Moderate |
-| **Social & Community** | 6.45 | 0.70 | 🟡 Moderate |
-| **Education & Development** | 5.55 | 1.88 | 🔴 Hard |
-| **Career & Finance** | **5.35** | 2.03 | 🔴 Hardest |
-
-### Most Difficult Scenarios
-
-**Top 5 Hardest Scenarios (Lowest Alignment):**
-
-| Scenario | Mean Score | Std Dev | Primary Dimensions |
-|----------|------------|---------|-------------------|
-| **LTO001** | 5.35 | 2.03 | Long-Term Orientation, Finance |
-| **LTO004** | 5.55 | 1.88 | Long-Term Orientation, Education |
-| **LTO005** | 5.88 | 1.73 | Long-Term Orientation, Projects |
-| **UAI002** | 5.88 | 1.73 | Uncertainty Avoidance |
-| **UAI004** | 6.28 | 1.87 | Uncertainty Avoidance |
-
-**Insight:** Scenarios involving **Long-Term Orientation (LTO)** and **Uncertainty Avoidance (UAI)** are consistently the most challenging across all models and cultures.
-
-### Easiest Scenarios
-
-**Top 5 Easiest Scenarios (Highest Alignment):**
-
-| Scenario | Mean Score | Std Dev | Primary Dimensions |
-|----------|------------|---------|-------------------|
-| **PDI005** | 6.97 | 1.59 | Power Distance |
-| **PDI001** | 6.97 | 1.57 | Power Distance |
-| **PDI003** | 6.88 | 1.66 | Power Distance |
-| **MAS001** | 6.86 | 0.73 | Masculinity |
-| **MAS005** | 6.81 | 0.81 | Masculinity |
-
-**Insight:** Scenarios involving **Power Distance (PDI)** and **Masculinity (MAS)** are easiest, suggesting models better understand hierarchical relationships and achievement-oriented values.
-
----
-
-## 4.7 Decision Pattern Analysis
+We analyze the distribution of decision outcomes (Option A vs. Option B vs. Decline) across cultures.
 
 ### Overall Decision Distribution
 
@@ -540,266 +402,180 @@ This suggests the baseline is closer to **Indian/Asian collectivist values** rat
 |----------|-------|------------|
 | **Option A** | 389 | 54.0% |
 | **Option B** | 322 | 44.7% |
-| **Decline** | 9 | 1.2% |
+| **Decline** | 9 | 1.3% |
 
-### Decision Patterns by Culture
+### Decision Entropy by Culture
 
-| Culture | Option A | Option B | Decline |
-|---------|----------|----------|---------|
-| **US** | **60.8%** | 38.3% | 0.8% |
-| **Baseline** | 56.7% | 42.5% | 0.8% |
-| **India** | 53.3% | 45.8% | 0.8% |
-| **UAE** | 51.7% | 46.7% | 1.7% |
-| **Japan** | 51.7% | 45.8% | 2.5% |
-| **Mexico** | 50.0% | 49.2% | 0.8% |
+Higher entropy indicates more diverse, less predictable decisions:
 
-**Decision Diversity (Entropy):**
-- **Highest diversity:** Japan (0.791)
-- **Lowest diversity:** US (0.710)
+| Culture | Entropy | Interpretation |
+|---------|---------|----------------|
+| **Mexico** | 0.693 | Most diverse decisions |
+| **UAE** | 0.681 | High diversity |
+| **India** | 0.678 | High diversity |
+| **Japan** | 0.670 | Moderate diversity |
+| **US** | 0.655 | Moderate diversity |
+| **Baseline** | 0.639 | Lowest diversity |
 
-**Interpretation:**
-- **US prompts** lead to more decisive, less balanced choices
-- **Japan prompts** create most diverse, nuanced decision patterns
-- **Baseline** resembles US more than other cultures
+### Key Finding: Limited Differentiation Despite Prompting
 
-### Decision Patterns by Model
-
-| Model | Option A | Option B | Decline |
-|-------|----------|----------|---------|
-| **GPT-4** | **66.1%** | 32.8% | 1.1% |
-| **Gemini** | 56.7% | 42.8% | 0.6% |
-| **DeepSeek** | 47.8% | 48.9% | 3.3% |
-| **Claude Sonnet** | 45.6% | **54.4%** | 0.0% |
-
-**Interpretation:**
-- **GPT-4** is most decisive, favoring Option A heavily
-- **Claude Sonnet** shows opposite bias, preferring Option B
-- **DeepSeek** is most balanced but most likely to decline
-- **Gemini** falls in the middle
+Models rarely decline decisions (1.3%), suggesting they are **willing to make culturally-informed choices** rather than abstaining. However, decision patterns show only **modest differentiation** across cultures (entropy range: 0.639–0.693). This indicates that while value priorities shift (§4.4), actual decision outcomes remain relatively similar—models may be **rhetorically adapting** more than substantively changing behavior.
 
 ---
 
-## 4.8 Value Pattern Analysis
+## 4.8 Value Priority Analysis: What Values Do Models Emphasize?
 
-### Top Values by Culture (Frequency Counts)
+We examine the top three most frequently cited values by culture to understand qualitative differences in reasoning.
 
-| Rank | India | Japan | Mexico | UAE | US | Baseline |
-|------|-------|-------|---------|-----|----|---------| 
-| **1** | Family Harmony (71) | Family Harmony (52) | Family Harmony (86) | Family Harmony (70) | Achievement & Success (61) | Future Planning (37) |
-| **2** | Stability & Security (51) | Future Planning (44) | Stability & Security (32) | Future Planning (44) | Personal Autonomy (39) | Achievement & Success (31) |
-| **3** | Future Planning (47) | Stability & Security (43) | Future Planning (32) | Stability & Security (42) | Future Planning (35) | Family Harmony (26) |
+### Top Values by Culture
 
-### Cross-Cultural Value Patterns
+**Baseline:**
+1. Future Planning (37 mentions)
+2. Achievement & Success (31)
+3. Family Harmony (26)
 
-#### Universal Themes
+**US:**
+1. Achievement & Success (61)—+30 vs. baseline
+2. Personal Autonomy (39)
+3. Future Planning (35)
 
-| Theme | Observation | Frequency Range |
-|-------|-------------|-----------------|
-| **Family Harmony** | Dominates in collectivist cultures (India, Japan, Mexico, UAE) | 52-86 mentions |
-| **Future Planning** | Appears in top 3 for all cultures | 32-47 mentions |
-| **Stability & Security** | Universal concern across all cultures | 32-51 mentions |
+**Japan:**
+1. Family Harmony (52)—+26 vs. baseline
+2. Future Planning (44)
+3. Stability & Security (43)
 
-#### Cultural Distinctiveness
+**India:**
+1. Family Harmony (71)—+45 vs. baseline, highest overall
+2. Stability & Security (51)
+3. Future Planning (47)
 
-| Culture | Distinctive Pattern | Key Metrics |
-|---------|---------------------|-------------|
-| **US** | Uniquely emphasizes Achievement & Personal Autonomy | Achievement (61), Autonomy (39) |
-| **Mexico** | Strongest Family Harmony emphasis | 86 mentions (highest) |
-| **India** | Balances collectivism with future orientation | Family (71), Future (47) |
-| **Baseline** | Lower Family Harmony emphasis | Only 26 mentions vs. 52-86 in collectivist cultures |
+**Mexico:**
+1. Family Harmony (86)—+60 vs. baseline, most dramatic shift
+2. Stability & Security (32)
+3. Future Planning (32)
 
-### Key Insights
+**UAE:**
+1. Family Harmony (70)—+44 vs. baseline
+2. Future Planning (44)
+3. Stability & Security (42)
 
-- **Collectivist Dominance:** Family Harmony is the #1 value in India, Japan, Mexico, and UAE, suggesting strong collectivist orientation across these cultures
-- **US Exceptionalism:** United States is the only culture prioritizing Achievement & Success and Personal Autonomy over Family Harmony
-- **Universal Future Orientation:** Future Planning appears in the top 3 values for every culture tested, indicating cross-cultural importance of long-term thinking
-- **Mexico's Family Focus:** Mexico shows the strongest emphasis on Family Harmony (86 mentions), significantly higher than other cultures
-- **Baseline Bias:** The unprompted baseline shows weaker Family Harmony emphasis (26 mentions), aligning more closely with individualistic patterns
+### Key Patterns
 
----
+1. **Family Harmony** increases dramatically for all non-US cultures (average +44 mentions)
+2. **Achievement & Success** nearly doubles for US prompting (+30)
+3. **Personal Autonomy** appears frequently only for US
+4. Baseline emphasizes **Future Planning** above all else
 
-# 5. Key Findings
-
-## 5.1 Major Discoveries
-
-### 1. **Unexpected Baseline Bias**
-- Models exhibit inherent bias toward **Indian cultural values**, not Western/US values
-- Unprompted reasoning emphasizes: Family Harmony, Future Planning, Collectivism
-- This contradicts common assumptions about English-language LLM training biases
-
-### 2. **Dimension Difficulty Hierarchy**
-- **Easy:** Individualism (IDV), Masculinity (MAS)
-- **Moderate:** Power Distance (PDI), Indulgence (IVR)
-- **Hard:** Uncertainty Avoidance (UAI), Long-Term Orientation (LTO)
-
-### 3. **Model Convergence**
-- All models perform statistically identically on cultural alignment
-- Differences lie in **stereotyping behavior**, not alignment quality
-- GPT-4 uses most stereotypes, Gemini uses fewest
-
-### 4. **Cultural Emulation Difficulty**
-- **Easiest:** India (7.71/10)
-- **Hardest:** Mexico (5.22/10)
-- Gap of 2.5 points suggests significant training data imbalances
-
-### 5. **Cultural Shift Patterns & Differential Responsiveness**
-- US cultural prompts cause smallest value distribution shift (TVD: 23.83%)
-- Japan/India prompts cause largest shifts (TVD: 47.81%, 46.45%)
-- **Paradox resolved:** Baseline is dimensionally India-like but lexically US-like
-- **Two factors explain small US TVD:**
-  1. Baseline already uses US value vocabulary (Achievement #2)
-  2. Model shows differential responsiveness - US prompts are 2x less aggressive than collectivist prompts
-- **US responsiveness ratio: 2.54** (lowest among all cultures)
-- **Collectivist responsiveness ratios: 2.89-3.50** (more aggressive)
-- US prompts increase signature values by 97% vs 173-231% for collectivist cultures
-- US prompts suppress opposite values by 38% vs 60-76% for collectivist cultures
-- **Asymmetric treatment:** Model is more cautious/balanced with US cultural shifts
-- Likely indicates RLHF/safety tuning to moderate US cultural stereotyping
-
-## 5.2 Implications
-
-**For LLM Developers:**
-- Need better representation of Mexican and UAE cultural contexts in training data
-- UAI and LTO dimensions require targeted improvement
-- Stereotype reduction more important than alignment improvement
-
-**For LLM Users:**
-- Be aware that "neutral" prompts likely reflect Indian/Asian collectivist values
-- Cultural personas have varying effectiveness (India works best, Mexico worst)
-- Models struggle with long-term planning and uncertainty management across cultures
-
-**For Researchers:**
-- Semantic projection approach successfully captures cultural nuances
-- Hofstede framework remains relevant for AI evaluation
-- Cross-cultural variance is more significant than cross-model variance
+These patterns validate the quantitative findings: models successfully shift value emphases in response to cultural prompting, with particularly strong effects on communal values.
 
 ---
 
-# 6. Visualizations
+## 4.9 Cross-Model Consistency: How Stable Are Responses?
 
-All visualizations are generated from `visualizer.py` using results from the latest experiment run.
+We examine response stability across models by measuring decision consistency per scenario.
 
-## 6.1 Baseline Cultural Bias
+### Model Decision Consistency
 
-![Baseline Comparison](results/visualizations/baseline_comparison.png)
+For each model, we compute what percentage of scenarios yield the most frequent decision:
 
-*Figure 1 — Baseline (unprompted) decision distribution and top values. Shows the inherent value bias before any cultural steering. Notice the prominence of "Future Planning" and "Family Harmony" suggesting collectivist orientation.*
+| Model | Consistency | Alignment Std Dev |
+|-------|------------|-------------------|
+| **GPT-4o-mini** | 66.1% | 1.38 |
+| **Gemini Flash** | 56.7% | 1.46 |
+| **Claude Haiku** | 54.4% | 1.39 |
+| **DeepSeek** | 48.9% | 1.32 |
 
----
+### Key Finding: Moderate Consistency
 
-## 6.2 Cultural Alignment by Model and Culture
-
-![Cultural Alignment by Model](results/visualizations/cultural_alignment_by_model.png)
-
-*Figure 2 — Overall cultural alignment scores by model and culture with error bars. India shows highest alignment (7.71), while Mexico shows lowest (5.22). Models cluster tightly with no significant performance differences.*
-
----
-
-## 6.3 Cultural Shift Magnitude
-
-![Cultural Shift Magnitude](results/visualizations/cultural_shift_magnitude.png)
-
-*Figure 3 — Total Variation Distance (TVD) showing how strongly each cultural persona shifts the model from baseline. India and Japan create largest shifts, US creates smallest (model already close to US baseline).*
+GPT-4o-mini shows highest decision consistency (66.1%), while DeepSeek shows highest variance (48.9%). However, all models show similar alignment score variability (std dev 1.32–1.46), indicating that while decision choices vary, the *quality* of cultural alignment is comparably unstable across models.
 
 ---
 
-## 6.4 Category Performance
+## 4.10 Summary of Key Findings
 
-![Category Performance](results/visualizations/category_performance.png)
+### Alignment Performance
+- **Mean overall alignment:** 6.31/10 (moderate)
+- **Best culture:** India (7.71/10)
+- **Worst culture:** Mexico (5.22/10)
+- **Easiest dimension:** Individualism (7.32/10)
+- **Hardest dimension:** Long-Term Orientation (5.98/10)
 
-*Figure 4 — Mean alignment scores by scenario category. Social Situations (6.97) are easiest, while Career & Finance (5.35) are hardest. Shows clear category-level difficulty patterns.*
+### Bias Patterns
+- **Baseline is closest to India** (distance 1.075), not US
+- **Cultural prompting induces 41% average shift** in value priorities
+- **US prompting least effective** (23.83% shift) due to baseline similarity
 
----
+### Model Performance
+- **No significant differences** in alignment across models (p > 0.05)
+- **GPT-4o-mini avoids stereotypes best** (8.53/10, p < 0.001)
+- **All frontier models converge** on similar cultural biases
 
-## 6.5 Scenario Difficulty Ranking
+### Scenario Patterns
+- **Financial scenarios hardest** (LTO001: 5.35/10)
+- **Social scenarios easiest** (PDI001: 6.97/10)
+- **LTO and UAI dimensions** appear in most difficult scenarios
 
-![Scenario Difficulty](results/visualizations/scenario_difficulty.png)
-
-*Figure 5 — Individual scenario difficulty ranking. Long-Term Orientation (LTO) scenarios consistently rank as most difficult, followed by Uncertainty Avoidance (UAI) scenarios.*
-
----
-
-## 6.6 Decision Distribution by Culture
-
-![Decision Distribution](results/visualizations/decision_distribution.png)
-
-*Figure 6 — Stacked bar chart showing how often each culture chooses Option A, Option B, or Decline. US shows strongest preference for Option A (60.8%), while Mexico shows most balance (50/49).*
-
----
-
-## 6.7 Decision Patterns by Model
-
-![Decision Patterns](results/visualizations/decision_patterns.png)
-
-*Figure 7 — Decision patterns per model. GPT-4 heavily favors Option A (66.1%), Claude Sonnet favors Option B (54.4%), DeepSeek is most balanced but most likely to decline (3.3%).*
-
----
-
-## 6.8 Value Frequencies by Culture
-
-![Value Frequency](results/visualizations/value_frequency.png)
-
-*Figure 8 — Top values by culture shown as horizontal bar chart. Mexico shows strongest "Family Harmony" emphasis (86), US uniquely prioritizes "Achievement & Success" (61).*
+### Qualitative Patterns
+- **Family Harmony increases 44+ mentions** for non-US cultures
+- **Achievement & Success doubles** for US prompting
+- **Decision entropy modest** (0.64–0.69)—limited behavioral differentiation
 
 ---
 
-## 6.9 Stereotype Scores by Model and Culture
+# 5. Visualizations
 
-![Stereotype Scores](results/visualizations/stereotype_scores.png)
+The framework generates 11 publication-quality visualizations:
 
-*Figure 9 — Box plots showing distribution of human-rated stereotype scores. GPT-4 shows highest stereotyping (8.53 mean), Gemini shows lowest (6.77). Significant variance across models (p < 0.001).*
+1. **Baseline Comparison** — Bar chart of baseline distances to each culture
+2. **Decision Patterns** — Stacked bar chart of Option A/B/Decline distributions
+3. **Category Performance** — Bar chart of alignment by scenario category
+4. **Cultural Shift Magnitude** — Bar chart of TVD by culture
+5. **Decision Distribution** — Pie chart of overall decisions
+6. **Cultural Alignment by Model** — Bar chart comparing model performance
+7. **Stereotype Scores** — Bar chart of stereotype avoidance by model
+8. **Scenario Difficulty** — Sorted bar chart of scenarios by alignment
+9. **Model Comparison Radar** — Radar plot of model performance across metrics
+10. **Differentiation Heatmap** — Heatmap of cultural profile distances
+11. **Value Frequency** — Stacked bar chart of top values by culture
+
+All visualizations use consistent color schemes and include detailed annotations.
 
 ---
 
-## 6.10 Model Comparison Radar
+# 6. Limitations
 
-![Model Comparison Radar](results/visualizations/model_comparison_radar.png)
+## 6.1 Methodological Limitations
 
-*Figure 10 — Multi-dimensional radar plot comparing models across Cultural Alignment, Stereotyping (inverted), Consistency, and Differentiation. Shows models cluster tightly on most metrics except stereotyping.*
-
----
-
-# 7. Limitations
-
-## 7.1 Methodological Limitations
-
-1. **Hofstede Framework Constraints**
-   - Hofstede scores are **approximate anchors**, not absolute truth
-   - Framework developed 50+ years ago may not capture modern cultural nuances
-   - Binary (high/low) exemplars may oversimplify cultural spectrums
-
-2. **Semantic Projection Approximations**
-   - Semantic embeddings capture **orientation**, not **survey magnitude**
-   - [-2, +2] scale is normalized projection, not raw Hofstede scores
-   - Cosine similarity assumes linear cultural dimensions
-
-3. **Persona Prompting Limitations**
-   - Measures **expressed reasoning**, not **true cultural identity**
-   - LLMs lack lived experience and authentic cultural grounding
-   - Cultural personas may activate stereotypes rather than genuine reasoning patterns
-
-4. **Data Coverage Gaps**
-   - Some cultures (UAE) lack direct Hofstede LTO/IVR data (use regional proxies)
-   - 30 scenarios may not cover full cultural spectrum
+1. **Hofstede Framework**
+   - Hofstede's model is Western-centric and may not capture all cultural nuances
+   - 6 dimensions may oversimplify complex cultural values
+   - Country-level scores assume within-country homogeneity
    - Limited to 5 cultures + baseline (many cultures not represented)
 
-## 7.2 Technical Limitations
+2. **Semantic Projection Approach**
+   - Embeddings may not fully capture cultural reasoning
+   - Exemplar curation introduces researcher bias
+   - Cosine similarity assumes linear relationships
+   - [-2, +2] scale is not directly comparable to Hofstede's 0-100 scale
+
+## 6.2 Technical Limitations
 
 1. **Model Selection**
-   - Only tested 4 models (many other LLMs exist)
-   - All models are frontier-class (no smaller or older models)
+   - Only tested 4 frontier models (many other LLMs exist)
+   - All models are frontier-class (no smaller or older models tested)
    - Single run per (model × culture × scenario) combination
 
 2. **Evaluation Metrics**
-   - Stereotype scoring is subjective (human-rated)
-   - Consistency & differentiation not measured due to resource constraints
+   - Stereotype scoring is subjective (human-rated on exemplars)
+   - No inter-rater reliability for stereotype assessment
+   - Consistency and differentiation metrics rely on limited samples
 
 3. **Sample Size**
    - 720 total responses (reasonable but not massive)
    - 30 scenarios per culture (could be expanded)
-   - Single evaluator for stereotype scoring (no inter-rater reliability)
+   - Each scenario tests specific dimensions—not all dimensions per scenario
 
-## 7.3 Interpretation Limitations
+## 6.3 Interpretation Limitations
 
 1. **Causality Claims**
    - Cannot prove *why* models exhibit certain biases
@@ -812,6 +588,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
      - Different prompt formats
      - Real-world deployment contexts
      - Non-English languages
+     - Within-culture variation (rural vs. urban, regions)
 
 3. **Practical Application**
    - Framework measures alignment, not **appropriateness** for specific use cases
@@ -820,9 +597,9 @@ All visualizations are generated from `visualizer.py` using results from the lat
 
 ---
 
-# 8. Technical Details
+# 7. Technical Details
 
-## 8.1 System Architecture
+## 7.1 System Architecture
 
 **Pipeline Components:**
 
@@ -837,7 +614,7 @@ All visualizations are generated from `visualizer.py` using results from the lat
    - Standardized format across all models
 
 3. **LLM Interface** (`llm_interface.py`)
-   - Unified API for multiple LLM providers
+   - Unified API for multiple LLM providers (OpenAI, Anthropic, Google, DeepSeek)
    - Response caching for consistency
    - Error handling and retry logic
 
@@ -847,21 +624,21 @@ All visualizations are generated from `visualizer.py` using results from the lat
    - 100% parse success rate in latest run
 
 5. **Evaluator** (`evaluator.py`)
-   - Semantic embedding using sentence-transformers
+   - Semantic embedding using `all-MiniLM-L6-v2` sentence-transformer
    - Hofstede dimension projection via cosine similarity
-   - Cultural alignment scoring
+   - Cultural alignment scoring (see §2.3)
 
 6. **Analyzer** (`analyze.py`)
    - Statistical significance testing (ANOVA, t-tests)
    - Dimension-level and scenario-level analysis
-   - Value pattern extraction
+   - Value pattern extraction and shift magnitude calculation
 
 7. **Visualizer** (`visualizer.py`)
    - Generates 11 publication-quality visualizations
    - Radar plots, heatmaps, bar charts, box plots
    - Consistent styling and color schemes
 
-## 8.2 Dependencies
+## 7.2 Dependencies
 
 ```txt
 openai>=1.0.0
@@ -875,7 +652,7 @@ seaborn>=0.12.0
 scipy>=1.10.0
 ```
 
-## 8.3 Hofstede Dimension Definitions
+## 7.3 Hofstede Dimension Definitions
 
 | Dimension | High Score Indicates | Low Score Indicates |
 |-----------|---------------------|---------------------|
@@ -886,7 +663,7 @@ scipy>=1.10.0
 | **LTO** (Long-Term Orientation) | Future planning, perseverance | Tradition, short-term results |
 | **IVR** (Indulgence) | Gratification, leisure, freedom | Restraint, strict norms, duties |
 
-## 8.4 Country Profiles (Normalized [-2, +2] scale)
+## 7.4 Country Profiles (Normalized [-2, +2] scale)
 
 | Country | IDV | PDI | MAS | UAI | LTO | IVR |
 |---------|-----|-----|-----|-----|-----|-----|
@@ -898,9 +675,9 @@ scipy>=1.10.0
 
 ---
 
-# 9. Future Work
+# 8. Future Work
 
-## 9.1 Immediate Extensions
+## 8.1 Immediate Extensions
 
 1. **Expand Model Coverage**
    - Test Llama 3, Mistral, Qwen, and other open-source models
@@ -917,11 +694,11 @@ scipy>=1.10.0
    - Add multi-dimensional scenarios (conflicting values)
    - Include culturally-specific scenarios (not Western-centric)
 
-## 9.2 Methodological Enhancements
+## 8.2 Methodological Enhancements
 
 1. **Multi-Rater Evaluation**
    - Multiple human evaluators for stereotype scoring
-   - Calculate inter-rater reliability
+   - Calculate inter-rater reliability (Cohen's κ, Fleiss' κ)
    - Use consensus scoring for ground truth
 
 2. **Longitudinal Analysis**
@@ -934,7 +711,7 @@ scipy>=1.10.0
    - Develop AI-native cultural dimension framework
    - Combine multiple frameworks for richer analysis
 
-## 9.3 Real-World Applications
+## 8.3 Real-World Applications
 
 1. **Fairness Auditing**
    - Use framework for AI fairness certification
@@ -953,25 +730,30 @@ scipy>=1.10.0
 
 ---
 
-# 10. Conclusion
+# 9. Conclusion
 
 WorldWiseAI demonstrates that **semantic projection onto cultural dimensions** provides a rigorous, scalable method for measuring cultural alignment in LLMs. Key contributions include:
 
-1. **Novel Methodology:** Moving beyond survey questions to semantic inference of cultural values from reasoning text
+## 9.1 Novel Methodology
+Moving beyond survey questions to semantic inference of cultural values from reasoning text. By analyzing *how* models reason rather than *what* they say about culture, we gain insight into authentic cultural alignment.
 
-2. **Comprehensive Framework:** End-to-end pipeline from scenario design → semantic projection → alignment metrics → visualization
+## 9.2 Comprehensive Framework
+End-to-end pipeline from scenario design → semantic projection → alignment metrics → visualization. The framework is modular, extensible, and applicable to any LLM.
 
-3. **Actionable Insights:**
-   - Models exhibit unexpected collectivist bias (closest to India)
-   - Long-Term Orientation and Uncertainty Avoidance are hardest dimensions
-   - Cross-model performance is statistically identical
-   - Mexico and UAE need better training data representation
+## 9.3 Actionable Insights
 
-4. **Open Questions:**
-   - Why does baseline resemble India more than US?
-   - How can we improve LTO and UAI dimension alignment?
-   - What causes model-specific stereotyping patterns?
-   - How to balance cultural authenticity vs. harmful stereotypes?
+1. **Unexpected Bias:** Models exhibit strongest baseline resemblance to India (not US), challenging assumptions about Western bias
+2. **Dimension Difficulty:** Long-Term Orientation and Uncertainty Avoidance are hardest dimensions (mean scores 5.98–6.02/10)
+3. **Model Convergence:** All frontier models show statistically identical cultural alignment (p > 0.05)
+4. **Effective Prompting:** Cultural personas induce 41% average value shift, demonstrating prompt effectiveness
+5. **Representation Gaps:** Mexico and UAE need better training data representation (alignment 5.22 and 5.73/10)
+
+## 9.4 Open Questions
+
+1. **Why does baseline resemble India more than US?** Does this reflect training data composition, semantic embedding biases, or something else?
+2. **How can we improve LTO and UAI dimension alignment?** Do these dimensions require different evaluation approaches?
+3. **What causes model-specific stereotyping patterns?** GPT-4o-mini avoids stereotypes best—why?
+4. **How to balance cultural authenticity vs. harmful stereotypes?** High alignment to cultural norms may reinforce problematic generalizations.
 
 This framework provides researchers and practitioners with tools to understand, measure, and ultimately improve cultural fairness in AI systems serving global populations.
 
@@ -998,6 +780,6 @@ If you use WorldWiseAI in your research, please cite:
 
 ---
 
-**Last Updated:** November 20, 2024
-**Dataset Version:** results_20251120_140046
+**Last Updated:** November 20, 2024  
+**Dataset Version:** results_20251120_140046  
 **Total Responses Analyzed:** 720

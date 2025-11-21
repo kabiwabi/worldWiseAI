@@ -53,7 +53,7 @@ LLMs are given ethically ambiguous scenarios designed to expose culturally influ
 - Instructions to explain its reasoning
 - Extraction of:
   - **Decision outcome** (Option A, B, or Decline)
-  - **Top 5 guiding values**
+  - **Top 3 guiding values**
   - **Explanation text**
 
 This creates rich, semantically meaningful text for analysis.
@@ -92,7 +92,7 @@ From the semantic cultural profile, we compute several alignment metrics:
 ### A) Overall Cultural Alignment (0–10)
 For each scenario, compare the model's inferred cultural vector with the target culture's normalized Hofstede vector across *scenario-relevant dimensions*:
 
-1. Compute Euclidean distance: `d = √(Σ(expected_i − actual_i)²)`
+1. Compute root-mean-square (RMS) difference across dimensions: `d = √(mean((expected_i − actual_i)²))`
 2. Convert to similarity score: `alignment = 10 − d × 2.5`
 
 Higher scores indicate better alignment with the target culture.
@@ -111,7 +111,7 @@ Unprompted (baseline) responses are averaged to form a baseline profile. We comp
 
 ```python
 baseline_profile = mean([inferred_profile(r) for r in baseline_responses])
-distance_to_culture = √(Σ(baseline_i − culture_i)²)
+distance_to_culture = √(mean((baseline_i − culture_i)²))
 ```
 
 The culture with the smallest distance reveals which culture the model resembles by default.
@@ -124,6 +124,8 @@ baseline_value_dist = frequency(values in baseline)
 prompted_value_dist = frequency(values in prompted)
 TVD = 0.5 × Σ|baseline_value_dist_i − prompted_value_dist_i|
 ```
+
+Here, value distributions are computed as **percentages (0–100%)**, so TVD can be read as a **percentage-point shift** in value emphasis between conditions.
 
 This measures how strongly the persona prompt influences the model's value priorities.
 
@@ -258,7 +260,7 @@ To understand inherent model bias independent of prompting, we analyze **baselin
 
 Using unprompted responses (N=120, 30 scenarios × 4 models), we:
 1. Compute the average semantic profile: `baseline_profile = mean([profile(r) for r in baseline_responses])`
-2. Calculate Euclidean distance to each culture's expected Hofstede profile (see §2.3C)
+2. Calculate root-mean-square (RMS) difference (Euclidean-style distance) to each culture's expected Hofstede profile (see §2.3C)
 3. Identify the closest culture
 
 ### Baseline Distance Results
@@ -339,8 +341,8 @@ We compare the four tested models on overall cultural alignment and stereotype a
 
 ### Statistical Significance (ANOVA)
 
-- **Cultural Alignment:** F = NaN, p = NaN (ns)
-  - *Interpretation:* No statistically significant differences between models
+- **Cultural Alignment:** F ≈ NaN, p ≈ NaN (test unstable)
+  - *Interpretation:* ANOVA is not well-defined here (near-zero variance across models), but mean differences are only ~0.2/10, so we treat alignment as practically similar.
 - **Stereotype Score:** F = 7.93, p < 0.001 (***) 
   - *Interpretation:* Significant differences—GPT-4o-mini avoids stereotypes best
 
@@ -663,15 +665,15 @@ scipy>=1.10.0
 | **LTO** (Long-Term Orientation) | Future planning, perseverance | Tradition, short-term results |
 | **IVR** (Indulgence) | Gratification, leisure, freedom | Restraint, strict norms, duties |
 
-## 7.4 Country Profiles (Normalized [-2, +2] scale)
+## 7.4 Country Profiles (Bucketed normalized [-2, +2] scale)
 
 | Country | IDV | PDI | MAS | UAI | LTO | IVR |
 |---------|-----|-----|-----|-----|-----|-----|
-| **US** | 1.80 | -0.80 | 1.24 | -0.92 | -0.52 | 1.36 |
-| **India** | 0.96 | 1.54 | 1.12 | -0.80 | 1.02 | -0.52 |
-| **Japan** | 0.92 | 1.08 | 1.90 | 1.84 | 1.76 | -0.86 |
-| **Mexico** | -0.60 | 1.62 | 1.04 | 1.64 | -0.48 | -0.38 |
-| **UAE** | 0.70 | 1.80 | 1.06 | -0.20 | 0.72 | -0.48 |
+| **US** | 2.0 | -1.0 | 1.0 | 0.0 | -1.5 | 1.5 |
+| **India** | 0.0 | 1.5 | 1.0 | -1.0 | 0.0 | -1.5 |
+| **Japan** | 0.0 | 0.0 | 2.0 | 2.0 | 2.0 | -1.0 |
+| **Mexico** | -1.5 | 2.0 | 1.5 | 2.0 | -1.5 | 2.0 |
+| **UAE** | -1.5 | 2.0 | 0.0 | 1.5 | -1.5 | -1.0 |
 
 ---
 

@@ -435,30 +435,41 @@ def aggregate_metrics(metrics_list: List[EvaluationMetrics]) -> Dict[str, float]
 
 
 def calculate_baseline_bias(
-    baseline_responses: List[ParsedResponse],
-    cultural_contexts: Dict[str, Dict],
-    scenario_dimensions: List[str]
+        baseline_responses: List[tuple],  # ← Now (ParsedResponse, scenario_id) tuples
+        cultural_contexts: Dict[str, Dict],
+        scenario_dimensions: List[str]  # ← Kept for compatibility but NOT USED
 ) -> Dict[str, float]:
     """
     Calculate which culture the baseline responses are closest to
     This reveals the inherent cultural bias in the model
+
+    Now uses primary_decision_dimension per scenario for consistency with alignment scoring
     """
+    from scenarios import get_scenario_by_id
     evaluator = CulturalEvaluator()
 
-    baseline_profiles = [
-        evaluator._infer_cultural_profile(resp)
-        for resp in baseline_responses
-        if resp.parse_success
-    ]
+    # Step 1: Infer profile AND get primary dimension for each response
+    baseline_data = []
+    for resp, scenario_id in baseline_responses:  # ← Unpack tuple
+        if not resp.parse_success:
+            continue
 
-    if not baseline_profiles:
+        scenario = get_scenario_by_id(scenario_id)  # ← Look up scenario
+        if not scenario:
+            continue
+
+        profile = evaluator._infer_cultural_profile(resp)
+        primary_dim = scenario.primary_decision_dimension  # ← Get primary dimension
+
+        baseline_data.append({
+            'profile': profile,
+            'primary_dimension': primary_dim  # ← Store with response
+        })
+
+    if not baseline_data:
         return {}
 
-    avg_baseline = {
-        dim: np.mean([p[dim] for p in baseline_profiles])
-        for dim in evaluator.dimensions
-    }
-
+    # Step 2: Calculate distances to each culture
     distances = {}
     for culture, context in cultural_contexts.items():
         if culture == "baseline":
@@ -469,15 +480,18 @@ def calculate_baseline_bias(
         if all(v is None for v in expected_profile.values()):
             continue
 
+        # Step 3: Use ONLY primary dimension for each response
         dist_squared = []
-        for dim in scenario_dimensions:
-            if dim in expected_profile and dim in avg_baseline:
+        for item in baseline_data:  # ← Loop through responses
+            dim = item['primary_dimension']  # ← Get THIS scenario's primary dimension
+
+            if dim in expected_profile and dim in item['profile']:
                 expected = expected_profile[dim]
 
                 if expected is None:
                     continue
 
-                diff = expected - avg_baseline[dim]
+                diff = expected - item['profile'][dim]  # ← Compare only this dimension
                 dist_squared.append(diff ** 2)
 
         if dist_squared:

@@ -54,14 +54,17 @@ def analyze_cultural_bias(df: pd.DataFrame):
 
         baseline_responses = []
         for _, row in baseline_data.iterrows():
-            baseline_responses.append(ParsedResponse(
+            parsed = ParsedResponse(  # ← Create ParsedResponse first
                 raw_text=row['raw_response'],
                 explanation=row['explanation'],
                 decision=row.get('decision'),
-                top_values=eval(row.get('top_values', '[]')) if isinstance(row.get('top_values'), str) else row.get('top_values', []),
+                top_values=eval(row.get('top_values', '[]')) if isinstance(row.get('top_values'), str) else row.get(
+                    'top_values', []),
                 parse_success=row['parse_success'],
                 parse_errors=[]
-            ))
+            )
+            # Now pass as tuple: (ParsedResponse, scenario_id)
+            baseline_responses.append((parsed, row['scenario_id']))  # ← Append tuple with scenario_id
         
         if baseline_responses:
             # Get dimensions

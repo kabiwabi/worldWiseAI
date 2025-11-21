@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import logging
+import ast
+from collections import Counter
 
 import config
 
@@ -299,23 +301,74 @@ class Visualizer:
         plt.close()
 
     def plot_cultural_shift_magnitude(self, df: pd.DataFrame):
-        """Bar chart of shift magnitude by culture"""
+        """Bar chart of shift magnitude (TVD) by culture"""
         if 'baseline' not in df['culture'].unique():
             return
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        # --- compute TVD per culture, same as analyze_cultural_shift_magnitude ---
+        # Get baseline value distribution
+        baseline_values = []
+        for values_list in df[df['culture'] == 'baseline']['top_values']:
+            if isinstance(values_list, str):
+                try:
+                    values_list = ast.literal_eval(values_list)
+                except Exception:
+                    pass
+            if isinstance(values_list, list):
+                baseline_values.extend(values_list)
 
-        # Calculate shifts (simplified - full code in analyze.py)
-        shifts = {
-            'Japan': 34.0, 'UAE': 34.05, 'Mexico': 27.53,
-            'India': 25.26, 'US': 9.81
-        }
+        baseline_counter = Counter(baseline_values)
+        baseline_total = len(baseline_values)
+
+        shifts = {}
+        for culture in df['culture'].unique():
+            if culture == 'baseline':
+                continue
+
+            culture_values = []
+            for values_list in df[df['culture'] == culture]['top_values']:
+                if isinstance(values_list, str):
+                    try:
+                        values_list = ast.literal_eval(values_list)
+                    except Exception:
+                        pass
+                if isinstance(values_list, list):
+                    culture_values.extend(values_list)
+
+            culture_counter = Counter(culture_values)
+            culture_total = len(culture_values)
+
+            shift_magnitude = 0.0
+            all_values = set(baseline_counter.keys()) | set(culture_counter.keys())
+            for value in all_values:
+                baseline_pct = (baseline_counter.get(value, 0) / baseline_total * 100) if baseline_total > 0 else 0
+                culture_pct = (culture_counter.get(value, 0) / culture_total * 100) if culture_total > 0 else 0
+                shift_magnitude += abs(culture_pct - baseline_pct)
+
+            tvd = shift_magnitude / 2.0  # TVD in percentage points
+            shifts[culture] = tvd
+
+        # Sort by shift magnitude (optional)
+        shifts = dict(sorted(shifts.items(), key=lambda x: x[1], reverse=True))
+
+        # --- plotting ---
+        fig, ax = plt.subplots(figsize=(10, 6))
 
         cultures = list(shifts.keys())
         values = list(shifts.values())
 
-        ax.bar(cultures, values, color=['#ff7f0e', '#9467bd', '#d62728', '#2ca02c', '#1f77b4'])
-        ax.set_ylabel('Shift from Baseline (%)', fontsize=12)
+        # Color per culture (flag-ish vibes)
+        color_map = {
+            'Japan': '#d62728',  # red
+            'India': '#ff7f0e',  # saffron / orange
+            'Mexico': '#2ca02c',  # green
+            'UAE': '#9467bd',  # purple accent
+            'US': '#1f77b4',  # blue
+        }
+        colors = [color_map.get(c, '#7f7f7f') for c in cultures]
+
+        ax.bar(cultures, values, color=colors)
+        ax.set_ylabel('Shift from Baseline (TVD, %)', fontsize=12)
         ax.set_title('Cultural Shift Magnitude', fontsize=14, fontweight='bold')
         ax.axhline(y=20, color='r', linestyle='--', alpha=0.3, label='Strong shift threshold')
         ax.legend()
@@ -371,9 +424,17 @@ class Visualizer:
         
         # Convert string lists to actual lists
         if 'top_values' in df.columns:
-            df['top_values'] = df['top_values'].apply(
-                lambda x: eval(x) if isinstance(x, str) and x.startswith('[') else []
-            )
+            def parse_top_values(x):
+                if isinstance(x, list):
+                    return x
+                if isinstance(x, str) and x.startswith('['):
+                    try:
+                        return ast.literal_eval(x)
+                    except (ValueError, SyntaxError):
+                        return []
+                return []
+
+            df['top_values'] = df['top_values'].apply(parse_top_values)
         
         logger.info("Creating visualizations...")
         

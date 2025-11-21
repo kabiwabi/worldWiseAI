@@ -259,17 +259,18 @@ class ExperimentRunner:
             # Calculate which culture baseline is closest to
             from evaluator import calculate_baseline_bias
             from response_parser import ParsedResponse
-            
+
             baseline_responses = []
             for _, row in baseline_data.iterrows():
-                baseline_responses.append(ParsedResponse(
+                parsed = ParsedResponse(
                     raw_text=row['raw_response'],
                     explanation=row['explanation'],
                     decision=row.get('decision'),
                     top_values=row.get('top_values', []),
                     parse_success=row['parse_success'],
                     parse_errors=[]
-                ))
+                )
+                baseline_responses.append((parsed, row['scenario_id']))
             
             if baseline_responses:
                 # Get all scenario dimensions

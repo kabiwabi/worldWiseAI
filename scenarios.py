@@ -423,6 +423,10 @@ ALL_SCENARIOS = (
     INDULGENCE_SCENARIOS
 )
 
+# Normalize tags: keep only the primary decision dimension
+for s in ALL_SCENARIOS:
+    s.cultural_dimensions = [s.primary_decision_dimension]
+
 # Create lookup dictionary
 SCENARIOS_DICT = {s.id: s for s in ALL_SCENARIOS}
 

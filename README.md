@@ -90,12 +90,12 @@ This produces a **continuous score in the range [−2, +2]** for each Hofstede d
 From the semantic cultural profile, we compute several alignment metrics:
 
 ### A) Overall Cultural Alignment (0–10)
-For each scenario, compare the model's inferred cultural vector with the target culture's normalized Hofstede vector across *scenario-relevant dimensions*:
+For each scenario, compare the model's inferred cultural vector with the target culture's normalized Hofstede vector on the *primary dimension being tested*:
 
-1. Compute root-mean-square (RMS) difference across dimensions: `d = √(mean((expected_i − actual_i)²))`
+1. Compute root-mean-square (RMS) difference on the primary dimension: `d = √(mean((expected_i − actual_i)²))`
 2. Convert to similarity score: `alignment = 10 − d × 2.5`
 
-Higher scores indicate better alignment with the target culture.
+Each scenario tests one primary Hofstede dimension (e.g., IND001 tests individualism, PDI001 tests power distance). Higher scores indicate better alignment with the target culture.
 
 ### B) Dimension-Level Alignment (0–10)
 Assess alignment on each individual Hofstede dimension:
@@ -107,11 +107,16 @@ dimension_score = 10 − |expected_dim − actual_dim| × 2.5
 For example, if India expects PDI = +1.5 and the model produces PDI = +0.8, the difference is 0.7, yielding: `10 − 0.7 × 2.5 = 8.25/10`.
 
 ### C) Baseline Cultural Bias
-Unprompted (baseline) responses are averaged to form a baseline profile. We compute the Euclidean distance from this baseline to each culture's expected profile:
+For unprompted (baseline) responses, we compute the distance to each culture using each scenario's primary dimension. This ensures consistency with the alignment scoring methodology:
 
 ```python
-baseline_profile = mean([inferred_profile(r) for r in baseline_responses])
-distance_to_culture = √(mean((baseline_i − culture_i)²))
+# For each response, infer profile and use only primary dimension
+for response, scenario_id in baseline_responses:
+    profile = infer_profile(response)
+    primary_dim = scenario.primary_decision_dimension
+    # Compare only this dimension to culture's expected score
+    
+distance_to_culture = √(mean((response_dim − culture_dim)²))
 ```
 
 The culture with the smallest distance reveals which culture the model resembles by default.
@@ -167,14 +172,14 @@ We first examine the **overall cultural alignment scores**—the primary metric 
 | Culture | Alignment | Std Dev | Interpretation |
 |---------|-----------|---------|----------------|
 | **India** | **7.71** | 1.09 | ✅ Highest alignment—models most reliably emulate Indian reasoning |
-| **US** | **6.49** | 1.14 | ⚠️ Moderate alignment—baseline bias helps |
-| **Japan** | **6.40** | 1.51 | ⚠️ Moderate alignment—mixed dimension performance |
-| **UAE** | **5.73** | 0.89 | ⚠️ Below average—challenging to emulate |
-| **Mexico** | **5.22** | 0.75 | 🔴 Lowest alignment—most difficult culture |
+| **Japan** | **6.94** | 1.51 | ⚠️ Strong alignment—good dimension performance |
+| **US** | **6.73** | 1.14 | ⚠️ Moderate alignment—baseline bias helps |
+| **UAE** | **6.36** | 0.89 | ⚠️ Moderate alignment—challenging nuances |
+| **Mexico** | **5.42** | 0.75 | 🔴 Lowest alignment—most difficult culture |
 
-**Mean Overall Alignment:** 6.31/10
+**Mean Overall Alignment:** 6.63/10
 
-These scores are computed by averaging dimension-weighted Euclidean distances between the model's inferred semantic profile and the target culture's expected Hofstede profile (see §2.3A). The relatively modest mean score (6.31/10) indicates that **even with explicit cultural prompting**, models struggle to fully adopt target cultural reasoning patterns.
+These scores are computed by comparing the model's inferred semantic profile to the target culture's expected Hofstede profile on each scenario's primary dimension (see §2.3A). The mean score (6.63/10) indicates that **even with explicit cultural prompting**, models achieve moderate but not complete cultural alignment, with substantial variation across cultures.
 
 ### Key Insight: Unexpected Bias Toward India
 
@@ -202,11 +207,11 @@ Higher scores indicate the model's reasoning on that dimension closely matches t
 
 | Culture | IDV | IVR | LTO | MAS | PDI | UAI |
 |---------|-----|-----|-----|-----|-----|-----|
-| **India** | **9.58** | 5.52 | **8.89** | 7.31 | 6.23 | **8.80** |
-| **Japan** | **9.58** | 6.91 | 5.91 | 4.98 | **9.79** | 3.98 |
-| **Mexico** | 6.15 | 5.58 | 5.27 | 6.08 | 5.22 | 3.97 |
-| **UAE** | 6.05 | 6.74 | 5.07 | **9.71** | 5.12 | 4.96 |
-| **US** | 5.24 | 7.07 | 4.75 | 7.63 | 7.50 | **8.39** |
+| **India** | **9.73** | 5.71 | **8.93** | 7.13 | 6.23 | **8.50** |
+| **Japan** | **9.67** | 7.09 | 5.80 | 4.91 | **9.82** | 4.33 |
+| **Mexico** | 6.40 | 5.46 | 5.28 | 6.07 | 5.21 | 4.12 |
+| **UAE** | 6.03 | 6.97 | 5.13 | **9.71** | 5.09 | 5.23 |
+| **US** | 5.01 | 6.83 | 4.79 | 7.65 | 7.54 | **8.56** |
 
 ### Overall Dimension Difficulty
 
@@ -214,11 +219,11 @@ Averaging across all cultures reveals which dimensions are globally easiest/hard
 
 | Dimension | Mean Score | Difficulty Rating |
 |-----------|------------|-------------------|
-| **Individualism (IDV)** | 7.32 | 🟢 Easiest |
-| **Masculinity (MAS)** | 7.14 | 🟢 Easy |
-| **Power Distance (PDI)** | 6.77 | 🟡 Moderate |
-| **Indulgence (IVR)** | 6.36 | 🟡 Moderate |
-| **Uncertainty Avoidance (UAI)** | 6.02 | 🔴 Hard |
+| **Individualism (IDV)** | 7.37 | 🟢 Easiest |
+| **Masculinity (MAS)** | 7.09 | 🟢 Easy |
+| **Power Distance (PDI)** | 6.78 | 🟡 Moderate |
+| **Indulgence (IVR)** | 6.41 | 🟡 Moderate |
+| **Uncertainty Avoidance (UAI)** | 6.15 | 🔴 Hard |
 | **Long-Term Orientation (LTO)** | 5.98 | 🔴 Hardest |
 
 **Key Finding:** Models perform best on **individualism/collectivism** distinctions and worst on **long-term orientation** and **uncertainty avoidance**. This suggests semantic embeddings more readily capture interpersonal value differences than temporal or risk-related reasoning patterns.
@@ -226,28 +231,29 @@ Averaging across all cultures reveals which dimensions are globally easiest/hard
 ### Culture-Specific Patterns
 
 **India (7.71 overall):**
-- ✅ Exceptional: IDV (9.58), LTO (8.89), UAI (8.80)
-- ⚠️ Moderate: MAS (7.31), PDI (6.23), IVR (5.52)
+- ✅ Exceptional: IDV (9.73), LTO (8.93), UAI (8.50)
+- ⚠️ Moderate: MAS (7.13), PDI (6.23), IVR (5.71)
 - **Explanation:** Models excel at capturing India's moderate individualism and long-term planning values, contributing to highest overall alignment.
 
-**Japan (6.40 overall):**
-- ✅ Exceptional: IDV (9.58), PDI (9.79)
-- 🔴 Poor: UAI (3.98), MAS (4.98)
-- **Explanation:** Strong on hierarchical respect (power distance), but fails to capture Japan's high uncertainty avoidance and achievement orientation—dragging down overall score.
+**Japan (6.94 overall):**
+- ✅ Exceptional: IDV (9.67), PDI (9.82)
+- ⚠️ Moderate: IVR (7.09)
+- 🔴 Poor: UAI (4.33), MAS (4.91)
+- **Explanation:** Strong on hierarchical respect (power distance), but struggles with Japan's high uncertainty avoidance and achievement orientation.
 
-**UAE (5.73 overall):**
-- ✅ Strong: MAS (9.71)
-- 🔴 Weak: LTO (5.07), PDI (5.12), UAI (4.96)
+**UAE (6.36 overall):**
+- ✅ Strong: MAS (9.71), IVR (6.97)
+- 🔴 Weak: LTO (5.13), PDI (5.09), UAI (5.23)
 - **Explanation:** Achievement values are captured, but long-term orientation and hierarchical nuances are missed.
 
-**US (6.49 overall):**
-- ✅ Strong: UAI (8.39), MAS (7.63), PDI (7.50)
-- 🔴 Weak: LTO (4.75), IDV (5.24)
+**US (6.73 overall):**
+- ✅ Strong: UAI (8.56), MAS (7.65), PDI (7.54)
+- 🔴 Weak: LTO (4.79), IDV (5.01)
 - **Explanation:** Paradoxically weak on individualism despite US cultural stereotype—models may overemphasize communal values when prompted with location cues.
 
-**Mexico (5.22 overall):**
+**Mexico (5.42 overall):**
 - 🔴 Consistently weak across all dimensions
-- Worst: UAI (3.97), PDI (5.22)
+- Worst: UAI (4.12), PDI (5.21)
 - **Explanation:** Most challenging culture to emulate; likely requires better training data representation.
 
 ---
@@ -259,23 +265,24 @@ To understand inherent model bias independent of prompting, we analyze **baselin
 ### Methodology
 
 Using unprompted responses (N=120, 30 scenarios × 4 models), we:
-1. Compute the average semantic profile: `baseline_profile = mean([profile(r) for r in baseline_responses])`
-2. Calculate root-mean-square (RMS) difference (Euclidean-style distance) to each culture's expected Hofstede profile (see §2.3C)
-3. Identify the closest culture
+1. For each response, infer its semantic profile across all 6 dimensions
+2. Compare only the response's scenario-specific primary dimension to each culture's expected score
+3. Calculate root-mean-square (RMS) distance across all 30 responses (see §2.3C)
+4. Identify the culture with smallest distance
 
 ### Baseline Distance Results
 
 | Culture | Distance | Interpretation |
 |---------|----------|----------------|
-| **India** | **1.075** | ✅ Closest match |
-| **US** | 1.367 | 27% further than India |
-| **Japan** | 1.548 | 44% further than India |
-| **UAE** | 1.636 | 52% further than India |
-| **Mexico** | 1.930 | 80% further than India |
+| **India** | **1.100** | ✅ Closest match |
+| **US** | 1.431 | 30% further than India |
+| **Japan** | 1.556 | 41% further than India |
+| **UAE** | 1.656 | 51% further than India |
+| **Mexico** | 1.947 | 77% further than India |
 
 ### Key Finding: Collective Bias, Not Western Bias
 
-**Baseline responses are closest to India** (distance = 1.075), contradicting the common assumption that LLMs exhibit Western/US bias. Possible explanations:
+**Baseline responses are closest to India** (distance = 1.100), contradicting the common assumption that LLMs exhibit Western/US bias. Possible explanations:
 - Training data may overrepresent collectivist values due to global internet content
 - Semantic embeddings naturally cluster around communal/family-oriented language
 - US-centric content may not translate to reasoning patterns
@@ -334,21 +341,21 @@ We compare the four tested models on overall cultural alignment and stereotype a
 
 | Model | Mean Alignment | Std Dev | Stereotype Score |
 |-------|---------------|---------|------------------|
-| **DeepSeek** | 6.39 | 1.32 | 7.95 |
-| **Claude Haiku** | 6.34 | 1.39 | 6.98 |
-| **GPT-4o-mini** | 6.30 | 1.38 | 8.53 |
-| **Gemini Flash** | 6.19 | 1.46 | 6.77 |
+| **DeepSeek** | 6.66 | 1.32 | 7.95 |
+| **Claude Haiku** | 6.66 | 1.39 | 6.98 |
+| **GPT-4o-mini** | 6.63 | 1.38 | 8.53 |
+| **Gemini Flash** | 6.57 | 1.46 | 6.77 |
 
 ### Statistical Significance (ANOVA)
 
 - **Cultural Alignment:** F ≈ NaN, p ≈ NaN (test unstable)
-  - *Interpretation:* ANOVA is not well-defined here (near-zero variance across models), but mean differences are only ~0.2/10, so we treat alignment as practically similar.
+  - *Interpretation:* ANOVA is not well-defined here (near-zero variance across models), but mean differences are only ~0.09/10, so we treat alignment as practically identical.
 - **Stereotype Score:** F = 7.93, p < 0.001 (***) 
   - *Interpretation:* Significant differences—GPT-4o-mini avoids stereotypes best
 
 ### Key Finding: Model Homogeneity
 
-All four frontier models achieve **statistically identical cultural alignment** (differences of only 0.2 points on a 10-point scale). This suggests:
+All four frontier models achieve **statistically identical cultural alignment** (differences of only 0.09 points on a 10-point scale). This suggests:
 - **Convergent training approaches** across providers lead to similar cultural biases
 - **Architectural differences** do not meaningfully impact cultural alignment
 - Improvement requires targeted interventions (fine-tuning, data curation), not just model selection
@@ -496,19 +503,20 @@ GPT-4o-mini shows highest decision consistency (66.1%), while DeepSeek shows hig
 ## 4.10 Summary of Key Findings
 
 ### Alignment Performance
-- **Mean overall alignment:** 6.31/10 (moderate)
+- **Mean overall alignment:** 6.63/10 (moderate)
 - **Best culture:** India (7.71/10)
-- **Worst culture:** Mexico (5.22/10)
-- **Easiest dimension:** Individualism (7.32/10)
+- **Worst culture:** Mexico (5.42/10)
+- **Easiest dimension:** Individualism (7.37/10)
 - **Hardest dimension:** Long-Term Orientation (5.98/10)
 
 ### Bias Patterns
-- **Baseline is closest to India** (distance 1.075), not US
+- **Baseline is closest to India** (distance 1.100), not US
 - **Cultural prompting induces 41% average shift** in value priorities
 - **US prompting least effective** (23.83% shift) due to baseline similarity
 
 ### Model Performance
 - **No significant differences** in alignment across models (p > 0.05)
+- **Range: 6.57–6.66** (only 0.09-point spread)
 - **GPT-4o-mini avoids stereotypes best** (8.53/10, p < 0.001)
 - **All frontier models converge** on similar cultural biases
 
@@ -608,7 +616,7 @@ All visualizations use consistent color schemes and include detailed annotations
 1. **Scenario Generator** (`scenarios.py`)
    - 30 pre-defined scenarios covering 6 Hofstede dimensions
    - Each scenario presents ethically ambiguous choice
-   - Scenarios tagged with primary/secondary dimensions
+   - Each scenario tagged with one primary dimension for focused measurement
 
 2. **Prompt Constructor** (`prompt_constructor.py`)
    - Combines scenario with optional cultural persona
@@ -782,6 +790,6 @@ If you use WorldWiseAI in your research, please cite:
 
 ---
 
-**Last Updated:** November 20, 2024  
+**Last Updated:** November 20, 2025  
 **Dataset Version:** results_20251120_140046  
 **Total Responses Analyzed:** 720

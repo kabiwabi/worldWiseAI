@@ -173,8 +173,6 @@ class ExperimentRunner:
             
             # Metrics
             'cultural_alignment': metrics.cultural_alignment_score,
-            'consistency': metrics.consistency_score,
-            'differentiation': metrics.cultural_differentiation_score,
             'stereotype': metrics.stereotype_score,
         }
         

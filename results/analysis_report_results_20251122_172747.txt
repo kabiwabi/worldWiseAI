@@ -82,20 +82,18 @@ MODEL PERFORMANCE ANALYSIS
 ================================================================================
 
 Model Performance Summary:
-               cultural_alignment  consistency  differentiation  stereotype
-model                                                                      
-claude-sonnet            6.661273         10.0              0.0    6.977220
-deepseek                 6.664889         10.0              0.0    7.953118
-gemini                   6.565745         10.0              0.0    6.774576
-gpt-4                    6.625080         10.0              0.0    8.528430
+               cultural_alignment  stereotype
+model                                        
+claude-sonnet            6.661273    6.977220
+deepseek                 6.664889    7.953118
+gemini                   6.565745    6.774576
+gpt-4                    6.625080    8.528430
 
 🏆 Best Overall Model: gpt-4
-   Overall Score: 6.29/10
+   Overall Score: 7.58/10
 
  Statistical Significance Tests (ANOVA):
   cultural_alignment............ F=nan, p=nan ns
-  consistency................... F=nan, p=nan ns
-  differentiation............... F=nan, p=nan ns
   stereotype.................... F=7.93, p=0.0000 ***
 
 ================================================================================
@@ -189,7 +187,6 @@ gpt-4          0.661111            1.783145
 KEY INSIGHTS & RECOMMENDATIONS
 ================================================================================
 ⚠️  Moderate cultural alignment - room for improvement
-⚠️  Weak cultural differentiation - models give similar responses
 ⚠️  Some stereotypical language detected
 ✅ High parse success rate - good structured outputs
 
@@ -259,7 +256,7 @@ UAE:
     ↑ Respect for Authority......... +10.0%
     ↑ Stability & Security.......... +8.1%
     ↓ Work-Life Balance............. -5.6%
-    ↑ Tradition & Heritage.......... +5.6%
+    ↓ Personal Autonomy............. -5.6%
 
 ────────────────────────────────────────────────────────────────────────────────
 SHIFT MAGNITUDE SUMMARY:

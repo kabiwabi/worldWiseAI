@@ -534,7 +534,7 @@ GPT-4o-mini shows highest decision consistency (66.1%), while DeepSeek shows hig
 
 # 5. Visualizations
 
-The framework generates 11 publication-quality visualizations:
+The framework generates 10 publication-quality visualizations:
 
 1. **Baseline Comparison** — Bar chart of baseline distances to each culture
 2. **Decision Patterns** — Stacked bar chart of Option A/B/Decline distributions
@@ -544,9 +544,8 @@ The framework generates 11 publication-quality visualizations:
 6. **Cultural Alignment by Model** — Bar chart comparing model performance
 7. **Stereotype Scores** — Bar chart of stereotype avoidance by model
 8. **Scenario Difficulty** — Sorted bar chart of scenarios by alignment
-9. **Model Comparison Radar** — Radar plot of model performance across metrics
-10. **Differentiation Heatmap** — Heatmap of cultural profile distances
-11. **Value Frequency** — Stacked bar chart of top values by culture
+9. **Model Comparison Radar** — Radar plot of model performance across key metrics
+10. **Value Frequency** — Stacked bar chart of top values by culture
 
 All visualizations use consistent color schemes and include detailed annotations.
 
@@ -578,7 +577,6 @@ All visualizations use consistent color schemes and include detailed annotations
 2. **Evaluation Metrics**
    - Stereotype scoring is subjective (human-rated on exemplars)
    - No inter-rater reliability for stereotype assessment
-   - Consistency and differentiation metrics rely on limited samples
 
 3. **Sample Size**
    - 720 total responses (reasonable but not massive)
@@ -790,6 +788,6 @@ If you use WorldWiseAI in your research, please cite:
 
 ---
 
-**Last Updated:** November 20, 2025  
+**Last Updated:** November 23, 2025  
 **Dataset Version:** results_20251120_140046  
 **Total Responses Analyzed:** 720

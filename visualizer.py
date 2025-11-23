@@ -70,35 +70,7 @@ class Visualizer:
         plt.tight_layout()
         self._save_figure(fig, 'cultural_alignment_by_model.png')
         plt.close()
-    
-    def plot_differentiation_heatmap(self, df: pd.DataFrame):
-        """Plot heatmap of cultural differentiation scores"""
-        fig, ax = plt.subplots(figsize=(10, 8))
-        
-        # Pivot data
-        pivot = df.groupby(['model', 'culture'])['differentiation'].mean().reset_index()
-        heatmap_data = pivot.pivot(index='model', columns='culture', values='differentiation')
-        
-        # Create heatmap
-        sns.heatmap(
-            heatmap_data,
-            annot=True,
-            fmt='.2f',
-            cmap='YlOrRd',
-            cbar_kws={'label': 'Differentiation Score'},
-            ax=ax,
-            vmin=0,
-            vmax=10
-        )
-        
-        ax.set_title('Cultural Differentiation Scores', fontsize=14, fontweight='bold')
-        ax.set_xlabel('Culture', fontsize=12)
-        ax.set_ylabel('Model', fontsize=12)
-        
-        plt.tight_layout()
-        self._save_figure(fig, 'differentiation_heatmap.png')
-        plt.close()
-    
+
     def plot_decision_distribution(self, df: pd.DataFrame):
         """Plot distribution of decisions by culture"""
         fig, axes = plt.subplots(2, 3, figsize=(15, 10))
@@ -200,7 +172,7 @@ class Visualizer:
         """Create radar chart comparing models across metrics"""
 
         # Aggregate metrics by model
-        metrics = ['cultural_alignment', 'consistency', 'differentiation', 'stereotype']
+        metrics = ['cultural_alignment', 'stereotype']
         model_scores = df.groupby('model')[metrics].mean()
         
         # Number of variables
@@ -435,17 +407,16 @@ class Visualizer:
                 return []
 
             df['top_values'] = df['top_values'].apply(parse_top_values)
-        
+
         logger.info("Creating visualizations...")
-        
+
         self.plot_cultural_alignment_by_model(df)
-        self.plot_differentiation_heatmap(df)
         self.plot_decision_distribution(df)
         self.plot_value_frequency(df)
         self.plot_stereotype_scores(df)
         self.plot_model_comparison_radar(df)
         self.plot_category_performance(df)
-        self.plot_baseline_comparison(df)  # New baseline visualization
+        self.plot_baseline_comparison(df)
         self.plot_cultural_shift_magnitude(df)
         self.plot_scenario_difficulty(df)
         self.plot_decision_patterns_by_model(df)

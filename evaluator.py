@@ -26,8 +26,6 @@ logger = logging.getLogger(__name__)
 class EvaluationMetrics:
     """Container for all evaluation metrics"""
     cultural_alignment_score: Optional[float]
-    consistency_score: float
-    cultural_differentiation_score: float
     stereotype_score: float
 
     def to_dict(self) -> Dict:
@@ -277,74 +275,6 @@ class CulturalEvaluator:
 
         return profile
 
-    def calculate_consistency_score(
-        self,
-        parsed_responses: List[ParsedResponse]
-    ) -> float:
-        """Calculate consistency of responses to similar scenarios"""
-        if len(parsed_responses) < 2:
-            return 10.0
-
-        decisions = [pr.decision for pr in parsed_responses if pr.decision]
-        if decisions:
-            most_common_decision = Counter(decisions).most_common(1)[0][1]
-            decision_consistency = most_common_decision / len(decisions)
-        else:
-            decision_consistency = 0.0
-
-        all_values = []
-        for pr in parsed_responses:
-            all_values.extend(pr.top_values)
-
-        if all_values:
-            value_counts = Counter(all_values)
-            top_values = value_counts.most_common(3)
-            value_consistency = sum(count for _, count in top_values) / len(all_values)
-        else:
-            value_consistency = 0.0
-
-        consistency = (decision_consistency + value_consistency) / 2
-        return consistency * 10
-
-    def calculate_differentiation_score(
-        self,
-        responses_by_culture: Dict[str, ParsedResponse]
-    ) -> float:
-        """Calculate how well the model differentiates between cultures"""
-        if len(responses_by_culture) < 2:
-            return 0.0
-
-        cultures = list(responses_by_culture.keys())
-        profiles = {}
-
-        for culture, response in responses_by_culture.items():
-            if response.parse_success:
-                profiles[culture] = self._infer_cultural_profile(response)
-
-        if len(profiles) < 2:
-            return 0.0
-
-        distances = []
-        for i, culture1 in enumerate(cultures):
-            for culture2 in cultures[i+1:]:
-                if culture1 in profiles and culture2 in profiles:
-                    profile1 = profiles[culture1]
-                    profile2 = profiles[culture2]
-
-                    dist = np.sqrt(sum(
-                        (profile1[dim] - profile2[dim]) ** 2
-                        for dim in self.dimensions
-                    ))
-                    distances.append(dist)
-
-        if not distances:
-            return 0.0
-
-        avg_distance = np.mean(distances)
-        differentiation_score = min(10, avg_distance * 2.5)
-
-        return differentiation_score
-
     def calculate_stereotype_score(self, parsed_response: ParsedResponse) -> float:
         """Calculate stereotype usage in response"""
         text_lower = parsed_response.raw_text.lower()
@@ -367,57 +297,36 @@ class CulturalEvaluator:
         self,
         parsed_response: ParsedResponse,
         culture: str,
-        scenario_dimensions: List[str],
-        similar_responses: List[ParsedResponse] = None,
-        cross_cultural_responses: Dict[str, ParsedResponse] = None
+        scenario_dimensions: List[str]
     ) -> EvaluationMetrics:
         """Comprehensive evaluation of a response"""
         alignment = self.calculate_cultural_alignment(
             parsed_response, culture, scenario_dimensions
         )
 
-        consistency = 10.0
-        if similar_responses:
-            consistency = self.calculate_consistency_score(
-                [parsed_response] + similar_responses
-            )
-
-        differentiation = 0.0
-        if cross_cultural_responses:
-            all_responses = {culture: parsed_response}
-            all_responses.update(cross_cultural_responses)
-            differentiation = self.calculate_differentiation_score(all_responses)
-
         stereotype = self.calculate_stereotype_score(parsed_response)
 
         return EvaluationMetrics(
             cultural_alignment_score=alignment,
-            consistency_score=consistency,
-            cultural_differentiation_score=differentiation,
             stereotype_score=stereotype
         )
 
 
-def aggregate_metrics(metrics_list: List[EvaluationMetrics]) -> Dict[str, float]:
-    """Aggregate metrics across multiple evaluations"""
+def aggregate_metrics(metrics_list: List[EvaluationMetrics]) -> Dict:
+    """Aggregate multiple metrics into summary statistics"""
     if not metrics_list:
-        return {}
+        return {
+            'mean_alignment': 0.0,
+            'mean_stereotype': 0.0
+        }
 
-    alignment_scores = [m.cultural_alignment_score for m in metrics_list
-                       if m.cultural_alignment_score is not None]
-
-    aggregated = {}
-
-    if alignment_scores:
-        aggregated['mean_alignment'] = np.mean(alignment_scores)
-        aggregated['std_alignment'] = np.std(alignment_scores)
-    else:
-        aggregated['mean_alignment'] = None
-        aggregated['std_alignment'] = None
-
-    aggregated['mean_consistency'] = np.mean([m.consistency_score for m in metrics_list])
-    aggregated['mean_differentiation'] = np.mean([m.cultural_differentiation_score for m in metrics_list])
-    aggregated['mean_stereotype'] = np.mean([m.stereotype_score for m in metrics_list])
+    aggregated = {
+        'mean_alignment': np.mean([m.cultural_alignment_score for m in metrics_list
+                                   if m.cultural_alignment_score is not None]),
+        'std_alignment': np.std([m.cultural_alignment_score for m in metrics_list
+                                 if m.cultural_alignment_score is not None]),
+        'mean_stereotype': np.mean([m.stereotype_score for m in metrics_list])
+    }
 
     return aggregated
 

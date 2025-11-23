@@ -117,7 +117,7 @@ def analyze_model_performance(df: pd.DataFrame):
     print("MODEL PERFORMANCE ANALYSIS")
     print("=" * 80)
     
-    metrics = ['cultural_alignment', 'consistency', 'differentiation', 'stereotype']
+    metrics = ['cultural_alignment', 'stereotype']
     
     model_scores = df.groupby('model')[metrics].mean()
     
@@ -229,13 +229,6 @@ def generate_insights(df: pd.DataFrame):
         insights.append("⚠️  Moderate cultural alignment - room for improvement")
     else:
         insights.append("❌ Poor cultural alignment - significant bias present")
-    
-    # Differentiation
-    overall_diff = df['differentiation'].mean()
-    if overall_diff > 6:
-        insights.append("✅ Good cultural differentiation - models adapt well")
-    else:
-        insights.append("⚠️  Weak cultural differentiation - models give similar responses")
     
     # Stereotypes
     overall_stereo = df['stereotype'].mean()
@@ -405,71 +398,6 @@ def analyze_scenario_difficulty(df: pd.DataFrame):
     print(high_variance[['cultural_alignment_mean', 'cultural_alignment_std']])
 
     return scenario_stats
-
-
-def analyze_consistency_across_runs(df: pd.DataFrame):
-    """
-    Analyze how consistent models are across multiple runs of the same scenario
-    """
-    print("\n" + "=" * 80)
-    print("CONSISTENCY ACROSS RUNS ANALYSIS")
-    print("=" * 80)
-
-    if 'run_num' not in df.columns:
-        print("⚠️  No run_num column - cannot analyze consistency across runs")
-        return
-
-    # Calculate variance across runs for same scenario+model+culture
-    consistency_stats = []
-
-    grouped = df.groupby(['scenario_id', 'model', 'culture'])
-
-    for (scenario, model, culture), group in grouped:
-        if len(group) > 1:
-            alignment_std = group['cultural_alignment'].std()
-
-            # Check decision consistency
-            decisions = group['decision'].value_counts()
-            decision_consistency = decisions.iloc[0] / len(group) if len(decisions) > 0 else 0
-
-            consistency_stats.append({
-                'scenario': scenario,
-                'model': model,
-                'culture': culture,
-                'alignment_std': alignment_std,
-                'decision_consistency': decision_consistency
-            })
-
-    consistency_df = pd.DataFrame(consistency_stats)
-
-    # Model-level consistency
-    print("\nModel Consistency (Lower std = more consistent):")
-    model_consistency = consistency_df.groupby('model').agg({
-        'alignment_std': 'mean',
-        'decision_consistency': 'mean'
-    }).round(3)
-    print(model_consistency.to_string())
-
-    # Culture-level consistency
-    print("\n\nCulture Consistency:")
-    culture_consistency = consistency_df.groupby('culture').agg({
-        'alignment_std': 'mean',
-        'decision_consistency': 'mean'
-    }).round(3)
-    print(culture_consistency.to_string())
-
-    # Find most and least consistent combinations
-    most_consistent = consistency_df.nsmallest(5, 'alignment_std')
-    least_consistent = consistency_df.nlargest(5, 'alignment_std')
-
-    print("\n\nMost Consistent (Stable across runs):")
-    print(most_consistent[['scenario', 'model', 'culture', 'alignment_std']].to_string(index=False))
-
-    print("\n\nLeast Consistent (Variable across runs):")
-    print(least_consistent[['scenario', 'model', 'culture', 'alignment_std']].to_string(index=False))
-
-    return consistency_df
-
 
 def analyze_statistical_significance(df: pd.DataFrame):
     """

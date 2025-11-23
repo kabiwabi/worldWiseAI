@@ -134,12 +134,14 @@ class ResponseParser:
             # Clean up each value - remove newlines and extra spaces
             cleaned = [v.strip().strip('[]').replace('\n', ' ').strip() for v in numbered_matches[:3]]
             return cleaned
-        
-        # Format 2: Bullet points
-        bullet_pattern = re.compile(r'[-•*]\s*(.+?)(?=\n[-•*]|\Z)', re.MULTILINE | re.DOTALL)
+
+        # Format 2: Bullet points (handles indentation and various spacing)
+        bullet_pattern = re.compile(r'[-•*]\s*(.+?)(?=\s*\n\s*[-•*]|\s*\Z)', re.MULTILINE | re.DOTALL)
         bullet_matches = bullet_pattern.findall(values_text)
         if bullet_matches:
-            return [v.strip().strip('[]').strip() for v in bullet_matches[:3]]
+            # Clean each value: remove newlines, extra spaces, brackets
+            cleaned = [re.sub(r'\s+', ' ', v.strip().strip('[]').strip()) for v in bullet_matches[:3]]
+            return cleaned
         
         # Format 3: Comma-separated
         if ',' in values_text:
@@ -149,66 +151,7 @@ class ResponseParser:
         # Format 4: Line-separated
         lines = [l.strip().strip('[]').strip() for l in values_text.split('\n') if l.strip()]
         return lines[:3]
-    
-    def parse_judge_response(self, response_text: str) -> Dict:
-        """
-        Parse LLM-as-judge response
-        
-        Args:
-            response_text: Raw judge response
-            
-        Returns:
-            Dictionary with scores and justification
-        """
-        try:
-            # Try to extract JSON from response
-            json_match = re.search(r'\{[^}]+\}', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-                data = json.loads(json_str)
-                return data
-            
-            # If no JSON found, try to parse manually
-            logger.warning("No JSON found in judge response, attempting manual parse")
-            
-            scores = {
-                'value_alignment': self._extract_score(response_text, 'value_alignment'),
-                'reasoning_pattern': self._extract_score(response_text, 'reasoning_pattern'),
-                'cultural_appropriateness': self._extract_score(response_text, 'cultural_appropriateness'),
-                'justification': self._extract_justification(response_text)
-            }
-            return scores
-            
-        except Exception as e:
-            logger.error(f"Error parsing judge response: {e}")
-            return {
-                'value_alignment': 0,
-                'reasoning_pattern': 0,
-                'cultural_appropriateness': 0,
-                'justification': f"Parse error: {str(e)}"
-            }
-    
-    def _extract_score(self, text: str, field_name: str) -> float:
-        """Extract a numeric score from text"""
-        pattern = re.compile(rf'{field_name}["\']?\s*:\s*(\d+\.?\d*)', re.IGNORECASE)
-        match = pattern.search(text)
-        if match:
-            return float(match.group(1))
-        return 0.0
-    
-    def _extract_justification(self, text: str) -> str:
-        """Extract justification text"""
-        pattern = re.compile(r'justification["\']?\s*:\s*["\'](.+?)["\']', re.IGNORECASE | re.DOTALL)
-        match = pattern.search(text)
-        if match:
-            return match.group(1).strip()
-        
-        # Fallback: use last paragraph
-        paragraphs = text.split('\n\n')
-        if paragraphs:
-            return paragraphs[-1].strip()
-        return ""
-    
+
     def batch_parse(self, responses: List[str]) -> List[ParsedResponse]:
         """Parse multiple responses"""
         return [self.parse_response(r) for r in responses]
@@ -269,18 +212,3 @@ if __name__ == "__main__":
     
     if parsed.parse_errors:
         print(f"Errors: {parsed.parse_errors}")
-    
-    # Test judge response
-    test_judge = """
-    {
-      "value_alignment": 8.5,
-      "reasoning_pattern": 9.0,
-      "cultural_appropriateness": 8.0,
-      "justification": "The response strongly reflects collectivist values typical of Japanese culture."
-    }
-    """
-    
-    print("\n" + "=" * 80)
-    print("Testing Judge Parser...")
-    judge_result = parser.parse_judge_response(test_judge)
-    print(json.dumps(judge_result, indent=2))

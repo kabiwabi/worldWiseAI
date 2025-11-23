@@ -3,7 +3,7 @@
 CULTURAL BIAS MEASUREMENT - ANALYSIS REPORT
 ================================================================================
 
-Dataset: results_20251121_183419.csv
+Dataset: results_20251122_172747.csv
 Total Responses: 720
 Models: gpt-4, claude-sonnet, gemini, deepseek
 Cultures: baseline, US, Japan, India, Mexico, UAE
@@ -23,7 +23,7 @@ Baseline Distance from Each Culture:
   US............................ 1.431
   Japan......................... 1.556
   UAE........................... 1.656
-  Mexico........................ 1.947
+  Mexico........................ 1.946
 
 ⚠️  INHERENT BIAS DETECTED:
   Baseline responses are CLOSEST to: India
@@ -33,7 +33,7 @@ Baseline Distance from Each Culture:
 
 
 Cultural Alignment by Culture (WITH cultural prompting):
-  India......................... 7.71/10
+  India......................... 7.70/10
   Japan......................... 6.94/10
   US............................ 6.73/10
   UAE........................... 6.36/10
@@ -41,7 +41,7 @@ Cultural Alignment by Culture (WITH cultural prompting):
 
 Western vs Non-Western (WITH prompting):
   Western (US):................... 6.73/10
-  Non-Western:.................... 6.61/10
+  Non-Western:.................... 6.60/10
   Gap:............................ 0.12
   ✓ Relatively balanced with cultural prompting
 
@@ -52,10 +52,10 @@ DIMENSION-LEVEL ALIGNMENT ANALYSIS
 Mean dimension alignment by culture (higher = closer to Hofstede):
 dimension  individualism  indulgence  long_term_orientation  masculinity  power_distance  uncertainty_avoidance
 culture                                                                                                        
-India               9.73        5.71                   8.93         7.13            6.23                   8.50
+India               9.73        5.70                   8.93         7.14            6.23                   8.50
 Japan               9.67        7.09                   5.80         4.91            9.82                   4.33
-Mexico              6.40        5.46                   5.28         6.07            5.21                   4.12
-UAE                 6.03        6.97                   5.13         9.71            5.09                   5.23
+Mexico              6.39        5.46                   5.28         6.07            5.21                   4.12
+UAE                 6.02        6.96                   5.12         9.71            5.09                   5.23
 US                  5.01        6.83                   4.79         7.65            7.54                   8.56
 
 Mean dimension alignment by model:
@@ -64,7 +64,7 @@ model
 claude-sonnet           7.39        6.40                   5.99         7.18            6.87                   6.13
 deepseek                7.34        6.48                   6.12         7.02            6.79                   6.24
 gemini                  7.29        6.37                   5.77         7.19            6.71                   6.06
-gpt-4                   7.44        6.39                   6.05         6.99            6.74                   6.16
+gpt-4                   7.44        6.38                   6.04         6.99            6.74                   6.16
 
 Overall dimension difficulty:
   individualism        → 7.37/10
@@ -84,10 +84,10 @@ MODEL PERFORMANCE ANALYSIS
 Model Performance Summary:
                cultural_alignment  consistency  differentiation  stereotype
 model                                                                      
-claude-sonnet            6.661283         10.0              0.0    6.977220
+claude-sonnet            6.661273         10.0              0.0    6.977220
 deepseek                 6.664889         10.0              0.0    7.953118
-gemini                   6.565823         10.0              0.0    6.774576
-gpt-4                    6.627505         10.0              0.0    8.528430
+gemini                   6.565745         10.0              0.0    6.774576
+gpt-4                    6.625080         10.0              0.0    8.528430
 
 🏆 Best Overall Model: gpt-4
    Overall Score: 6.29/10
@@ -108,25 +108,25 @@ Performance by Category:
 scenario_category                                                  
 Business & Tradition               6.505321  1.721461           1.0
 Career & Competition               7.166746  1.592346           1.0
-Career & Education                 6.782765  2.088252           1.0
-Career & Finance                   5.710025  1.690029           1.0
-Career & Risk                      5.921883  2.362909           1.0
-Career & Work Culture              7.072809  1.682570           1.0
-Career & Work-Life                 7.103708  1.722264           1.0
-Education & Development            5.872006  1.470598           1.0
+Career & Education                 6.781875  2.087744           1.0
+Career & Finance                   5.707055  1.692773           1.0
+Career & Risk                      5.920660  2.361648           1.0
+Career & Work Culture              7.072655  1.682687           1.0
+Career & Work-Life                 7.107724  1.723448           1.0
+Education & Development            5.870128  1.471902           1.0
 Family & Obligations               6.397179  1.453927           1.0
-Family & Relationships             7.114801  1.895757           1.0
-Leisure & Lifestyle                6.612621  0.724681           1.0
-Lifestyle & Self-Control           6.492324  0.767354           1.0
-Planning & Projects                6.280261  1.873139           1.0
-Projects & Persistence             6.116277  1.553737           1.0
-Resource Allocation                6.578088  2.039736           1.0
-Rules & Procedures                 6.595390  1.822721           1.0
-Social & Community                 6.854814  1.815705           1.0
-Social & Spontaneity               6.297075  0.764185           1.0
+Family & Relationships             7.114595  1.896287           1.0
+Leisure & Lifestyle                6.610591  0.723830           1.0
+Lifestyle & Self-Control           6.492425  0.768291           1.0
+Planning & Projects                6.281075  1.874943           1.0
+Projects & Persistence             6.115670  1.553990           1.0
+Resource Allocation                6.575865  2.036970           1.0
+Rules & Procedures                 6.594862  1.824379           1.0
+Social & Community                 6.855357  1.814665           1.0
+Social & Spontaneity               6.298207  0.765707           1.0
 Social Situations                  6.834605  1.677256           1.0
 Work & Change                      6.168794  1.966395           1.0
-Work & Wellbeing                   6.250410  0.790630           1.0
+Work & Wellbeing                   6.244270  0.793820           1.0
 
 📉 Hardest Category: Career & Finance
    Mean Alignment: 5.71/10
@@ -141,34 +141,34 @@ VALUE PATTERN ANALYSIS
 Top 3 Values by Culture:
 
 baseline:
-  Future Planning.................... 37
-  Achievement & Success.............. 31
-  Family Harmony..................... 26
+  Future Planning.................... 52
+  Achievement & Success.............. 46
+  Work-Life Balance.................. 39
 
 US:
-  Achievement & Success.............. 61
-  Personal Autonomy.................. 39
-  Future Planning.................... 35
+  Achievement & Success.............. 80
+  Personal Autonomy.................. 45
+  Future Planning.................... 41
 
 Japan:
-  Family Harmony..................... 52
-  Future Planning.................... 44
-  Stability & Security............... 43
+  Family Harmony..................... 62
+  Stability & Security............... 52
+  Future Planning.................... 52
 
 India:
-  Family Harmony..................... 71
-  Stability & Security............... 51
-  Future Planning.................... 47
+  Family Harmony..................... 80
+  Stability & Security............... 57
+  Future Planning.................... 53
 
 Mexico:
-  Family Harmony..................... 86
-  Stability & Security............... 32
-  Future Planning.................... 32
+  Family Harmony..................... 97
+  Stability & Security............... 39
+  Future Planning.................... 36
 
 UAE:
-  Family Harmony..................... 70
-  Future Planning.................... 44
-  Stability & Security............... 42
+  Family Harmony..................... 80
+  Future Planning.................... 54
+  Stability & Security............... 52
 
 ================================================================================
 CONSISTENCY ANALYSIS
@@ -180,10 +180,10 @@ Model Consistency:
 
                decision  cultural_alignment
 model                                      
-claude-sonnet  0.544444            1.772907
+claude-sonnet  0.544444            1.773254
 deepseek       0.488889            1.729222
-gemini         0.566667            1.879490
-gpt-4          0.661111            1.782629
+gemini         0.566667            1.879424
+gpt-4          0.661111            1.783145
 
 ================================================================================
 KEY INSIGHTS & RECOMMENDATIONS
@@ -207,71 +207,71 @@ Measures how much cultural prompting changes responses vs. baseline
 
 
 US:
-  Total Variation Distance: 23.83%
+  Total Variation Distance: 17.78%
   (Higher = more shift from baseline)
 
   Largest Shifts:
-    ↑ Achievement & Success......... +8.7%
-    ↑ Personal Autonomy............. +5.5%
-    ↓ Stability & Security.......... -2.7%
-    ↓ Respect for Authority......... -1.8%
-    ↓ Future Planning............... -1.7%
+    ↑ Achievement & Success......... +9.4%
+    ↑ Personal Autonomy............. +6.4%
+    ↓ Future Planning............... -3.1%
+    ↓ Life Satisfaction............. -2.5%
+    ↓ Personal Enjoyment............ -1.9%
 
 Japan:
-  Total Variation Distance: 47.81%
+  Total Variation Distance: 41.94%
   (Higher = more shift from baseline)
 
   Largest Shifts:
-    ↑ Respect for Authority......... +10.1%
-    ↑ Stability & Security.......... +7.5%
+    ↑ Respect for Authority......... +10.3%
+    ↑ Stability & Security.......... +8.1%
     ↑ Family Harmony................ +7.2%
-    ↑ Perseverance & Patience....... +7.1%
-    ↓ Personal Autonomy............. -6.7%
+    ↑ Perseverance & Patience....... +7.2%
+    ↓ Achievement & Success......... -6.1%
 
 India:
-  Total Variation Distance: 46.45%
+  Total Variation Distance: 40.00%
   (Higher = more shift from baseline)
 
   Largest Shifts:
-    ↑ Family Harmony................ +12.6%
-    ↑ Stability & Security.......... +9.6%
-    ↑ Respect for Authority......... +7.4%
-    ↓ Personal Autonomy............. -6.4%
-    ↓ Self-Determination............ -5.4%
+    ↑ Family Harmony................ +12.2%
+    ↑ Stability & Security.......... +9.4%
+    ↑ Respect for Authority......... +7.8%
+    ↓ Work-Life Balance............. -6.7%
+    ↓ Personal Autonomy............. -5.3%
 
 Mexico:
-  Total Variation Distance: 43.14%
+  Total Variation Distance: 36.39%
   (Higher = more shift from baseline)
 
   Largest Shifts:
-    ↑ Family Harmony................ +17.8%
+    ↑ Family Harmony................ +16.9%
     ↑ Respect for Authority......... +6.7%
-    ↓ Achievement & Success......... -5.5%
-    ↓ Personal Autonomy............. -5.4%
-    ↓ Self-Determination............ -5.0%
+    ↓ Achievement & Success......... -6.1%
+    ↑ Perseverance & Patience....... +4.7%
+    ↑ Stability & Security.......... +4.4%
 
 UAE:
-  Total Variation Distance: 44.95%
+  Total Variation Distance: 41.39%
   (Higher = more shift from baseline)
 
   Largest Shifts:
-    ↑ Family Harmony................ +12.5%
-    ↑ Respect for Authority......... +9.0%
-    ↑ Stability & Security.......... +7.0%
-    ↓ Personal Autonomy............. -6.4%
-    ↑ Tradition & Heritage.......... +5.7%
+    ↑ Family Harmony................ +12.2%
+    ↑ Respect for Authority......... +10.0%
+    ↑ Stability & Security.......... +8.1%
+    ↓ Work-Life Balance............. -5.6%
+    ↑ Tradition & Heritage.......... +5.6%
 
 ────────────────────────────────────────────────────────────────────────────────
 SHIFT MAGNITUDE SUMMARY:
 
 Cultures Ranked by Shift Magnitude:
-  1. Japan............... 47.81% shift from baseline
-  2. India............... 46.45% shift from baseline
-  3. UAE................. 44.95% shift from baseline
-  4. Mexico.............. 43.14% shift from baseline
-  5. US.................. 23.83% shift from baseline
+  1. Japan............... 41.94% shift from baseline
+  2. UAE................. 41.39% shift from baseline
+  3. India............... 40.00% shift from baseline
+  4. Mexico.............. 36.39% shift from baseline
+  5. US.................. 17.78% shift from baseline
 
-Average shift magnitude: 41.24%
+Average shift magnitude: 35.50%
 ✅ Strong cultural adaptation - prompting highly effective
 
 ================================================================================
@@ -282,33 +282,33 @@ Scenarios Ranked by Difficulty (Hardest First):
              cultural_alignment_mean  cultural_alignment_std  cultural_alignment_min  cultural_alignment_max  parse_success_mean
 scenario_id                                                                                                                     
 LTO001                          5.71                    1.69                    3.73                    9.04                 1.0
-LTO003                          5.72                    1.63                    3.67                    8.79                 1.0
+LTO003                          5.72                    1.62                    3.67                    8.79                 1.0
 UAI001                          5.78                    2.42                    2.95                    9.66                 1.0
 LTO004                          5.87                    1.47                    4.38                    8.90                 1.0
 UAI002                          5.92                    2.36                    3.32                    9.49                 1.0
 LTO005                          6.12                    1.55                    4.22                    9.47                 1.0
 UAI003                          6.17                    1.97                    3.94                    9.08                 1.0
-INDU002                         6.25                    0.79                    4.86                    7.53                 1.0
+INDU002                         6.24                    0.79                    4.86                    7.53                 1.0
 UAI004                          6.28                    1.87                    3.82                    9.06                 1.0
-INDU003                         6.30                    0.76                    4.52                    7.50                 1.0
+INDU003                         6.30                    0.77                    4.52                    7.53                 1.0
 INDU005                         6.40                    1.45                    3.57                    8.33                 1.0
-INDU004                         6.49                    0.77                    5.35                    7.63                 1.0
+INDU004                         6.49                    0.77                    5.34                    7.63                 1.0
 LTO002                          6.51                    1.72                    4.93                    9.97                 1.0
-UAI005                          6.60                    1.82                    4.41                    9.65                 1.0
-INDU001                         6.61                    0.72                    5.39                    7.54                 1.0
+UAI005                          6.59                    1.82                    4.39                    9.65                 1.0
+INDU001                         6.61                    0.72                    5.39                    7.53                 1.0
 PDI004                          6.68                    1.90                    4.70                    9.95                 1.0
-PDI003                          6.72                    1.84                    4.79                   10.00                 1.0
-PDI002                          6.74                    1.90                    4.40                    9.96                 1.0
+PDI003                          6.72                    1.84                    4.79                    9.99                 1.0
+PDI002                          6.74                    1.89                    4.40                    9.96                 1.0
 PDI005                          6.83                    1.68                    5.21                   10.00                 1.0
-MAS004                          6.85                    1.82                    4.22                    9.79                 1.0
+MAS004                          6.86                    1.81                    4.22                    9.79                 1.0
 PDI001                          6.91                    1.77                    5.06                    9.98                 1.0
 MAS005                          7.07                    1.68                    4.30                    9.80                 1.0
-MAS003                          7.10                    1.72                    4.37                    9.95                 1.0
+MAS003                          7.11                    1.72                    4.37                    9.98                 1.0
 MAS001                          7.17                    1.59                    4.87                    9.87                 1.0
 MAS002                          7.27                    1.62                    5.10                   10.00                 1.0
 IND001                          7.32                    2.23                    3.09                    9.93                 1.0
-IND002                          7.33                    2.05                    4.78                    9.98                 1.0
-IND003                          7.33                    2.02                    3.65                    9.73                 1.0
+IND002                          7.32                    2.05                    4.78                    9.96                 1.0
+IND003                          7.34                    2.03                    3.65                    9.73                 1.0
 IND004                          7.42                    1.96                    5.46                    9.97                 1.0
 IND005                          7.44                    2.08                    4.69                    9.96                 1.0
 
@@ -332,7 +332,7 @@ UAI001                          5.78                    2.42
 UAI002                          5.92                    2.36
 IND001                          7.32                    2.23
 IND005                          7.44                    2.08
-IND002                          7.33                    2.05
+IND002                          7.32                    2.05
 
 ================================================================================
 STATISTICAL SIGNIFICANCE TESTING
@@ -340,8 +340,8 @@ STATISTICAL SIGNIFICANCE TESTING
 
 1. MODEL COMPARISON (ANOVA)
 ────────────────────────────────────────
-F-statistic: 0.0984
-p-value: 0.9609
+F-statistic: 0.0988
+p-value: 0.9607
 No significant difference between models (p >= 0.05)
 
 2. PAIRWISE MODEL COMPARISONS (t-tests with Bonferroni correction)
@@ -349,39 +349,39 @@ No significant difference between models (p >= 0.05)
 Bonferroni corrected alpha: 0.0083
 
 gpt-4 vs claude-sonnet:
-  Mean difference: -0.034
-  t-statistic: -0.165, p-value: 0.8694 
-  Cohen's d: -0.019 (negligible effect)
+  Mean difference: -0.036
+  t-statistic: -0.176, p-value: 0.8602 
+  Cohen's d: -0.020 (negligible effect)
 
 gpt-4 vs gemini:
-  Mean difference: +0.062
-  t-statistic: 0.292, p-value: 0.7708 
-  Cohen's d: 0.034 (negligible effect)
+  Mean difference: +0.059
+  t-statistic: 0.280, p-value: 0.7793 
+  Cohen's d: 0.032 (negligible effect)
 
 gpt-4 vs deepseek:
-  Mean difference: -0.037
-  t-statistic: -0.184, p-value: 0.8539 
-  Cohen's d: -0.021 (negligible effect)
+  Mean difference: -0.040
+  t-statistic: -0.196, p-value: 0.8445 
+  Cohen's d: -0.023 (negligible effect)
 
 claude-sonnet vs gemini:
-  Mean difference: +0.095
-  t-statistic: 0.453, p-value: 0.6512 
+  Mean difference: +0.096
+  t-statistic: 0.453, p-value: 0.6510 
   Cohen's d: 0.052 (negligible effect)
 
 claude-sonnet vs deepseek:
   Mean difference: -0.004
-  t-statistic: -0.018, p-value: 0.9858 
+  t-statistic: -0.018, p-value: 0.9857 
   Cohen's d: -0.002 (negligible effect)
 
 gemini vs deepseek:
   Mean difference: -0.099
-  t-statistic: -0.475, p-value: 0.6351 
+  t-statistic: -0.475, p-value: 0.6348 
   Cohen's d: -0.055 (negligible effect)
 
 
 3. CULTURE COMPARISON (ANOVA)
 ────────────────────────────────────────
-F-statistic: 31.5773
+F-statistic: 31.5336
 p-value: 0.0000
 *** Highly significant difference between cultures (p < 0.001)
 

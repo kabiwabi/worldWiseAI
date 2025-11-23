@@ -2,9 +2,9 @@
 Evaluator Module
 Computes automated metrics for cultural bias measurement
 
-FIXED: Complete semantic exemplars for all 6 Hofstede dimensions
-- Removed overlap with VALUE_OPTIONS
-- Using abstract/academic language
+Complete semantic exemplars for all 6 Hofstede dimensions:
+- No overlap with VALUE_OPTIONS
+- Abstract/academic language
 - Balanced representation across all dimensions
 """
 
@@ -29,7 +29,6 @@ class EvaluationMetrics:
     consistency_score: float
     cultural_differentiation_score: float
     stereotype_score: float
-    judge_scores: Dict[str, float]
 
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -370,8 +369,7 @@ class CulturalEvaluator:
         culture: str,
         scenario_dimensions: List[str],
         similar_responses: List[ParsedResponse] = None,
-        cross_cultural_responses: Dict[str, ParsedResponse] = None,
-        judge_scores: Dict[str, float] = None
+        cross_cultural_responses: Dict[str, ParsedResponse] = None
     ) -> EvaluationMetrics:
         """Comprehensive evaluation of a response"""
         alignment = self.calculate_cultural_alignment(
@@ -392,15 +390,11 @@ class CulturalEvaluator:
 
         stereotype = self.calculate_stereotype_score(parsed_response)
 
-        if judge_scores is None:
-            judge_scores = {}
-
         return EvaluationMetrics(
             cultural_alignment_score=alignment,
             consistency_score=consistency,
             cultural_differentiation_score=differentiation,
-            stereotype_score=stereotype,
-            judge_scores=judge_scores
+            stereotype_score=stereotype
         )
 
 
@@ -425,19 +419,12 @@ def aggregate_metrics(metrics_list: List[EvaluationMetrics]) -> Dict[str, float]
     aggregated['mean_differentiation'] = np.mean([m.cultural_differentiation_score for m in metrics_list])
     aggregated['mean_stereotype'] = np.mean([m.stereotype_score for m in metrics_list])
 
-    judge_fields = ['value_alignment', 'reasoning_pattern', 'cultural_appropriateness']
-    for field in judge_fields:
-        values = [m.judge_scores.get(field, 0) for m in metrics_list if m.judge_scores]
-        if values:
-            aggregated[f'mean_judge_{field}'] = np.mean(values)
-
     return aggregated
 
 
 def calculate_baseline_bias(
         baseline_responses: List[tuple],  # ← Now (ParsedResponse, scenario_id) tuples
         cultural_contexts: Dict[str, Dict],
-        scenario_dimensions: List[str]  # ← Kept for compatibility but NOT USED
 ) -> Dict[str, float]:
     """
     Calculate which culture the baseline responses are closest to

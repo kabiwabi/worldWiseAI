@@ -65,20 +65,11 @@ def analyze_cultural_bias(df: pd.DataFrame):
             )
             # Now pass as tuple: (ParsedResponse, scenario_id)
             baseline_responses.append((parsed, row['scenario_id']))  # ← Append tuple with scenario_id
-        
+
         if baseline_responses:
-            # Get dimensions
-            from scenarios import get_scenario_by_id
-            all_dimensions = set()
-            for sid in df['scenario_id'].unique():
-                scenario = get_scenario_by_id(sid)
-                if scenario:
-                    all_dimensions.update(scenario.cultural_dimensions)
-            
             baseline_distances = calculate_baseline_bias(
                 baseline_responses,
-                config.CULTURAL_CONTEXTS,
-                list(all_dimensions)
+                config.CULTURAL_CONTEXTS
             )
             
             if baseline_distances:
@@ -799,7 +790,6 @@ def create_analysis_report(results_file: Path):
         generate_insights(df)
         analyze_cultural_shift_magnitude(df)
         analyze_scenario_difficulty(df)
-        # analyze_consistency_across_runs(df)
         analyze_statistical_significance(df)
         analyze_decision_patterns(df)
 

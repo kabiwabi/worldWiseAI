@@ -16,13 +16,12 @@ load_dotenv()
 # ============================================================================
 
 PROJECT_ROOT = Path(__file__).parent
-DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 VISUALIZATIONS_DIR = RESULTS_DIR / "visualizations"
 CACHE_DIR = PROJECT_ROOT / "cache"
 
 # Create directories if they don't exist
-for directory in [DATA_DIR, RESULTS_DIR, VISUALIZATIONS_DIR, CACHE_DIR]:
+for directory in [RESULTS_DIR, VISUALIZATIONS_DIR, CACHE_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
@@ -175,39 +174,39 @@ DIMENSION_DESCRIPTIONS = {
 
 # ============================================================================
 # BALANCED VALUE OPTIONS
-# FIXED: 3 values per dimension (18 total), balanced across all dimensions
+# 3 values per dimension (18 total), balanced across all dimensions
 # ============================================================================
 
 VALUE_OPTIONS = [
     # INDIVIDUALISM (3 values)
-    "Personal Autonomy",          # High individualism
-    "Self-Determination",          # High individualism
-    "Family Harmony",              # Low individualism (collectivism)
+    "Personal Autonomy",
+    "Self-Determination",
+    "Family Harmony",
 
     # POWER DISTANCE (3 values)
-    "Respect for Authority",       # High power distance
-    "Hierarchical Order",          # High power distance
-    "Egalitarian Values",          # Low power distance
+    "Respect for Authority",
+    "Hierarchical Order",
+    "Egalitarian Values",
 
     # MASCULINITY (3 values)
-    "Achievement & Success",       # High masculinity
-    "Competition & Recognition",   # High masculinity
-    "Work-Life Balance",          # Low masculinity (femininity)
+    "Achievement & Success",
+    "Competition & Recognition",
+    "Work-Life Balance",
 
     # UNCERTAINTY AVOIDANCE (3 values)
-    "Stability & Security",        # High uncertainty avoidance
-    "Rule Following",              # High uncertainty avoidance
-    "Flexibility & Adaptability",  # Low uncertainty avoidance
+    "Stability & Security",
+    "Rule Following",
+    "Flexibility & Adaptability",
 
     # LONG-TERM ORIENTATION (3 values)
-    "Future Planning",             # High long-term orientation
-    "Perseverance & Patience",     # High long-term orientation
-    "Tradition & Heritage",        # Low long-term orientation
+    "Future Planning",
+    "Perseverance & Patience",
+    "Tradition & Heritage",
 
     # INDULGENCE (3 values)
-    "Personal Enjoyment",          # High indulgence
-    "Life Satisfaction",           # High indulgence
-    "Self-Discipline",             # Low indulgence (restraint)
+    "Personal Enjoyment",
+    "Life Satisfaction",
+    "Self-Discipline",
 ]
 
 # Value-to-dimension mapping for analysis
@@ -289,13 +288,6 @@ STEREOTYPE_INDICATORS = [
 
 NUM_RUNS_PER_COMBINATION = 1
 ENABLE_CACHE = True
-
-# ============================================================================
-# EVALUATION SETTINGS
-# ============================================================================
-
-JUDGE_MODEL = "gpt-4"
-JUDGE_TEMPERATURE = 0.3
 
 # ============================================================================
 # VISUALIZATION SETTINGS

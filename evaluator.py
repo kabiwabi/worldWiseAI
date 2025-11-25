@@ -240,15 +240,31 @@ class CulturalEvaluator:
         """
         profile = {}
 
-        # Combine all text from response
-        response_text = f"{parsed_response.explanation} {parsed_response.decision} "
-        response_text += " ".join(parsed_response.top_values)
+        # --- NEW: build a value-centric text for embedding ---
+        # Safely get fields
+        explanation = parsed_response.explanation or ""
+        decision = parsed_response.decision or ""
+        values = parsed_response.top_values or []
 
-        if not response_text.strip():
+        # Join explicit value labels
+        values_text = " ".join(values)
+
+        # Up-weight explicit values by repeating them (cheap but effective)
+        # You can tune the 3 → 2 or 4 if you want more/less weight.
+        boosted_values = " ".join([values_text] * 3) if values_text else ""
+
+        # Combine boosted values with full explanation + decision
+        response_text = f"{boosted_values} {explanation} {decision}".strip()
+        # --- END NEW ---
+
+        if not response_text:
             self.logger.warning("Empty response text, returning neutral profile")
             return {dim: 0.0 for dim in self.dimensions}
 
-        response_embedding = self.semantic_model.encode(response_text, convert_to_tensor=True)
+        response_embedding = self.semantic_model.encode(
+            response_text,
+            convert_to_tensor=True
+        )
 
         for dim in self.dimensions:
             high_similarities = util.cos_sim(

@@ -5,6 +5,8 @@ Generates plots and charts for experiment results
 import matplotlib
 matplotlib.use('Agg')
 
+from analyze import analyze_hofstede_comparison
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -198,6 +200,230 @@ class Visualizer:
         
         plt.tight_layout()
         self._save_figure(fig, 'model_comparison_radar.png')
+        plt.close()
+
+    def plot_hofstede_country_comparison_bucketed(self, comparison_df: pd.DataFrame):
+        """Country-by-country comparison (bucketed -2 to +2 scale)."""
+        if comparison_df is None or comparison_df.empty:
+            logger.warning("No data for Hofstede country comparison")
+            return
+
+        countries = sorted([c for c in comparison_df['culture'].unique() if c != 'baseline'])
+        dimensions = ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]
+        country_dim_scores = comparison_df.groupby(['culture', 'dimension_abbr']).agg({
+            'official_score': 'first',
+            'imputed_score': 'mean'
+        }).reset_index()
+
+        n_countries = len(countries)
+        n_cols = 2
+        n_rows = (n_countries + 1) // 2
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, 4 * n_rows))
+        if n_countries == 1:
+            axes = np.array([[axes]])
+        elif n_rows == 1:
+            axes = axes.reshape(1, -1)
+        axes = axes.flatten()
+
+        for idx, country in enumerate(countries):
+            ax = axes[idx]
+            country_data = country_dim_scores[country_dim_scores['culture'] == country]
+            country_data = country_data.set_index('dimension_abbr').reindex(dimensions).reset_index()
+
+            x = np.arange(len(dimensions))
+            width = 0.35
+            official_scores = country_data['official_score'].values
+            imputed_scores = country_data['imputed_score'].values
+
+            bars1 = ax.bar(x - width / 2, official_scores, width, label='Official',
+                           color='#2E86AB', alpha=0.8, edgecolor='black', linewidth=1)
+            bars2 = ax.bar(x + width / 2, imputed_scores, width, label='Imputed',
+                           color='#A23B72', alpha=0.8, edgecolor='black', linewidth=1)
+
+            for bar in bars1:
+                height = bar.get_height()
+                if not np.isnan(height):
+                    ax.text(bar.get_x() + bar.get_width() / 2., height + 0.1,
+                            f'{height:.1f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+
+            for bar in bars2:
+                height = bar.get_height()
+                if not np.isnan(height):
+                    ax.text(bar.get_x() + bar.get_width() / 2., height + 0.1,
+                            f'{height:.2f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+
+            ax.set_ylabel('Score (-2 to +2)', fontsize=10)
+            ax.set_title(f'{country}', fontsize=12, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels(dimensions, fontsize=10)
+            ax.set_ylim(-2.5, 2.5)
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.3)
+            ax.legend(fontsize=9, loc='upper right')
+            ax.grid(axis='y', alpha=0.3, linestyle='--')
+
+            for i, (official, imputed) in enumerate(zip(official_scores, imputed_scores)):
+                if not np.isnan(official) and not np.isnan(imputed):
+                    diff = abs(imputed - official)
+                    color = 'red' if diff > 1.0 else 'orange' if diff > 0.5 else 'green'
+                    ax.plot([x[i] - width / 2, x[i] + width / 2], [official, imputed],
+                            color=color, linewidth=2, alpha=0.6)
+
+        for idx in range(len(countries), len(axes)):
+            axes[idx].set_visible(False)
+
+        fig.suptitle('Hofstede Scores: Official vs LLM Imputed (Bucketed Scale)\n' +
+                     '(Green <0.5 error, Orange 0.5-1.0, Red >1.0)',
+                     fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        self._save_figure(fig, 'hofstede_country_comparison_bucketed.png')
+        plt.close()
+
+    def plot_hofstede_dimension_comparison_bucketed(self, comparison_df: pd.DataFrame):
+        """Dimension-by-dimension comparison (bucketed -2 to +2 scale)."""
+        if comparison_df is None or comparison_df.empty:
+            logger.warning("No data for Hofstede dimension comparison")
+            return
+
+        dimensions = ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]
+        dimension_names = {
+            "PDI": "Power Distance", "IDV": "Individualism", "MAS": "Masculinity",
+            "UAI": "Uncertainty Avoidance", "LTO": "Long-term Orientation", "IVR": "Indulgence"
+        }
+
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        axes = axes.flatten()
+        countries = sorted([c for c in comparison_df['culture'].unique() if c != 'baseline'])
+
+        for idx, dim in enumerate(dimensions):
+            ax = axes[idx]
+            dim_data = comparison_df[comparison_df['dimension_abbr'] == dim]
+            if dim_data.empty:
+                ax.set_visible(False)
+                continue
+
+            country_scores = dim_data.groupby('culture').agg({
+                'official_score': 'first',
+                'imputed_score': 'mean',
+                'abs_difference': 'mean'
+            }).reindex(countries).reset_index()
+
+            x = np.arange(len(countries))
+            width = 0.35
+            bars1 = ax.bar(x - width / 2, country_scores['official_score'], width,
+                           label='Official', color='#1f77b4', alpha=0.8, edgecolor='black')
+            bars2 = ax.bar(x + width / 2, country_scores['imputed_score'], width,
+                           label='Imputed', color='#ff7f0e', alpha=0.8, edgecolor='black')
+
+            for bar in bars1:
+                height = bar.get_height()
+                if not np.isnan(height):
+                    ax.text(bar.get_x() + bar.get_width() / 2., height + 0.1,
+                            f'{height:.1f}', ha='center', va='bottom', fontsize=8)
+
+            for bar in bars2:
+                height = bar.get_height()
+                if not np.isnan(height):
+                    ax.text(bar.get_x() + bar.get_width() / 2., height + 0.1,
+                            f'{height:.2f}', ha='center', va='bottom', fontsize=8)
+
+            mae = country_scores['abs_difference'].mean()
+            ax.set_ylabel('Score (-2 to +2)', fontsize=10)
+            ax.set_title(f'{dimension_names[dim]} ({dim})\nMAE: {mae:.2f}',
+                         fontsize=11, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels(countries, rotation=45, ha='right', fontsize=9)
+            ax.set_ylim(-2.5, 2.5)
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.3)
+            ax.legend(fontsize=8)
+            ax.grid(axis='y', alpha=0.3, linestyle='--')
+
+        fig.suptitle('Hofstede Dimensions: Official vs LLM Imputed (Bucketed Scale)',
+                     fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        self._save_figure(fig, 'hofstede_dimension_comparison_bucketed.png')
+        plt.close()
+
+    def plot_hofstede_error_heatmap_bucketed(self, comparison_df: pd.DataFrame):
+        """Heatmap of errors (bucketed scale)."""
+        if comparison_df is None or comparison_df.empty:
+            logger.warning("No data for Hofstede error heatmap")
+            return
+
+        dimensions = ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]
+        pivot_errors = comparison_df.groupby(['culture', 'dimension_abbr'])['abs_difference'].mean().unstack()
+        pivot_errors = pivot_errors[dimensions]
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        im = ax.imshow(pivot_errors.values, cmap='RdYlGn_r', aspect='auto', vmin=0, vmax=2.0)
+
+        ax.set_xticks(np.arange(len(dimensions)))
+        ax.set_yticks(np.arange(len(pivot_errors.index)))
+        ax.set_xticklabels(dimensions)
+        ax.set_yticklabels(pivot_errors.index)
+
+        for i in range(len(pivot_errors.index)):
+            for j in range(len(dimensions)):
+                val = pivot_errors.iloc[i, j]
+                if not np.isnan(val):
+                    ax.text(j, i, f'{val:.2f}', ha="center", va="center",
+                            color="black", fontweight='bold')
+
+        ax.set_title('Mean Absolute Error by Country and Dimension\n(Scale: -2 to +2)',
+                     fontsize=14, fontweight='bold')
+        ax.set_xlabel('Dimension', fontsize=12)
+        ax.set_ylabel('Country', fontsize=12)
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('MAE', rotation=270, labelpad=20)
+        plt.tight_layout()
+        self._save_figure(fig, 'hofstede_error_heatmap_bucketed.png')
+        plt.close()
+
+    def plot_hofstede_scatter_bucketed(self, comparison_df: pd.DataFrame):
+        """Scatter plots official vs imputed (bucketed scale)."""
+        if comparison_df is None or comparison_df.empty:
+            logger.warning("No data for Hofstede scatter")
+            return
+
+        fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+        axes = axes.flatten()
+        dimensions = ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]
+        colors_map = self.colors
+
+        for idx, dim in enumerate(dimensions):
+            ax = axes[idx]
+            dim_data = comparison_df[comparison_df['dimension_abbr'] == dim]
+            if dim_data.empty:
+                ax.set_visible(False)
+                continue
+
+            for culture in dim_data['culture'].unique():
+                culture_data = dim_data[dim_data['culture'] == culture]
+                ax.scatter(culture_data['official_score'], culture_data['imputed_score'],
+                           label=culture, color=colors_map.get(culture, 'gray'),
+                           alpha=0.6, s=100, edgecolors='black', linewidth=0.5)
+
+            ax.plot([-2, 2], [-2, 2], 'k--', alpha=0.3, linewidth=1, label='Perfect match')
+
+            if len(dim_data) > 1:
+                corr = dim_data[['official_score', 'imputed_score']].corr().iloc[0, 1]
+                ax.text(0.05, 0.95, f'r = {corr:.3f}', transform=ax.transAxes, fontsize=10,
+                        verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+            ax.set_xlabel('Official Score', fontsize=10)
+            ax.set_ylabel('Imputed Score', fontsize=10)
+            ax.set_title(f'{dim}', fontsize=12, fontweight='bold')
+            ax.set_xlim(-2.5, 2.5)
+            ax.set_ylim(-2.5, 2.5)
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.2)
+            ax.axvline(x=0, color='gray', linestyle='--', alpha=0.2)
+            ax.grid(True, alpha=0.3)
+            if idx == 0:
+                ax.legend(fontsize=8, loc='lower right')
+
+        fig.suptitle('Hofstede Scores: Official vs LLM Imputed (Bucketed Scale)',
+                     fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        self._save_figure(fig, 'hofstede_scatter_bucketed.png')
         plt.close()
     
     def plot_category_performance(self, df: pd.DataFrame):
@@ -409,7 +635,7 @@ class Visualizer:
             df['top_values'] = df['top_values'].apply(parse_top_values)
 
         logger.info("Creating visualizations...")
-
+        comparison_df = analyze_hofstede_comparison(df)
         self.plot_cultural_alignment_by_model(df)
         self.plot_decision_distribution(df)
         self.plot_value_frequency(df)
@@ -420,6 +646,10 @@ class Visualizer:
         self.plot_cultural_shift_magnitude(df)
         self.plot_scenario_difficulty(df)
         self.plot_decision_patterns_by_model(df)
+        self.plot_hofstede_country_comparison_bucketed(comparison_df)
+        self.plot_hofstede_dimension_comparison_bucketed(comparison_df)
+        self.plot_hofstede_error_heatmap_bucketed(comparison_df)
+        self.plot_hofstede_scatter_bucketed(comparison_df)
         
         logger.info(f"All visualizations saved to {self.output_dir}")
     

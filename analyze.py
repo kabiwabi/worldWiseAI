@@ -20,13 +20,13 @@ def load_results(results_file: Path) -> pd.DataFrame:
     """Load results from CSV"""
     print(f"Loading results from {results_file}")
     df = pd.read_csv(results_file)
-    
+
     # Convert string lists to actual lists
     if 'top_values' in df.columns:
         df['top_values'] = df['top_values'].apply(
             lambda x: eval(x) if isinstance(x, str) and x.startswith('[') else []
         )
-    
+
     return df
 
 
@@ -35,18 +35,18 @@ def analyze_cultural_bias(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("CULTURAL BIAS ANALYSIS")
     print("=" * 80)
-    
+
     # Check if baseline exists
     has_baseline = 'baseline' in df['culture'].unique()
-    
+
     if has_baseline:
         print("\n🔍 BASELINE BIAS DETECTION")
         print("Analyzing inherent cultural bias (responses without cultural context)")
         print("-" * 80)
-        
+
         baseline_data = df[df['culture'] == 'baseline']
         non_baseline_data = df[df['culture'] != 'baseline']
-        
+
         # Calculate baseline profile and compare to each culture
         from evaluator import calculate_baseline_bias
         from response_parser import ParsedResponse
@@ -71,40 +71,40 @@ def analyze_cultural_bias(df: pd.DataFrame):
                 baseline_responses,
                 config.CULTURAL_CONTEXTS
             )
-            
+
             if baseline_distances:
                 # Sort by distance (ascending)
                 sorted_distances = sorted(baseline_distances.items(), key=lambda x: x[1])
-                
+
                 print("\nBaseline Distance from Each Culture:")
                 print("(Lower distance = baseline is closer to this culture's values)")
                 for culture, distance in sorted_distances:
                     print(f"  {culture:.<30} {distance:.3f}")
-                
+
                 closest = sorted_distances[0]
                 print(f"\n⚠️  INHERENT BIAS DETECTED:")
                 print(f"  Baseline responses are CLOSEST to: {closest[0]}")
                 print(f"  Distance: {closest[1]:.3f}")
                 print(f"\n  The models baseline reasoning most closely resembles {closest[0]} culture.")
-    
+
     # Calculate mean alignment per culture (excluding baseline)
     culture_data = df[df['culture'] != 'baseline'] if has_baseline else df
     culture_alignment = culture_data.groupby('culture')['cultural_alignment'].mean().sort_values(ascending=False)
-    
+
     print("\n\nCultural Alignment by Culture (WITH cultural prompting):")
     for culture, score in culture_alignment.items():
         print(f"  {culture:.<30} {score:.2f}/10")
-    
+
     # Identify Western bias
     western_cultures = ['US']
     western_score = culture_data[culture_data['culture'].isin(western_cultures)]['cultural_alignment'].mean()
     non_western_score = culture_data[~culture_data['culture'].isin(western_cultures)]['cultural_alignment'].mean()
-    
+
     print(f"\nWestern vs Non-Western (WITH prompting):")
     print(f"  Western (US):................... {western_score:.2f}/10")
     print(f"  Non-Western:.................... {non_western_score:.2f}/10")
     print(f"  Gap:............................ {western_score - non_western_score:.2f}")
-    
+
     if western_score - non_western_score > 1.0:
         print("  ⚠️  Significant Western bias persists even with cultural prompting!")
     else:
@@ -116,28 +116,28 @@ def analyze_model_performance(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("MODEL PERFORMANCE ANALYSIS")
     print("=" * 80)
-    
+
     metrics = ['cultural_alignment', 'stereotype']
-    
+
     model_scores = df.groupby('model')[metrics].mean()
-    
+
     print("\nModel Performance Summary:")
     print(model_scores.to_string())
-    
+
     # Find best model
     model_scores['overall'] = model_scores.mean(axis=1)
     best_model = model_scores['overall'].idxmax()
-    
+
     print(f"\n🏆 Best Overall Model: {best_model}")
     print(f"   Overall Score: {model_scores.loc[best_model, 'overall']:.2f}/10")
-    
+
     # Statistical comparison (ANOVA)
     print("\n Statistical Significance Tests (ANOVA):")
-    
+
     for metric in metrics:
         groups = [df[df['model'] == model][metric].values for model in df['model'].unique()]
         f_stat, p_value = stats.f_oneway(*groups)
-        
+
         sig = "***" if p_value < 0.001 else "**" if p_value < 0.01 else "*" if p_value < 0.05 else "ns"
         print(f"  {metric:.<30} F={f_stat:.2f}, p={p_value:.4f} {sig}")
 
@@ -147,23 +147,23 @@ def analyze_scenario_categories(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("SCENARIO CATEGORY ANALYSIS")
     print("=" * 80)
-    
+
     category_stats = df.groupby('scenario_category').agg({
         'cultural_alignment': ['mean', 'std'],
         'parse_success': 'mean'
     })
-    
+
     print("\nPerformance by Category:")
     print(category_stats.to_string())
-    
+
     # Find hardest and easiest categories
     cat_means = df.groupby('scenario_category')['cultural_alignment'].mean()
     hardest = cat_means.idxmin()
     easiest = cat_means.idxmax()
-    
+
     print(f"\n📉 Hardest Category: {hardest}")
     print(f"   Mean Alignment: {cat_means[hardest]:.2f}/10")
-    
+
     print(f"\n📈 Easiest Category: {easiest}")
     print(f"   Mean Alignment: {cat_means[easiest]:.2f}/10")
 
@@ -173,7 +173,7 @@ def analyze_value_patterns(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("VALUE PATTERN ANALYSIS")
     print("=" * 80)
-    
+
     # Extract all values by culture
     value_counts = {}
     for culture in df['culture'].unique():
@@ -182,11 +182,11 @@ def analyze_value_patterns(df: pd.DataFrame):
         for values_list in culture_data['top_values']:
             if isinstance(values_list, list):
                 all_values.extend(values_list)
-        
+
         from collections import Counter
         counts = Counter(all_values)
         value_counts[culture] = counts
-    
+
     print("\nTop 3 Values by Culture:")
     for culture, counts in value_counts.items():
         print(f"\n{culture}:")
@@ -199,14 +199,14 @@ def analyze_consistency(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("CONSISTENCY ANALYSIS")
     print("=" * 80)
-    
+
     # Check consistency across runs
     if 'run_num' in df.columns:
         consistency_by_model = df.groupby('model').agg({
             'decision': lambda x: x.value_counts().iloc[0] / len(x) if len(x) > 0 else 0,
             'cultural_alignment': 'std'
         })
-        
+
         print("\nModel Consistency:")
         print("  (Higher decision consistency = more consistent)")
         print("  (Lower alignment std = more stable scores)")
@@ -218,9 +218,9 @@ def generate_insights(df: pd.DataFrame):
     print("\n" + "=" * 80)
     print("KEY INSIGHTS & RECOMMENDATIONS")
     print("=" * 80)
-    
+
     insights = []
-    
+
     # Overall performance
     overall_alignment = df['cultural_alignment'].mean()
     if overall_alignment > 7:
@@ -229,23 +229,23 @@ def generate_insights(df: pd.DataFrame):
         insights.append("⚠️  Moderate cultural alignment - room for improvement")
     else:
         insights.append("❌ Poor cultural alignment - significant bias present")
-    
+
     # Stereotypes
     overall_stereo = df['stereotype'].mean()
     if overall_stereo > 8:
         insights.append("✅ Minimal stereotyping in responses")
     else:
         insights.append("⚠️  Some stereotypical language detected")
-    
+
     # Parse success
     parse_rate = df['parse_success'].mean()
     if parse_rate > 0.9:
         insights.append("✅ High parse success rate - good structured outputs")
     else:
         insights.append("⚠️  Some responses failed to follow format instructions")
-    
+
     print("\n".join(insights))
-    
+
     print("\n\nRecommendations:")
     print("1. Focus improvement efforts on lowest-scoring cultures")
     print("2. Consider fine-tuning or prompt engineering for low-scoring models")
@@ -551,6 +551,191 @@ def analyze_decision_patterns(df: pd.DataFrame):
         ent = entropy(decisions.values)
         print(f"  {culture:.<20} {ent:.3f}")
 
+
+def analyze_hofstede_comparison(df: pd.DataFrame) -> pd.DataFrame:
+    """Compare LLM-imputed Hofstede scores with official scores using bucketed [-2, 2] scale."""
+    print("\n" + "=" * 80)
+    print("HOFSTEDE SCORE COMPARISON: LLM IMPUTED vs OFFICIAL (BUCKETED)")
+    print("=" * 80)
+
+    df_filtered = df[df['culture'] != 'baseline'].copy()
+    if df_filtered.empty:
+        print("No non-baseline data to analyze")
+        return None
+
+    evaluator = CulturalEvaluator()
+    comparison_records = []
+
+    for _, row in df_filtered.iterrows():
+        culture = row['culture']
+        model = row['model']
+        scenario_id = row['scenario_id']
+
+        parsed = ParsedResponse(
+            raw_text=row['raw_response'],
+            explanation=row['explanation'],
+            decision=row.get('decision'),
+            top_values=eval(row.get('top_values', '[]')) if isinstance(row.get('top_values'), str) else row.get(
+                'top_values', []),
+            parse_success=row['parse_success'],
+            parse_errors=[]
+        )
+
+        scenario = get_scenario_by_id(scenario_id)
+
+        # Get imputed scores using the evaluator's internal method
+        imputed_profile = evaluator._infer_cultural_profile(parsed)
+
+        # Get official scores from config (in -2 to 2 format)
+        official_hofstede = config.CULTURAL_CONTEXTS[culture]['hofstede_scores']
+
+        # Create dimension abbreviation mapping
+        dim_abbr_map = {
+            "power_distance": "PDI",
+            "individualism": "IDV",
+            "masculinity": "MAS",
+            "uncertainty_avoidance": "UAI",
+            "long_term_orientation": "LTO",
+            "indulgence": "IVR"
+        }
+
+        # For each dimension in the scenario
+        for dim_name in scenario.cultural_dimensions:
+            if dim_name not in official_hofstede or official_hofstede[dim_name] is None:
+                continue
+
+            official_score = official_hofstede[dim_name]
+            imputed_score = imputed_profile.get(dim_name, 0.0)
+
+            difference = imputed_score - official_score
+            abs_difference = abs(difference)
+
+            comparison_records.append({
+                'culture': culture,
+                'model': model,
+                'scenario_id': scenario_id,
+                'dimension': dim_name,
+                'dimension_abbr': dim_abbr_map[dim_name],
+                'official_score': official_score,
+                'imputed_score': imputed_score,
+                'difference': difference,
+                'abs_difference': abs_difference,
+            })
+
+    if not comparison_records:
+        print("No comparison data generated")
+        return None
+
+    comparison_df = pd.DataFrame(comparison_records)
+
+    print("\n1. OVERALL ACCURACY (Scale: -2 to +2)")
+    print("-" * 80)
+    overall_mae = comparison_df['abs_difference'].mean()
+    overall_std = comparison_df['abs_difference'].std()
+    median_ae = comparison_df['abs_difference'].median()
+    print(f"Mean Absolute Error (MAE):     {overall_mae:.3f}")
+    print(f"Standard Deviation:            {overall_std:.3f}")
+    print(f"Median Absolute Error:         {median_ae:.3f}")
+    print(f"Total comparisons:             {len(comparison_df)}")
+
+    excellent = (comparison_df['abs_difference'] < 0.5).sum()
+    good = ((comparison_df['abs_difference'] >= 0.5) & (comparison_df['abs_difference'] < 1.0)).sum()
+    acceptable = ((comparison_df['abs_difference'] >= 1.0) & (comparison_df['abs_difference'] < 1.5)).sum()
+    poor = (comparison_df['abs_difference'] >= 1.5).sum()
+    print(f"\nAccuracy Distribution:")
+    print(f"  Excellent (< 0.5):             {excellent} ({100 * excellent / len(comparison_df):.1f}%)")
+    print(f"  Good (0.5-1.0):                {good} ({100 * good / len(comparison_df):.1f}%)")
+    print(f"  Acceptable (1.0-1.5):          {acceptable} ({100 * acceptable / len(comparison_df):.1f}%)")
+    print(f"  Poor (≥ 1.5):                  {poor} ({100 * poor / len(comparison_df):.1f}%)")
+
+    print("\n2. ACCURACY BY DIMENSION")
+    print("-" * 80)
+    dim_stats = comparison_df.groupby('dimension_abbr').agg({
+        'abs_difference': ['mean', 'std'],
+        'difference': 'mean'
+    }).round(3)
+    print("\nDimension | MAE    | Std Dev | Bias (signed)")
+    print("-" * 50)
+    for dim_abbr in ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]:
+        if dim_abbr in dim_stats.index:
+            mae = dim_stats.loc[dim_abbr, ('abs_difference', 'mean')]
+            std = dim_stats.loc[dim_abbr, ('abs_difference', 'std')]
+            bias = dim_stats.loc[dim_abbr, ('difference', 'mean')]
+            print(f"{dim_abbr:>9} | {mae:>6.3f} | {std:>7.3f} | {bias:>+6.3f}")
+
+    dim_mae = comparison_df.groupby('dimension_abbr')['abs_difference'].mean().sort_values()
+    print(f"\n📈 Most Accurate Dimension:  {dim_mae.index[0]} (MAE = {dim_mae.iloc[0]:.3f})")
+    print(f"📉 Least Accurate Dimension: {dim_mae.index[-1]} (MAE = {dim_mae.iloc[-1]:.3f})")
+
+    print("\n3. ACCURACY BY CULTURE")
+    print("-" * 80)
+    culture_stats = comparison_df.groupby('culture').agg({'abs_difference': 'mean'}).round(3).sort_values(
+        'abs_difference')
+    print("\nCulture       | MAE")
+    print("-" * 30)
+    for culture in culture_stats.index:
+        mae = culture_stats.loc[culture, 'abs_difference']
+        print(f"{culture:>13} | {mae:>6.3f}")
+    print(f"\n📈 Most Accurate Culture:  {culture_stats.index[0]} (MAE = {culture_stats.iloc[0, 0]:.3f})")
+    print(f"📉 Least Accurate Culture: {culture_stats.index[-1]} (MAE = {culture_stats.iloc[-1, 0]:.3f})")
+
+    print("\n4. ACCURACY BY MODEL")
+    print("-" * 80)
+    model_stats = comparison_df.groupby('model').agg({'abs_difference': 'mean'}).round(3).sort_values('abs_difference')
+    print("\nModel              | MAE")
+    print("-" * 35)
+    for model in model_stats.index:
+        mae = model_stats.loc[model, 'abs_difference']
+        print(f"{model:>18} | {mae:>6.3f}")
+    print(f"\n🏆 Most Accurate Model:  {model_stats.index[0]} (MAE = {model_stats.iloc[0, 0]:.3f})")
+    print(f"⛔ Least Accurate Model: {model_stats.index[-1]} (MAE = {model_stats.iloc[-1, 0]:.3f})")
+
+    print("\n5. DETAILED BREAKDOWN: IMPUTED vs OFFICIAL (by Culture & Dimension)")
+    print("-" * 80)
+    pivot_imputed = comparison_df.groupby(['culture', 'dimension_abbr'])['imputed_score'].mean().unstack().round(2)
+    pivot_official = comparison_df.groupby(['culture', 'dimension_abbr'])['official_score'].mean().unstack().round(2)
+    pivot_diff = comparison_df.groupby(['culture', 'dimension_abbr'])['difference'].mean().unstack().round(2)
+
+    for culture in pivot_imputed.index:
+        print(f"\n{culture}:")
+        print("  Dimension | Official | Imputed | Diff")
+        print("  " + "-" * 45)
+        for dim_abbr in ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]:
+            if dim_abbr in pivot_official.columns:
+                official = pivot_official.loc[culture, dim_abbr]
+                imputed = pivot_imputed.loc[culture, dim_abbr]
+                diff = pivot_diff.loc[culture, dim_abbr]
+                print(f"  {dim_abbr:>9} | {official:>8.2f} | {imputed:>7.2f} | {diff:>+6.2f}")
+
+    print("\n6. COMPREHENSIVE COMPARISON TABLE")
+    print("-" * 100)
+    print("\nAll Countries & Dimensions - Official vs Imputed Scores (Scale: -2 to +2)\n")
+    dimensions = ["PDI", "IDV", "MAS", "UAI", "LTO", "IVR"]
+    header = f"{'Country':<15}"
+    for dim in dimensions:
+        header += f" | {dim:>6} Off | {dim:>6} Imp | {dim:>6} Diff"
+    print(header)
+    print("-" * 100)
+
+    for culture in sorted(pivot_imputed.index):
+        row = f"{culture:<15}"
+        for dim in dimensions:
+            if dim in pivot_official.columns:
+                official = pivot_official.loc[culture, dim]
+                imputed = pivot_imputed.loc[culture, dim]
+                diff = pivot_diff.loc[culture, dim]
+                row += f" | {official:>10.2f} | {imputed:>10.2f} | {diff:>+11.2f}"
+            else:
+                row += f" | {'—':>10} | {'—':>10} | {'—':>11}"
+        print(row)
+
+    print("\n" + "-" * 100)
+    print("Legend: Off = Official Hofstede Score, Imp = LLM Imputed Score, Diff = Imputed - Official")
+    print("Note: Positive Diff = Overestimate, Negative Diff = Underestimate")
+    print("Scale: -2 (Very Low) to +2 (Very High)")
+
+    return comparison_df
+
 def analyze_dimension_alignment(df: pd.DataFrame):
     """
     Break down cultural alignment into Hofstede dimensions.
@@ -699,7 +884,7 @@ def create_analysis_report(results_file: Path):
             'write': lambda self, text: (original_stdout.write(text), f.write(text)),
             'flush': lambda self: (original_stdout.flush(), f.flush())
         })()
-    
+
         print("\n" + "=" * 80)
         print("CULTURAL BIAS MEASUREMENT - ANALYSIS REPORT")
         print("=" * 80)
@@ -711,6 +896,7 @@ def create_analysis_report(results_file: Path):
 
         analyze_cultural_bias(df)
         analyze_dimension_alignment(df)
+        analyze_hofstede_comparison(df)
         analyze_model_performance(df)
         analyze_scenario_categories(df)
         analyze_value_patterns(df)
@@ -731,18 +917,18 @@ def create_analysis_report(results_file: Path):
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Analyze experiment results")
     parser.add_argument(
         "results_file",
         type=Path,
         help="Path to results CSV file"
     )
-    
+
     args = parser.parse_args()
-    
+
     if not args.results_file.exists():
         print(f"Error: File not found: {args.results_file}")
         sys.exit(1)
-    
+
     create_analysis_report(args.results_file)

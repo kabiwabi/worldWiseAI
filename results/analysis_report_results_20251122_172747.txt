@@ -19,15 +19,15 @@ Analyzing inherent cultural bias (responses without cultural context)
 
 Baseline Distance from Each Culture:
 (Lower distance = baseline is closer to this culture's values)
-  India......................... 1.100
-  US............................ 1.431
-  Japan......................... 1.556
-  UAE........................... 1.656
-  Mexico........................ 1.946
+  India......................... 1.112
+  US............................ 1.409
+  Japan......................... 1.574
+  UAE........................... 1.658
+  Mexico........................ 1.956
 
 ⚠️  INHERENT BIAS DETECTED:
   Baseline responses are CLOSEST to: India
-  Distance: 1.100
+  Distance: 1.112
 
   The models baseline reasoning most closely resembles India culture.
 
@@ -52,30 +52,160 @@ DIMENSION-LEVEL ALIGNMENT ANALYSIS
 Mean dimension alignment by culture (higher = closer to Hofstede):
 dimension  individualism  indulgence  long_term_orientation  masculinity  power_distance  uncertainty_avoidance
 culture                                                                                                        
-India               9.73        5.70                   8.93         7.14            6.23                   8.50
-Japan               9.67        7.09                   5.80         4.91            9.82                   4.33
-Mexico              6.39        5.46                   5.28         6.07            5.21                   4.12
-UAE                 6.02        6.96                   5.12         9.71            5.09                   5.23
-US                  5.01        6.83                   4.79         7.65            7.54                   8.56
+India               9.77        5.79                   9.07         7.17            6.17                   8.41
+Japan               9.75        7.23                   5.67         4.86            9.81                   4.43
+Mexico              6.31        5.63                   5.44         5.80            5.11                   4.07
+UAE                 6.09        7.05                   5.31         9.60            5.04                   5.34
+US                  5.24        6.88                   4.90         7.66            7.60                   8.52
 
 Mean dimension alignment by model:
 dimension      individualism  indulgence  long_term_orientation  masculinity  power_distance  uncertainty_avoidance
 model                                                                                                              
-claude-sonnet           7.39        6.40                   5.99         7.18            6.87                   6.13
-deepseek                7.34        6.48                   6.12         7.02            6.79                   6.24
-gemini                  7.29        6.37                   5.77         7.19            6.71                   6.06
-gpt-4                   7.44        6.38                   6.04         6.99            6.74                   6.16
+claude-sonnet           7.45        6.43                   6.06         7.14            6.84                   6.19
+deepseek                7.42        6.61                   6.23         6.86            6.72                   6.18
+gemini                  7.41        6.62                   5.97         7.11            6.67                   6.08
+gpt-4                   7.45        6.41                   6.06         6.95            6.75                   6.16
 
 Overall dimension difficulty:
-  individualism        → 7.37/10
-  masculinity          → 7.09/10
-  power_distance       → 6.78/10
-  indulgence           → 6.41/10
+  individualism        → 7.43/10
+  masculinity          → 7.02/10
+  power_distance       → 6.74/10
+  indulgence           → 6.52/10
   uncertainty_avoidance → 6.15/10
-  long_term_orientation → 5.98/10
+  long_term_orientation → 6.08/10
 
-📈 Easiest dimension overall: individualism (7.37/10)
-📉 Hardest dimension overall: long_term_orientation (5.98/10)
+📈 Easiest dimension overall: individualism (7.43/10)
+📉 Hardest dimension overall: long_term_orientation (6.08/10)
+
+================================================================================
+HOFSTEDE SCORE COMPARISON: LLM IMPUTED vs OFFICIAL (BUCKETED)
+================================================================================
+
+1. OVERALL ACCURACY (Scale: -2 to +2)
+--------------------------------------------------------------------------------
+Mean Absolute Error (MAE):     1.337
+Standard Deviation:            0.706
+Median Absolute Error:         1.521
+Total comparisons:             600
+
+Accuracy Distribution:
+  Excellent (< 0.5):             110 (18.3%)
+  Good (0.5-1.0):                71 (11.8%)
+  Acceptable (1.0-1.5):          111 (18.5%)
+  Poor (≥ 1.5):                  308 (51.3%)
+
+2. ACCURACY BY DIMENSION
+--------------------------------------------------------------------------------
+
+Dimension | MAE    | Std Dev | Bias (signed)
+--------------------------------------------------
+      PDI |  1.302 |   0.728 | -0.902
+      IDV |  1.027 |   0.789 | +0.228
+      MAS |  1.194 |   0.678 | -1.177
+      UAI |  1.538 |   0.807 | -1.284
+      LTO |  1.568 |   0.636 | +0.875
+      IVR |  1.393 |   0.363 | +0.195
+
+📈 Most Accurate Dimension:  IDV (MAE = 1.027)
+📉 Least Accurate Dimension: LTO (MAE = 1.568)
+
+3. ACCURACY BY CULTURE
+--------------------------------------------------------------------------------
+
+Culture       | MAE
+------------------------------
+        India |  0.907
+        Japan |  1.216
+           US |  1.280
+          UAE |  1.438
+       Mexico |  1.843
+
+📈 Most Accurate Culture:  India (MAE = 0.907)
+📉 Least Accurate Culture: Mexico (MAE = 1.843)
+
+4. ACCURACY BY MODEL
+--------------------------------------------------------------------------------
+
+Model              | MAE
+-----------------------------------
+     claude-sonnet |  1.326
+          deepseek |  1.332
+            gemini |  1.342
+             gpt-4 |  1.349
+
+🏆 Most Accurate Model:  claude-sonnet (MAE = 1.326)
+⛔ Least Accurate Model: gpt-4 (MAE = 1.349)
+
+5. DETAILED BREAKDOWN: IMPUTED vs OFFICIAL (by Culture & Dimension)
+--------------------------------------------------------------------------------
+
+India:
+  Dimension | Official | Imputed | Diff
+  ---------------------------------------------
+        PDI |     1.50 |   -0.03 |  -1.53
+        IDV |     0.00 |    0.02 |  +0.02
+        MAS |     1.00 |   -0.13 |  -1.13
+        UAI |    -1.00 |   -0.37 |  +0.63
+        LTO |     0.00 |    0.37 |  +0.37
+        IVR |    -1.50 |    0.18 |  +1.68
+
+Japan:
+  Dimension | Official | Imputed | Diff
+  ---------------------------------------------
+        PDI |     0.00 |    0.01 |  +0.01
+        IDV |     0.00 |   -0.02 |  -0.02
+        MAS |     2.00 |   -0.06 |  -2.06
+        UAI |     2.00 |   -0.23 |  -2.23
+        LTO |     2.00 |    0.27 |  -1.73
+        IVR |    -1.00 |    0.11 |  +1.11
+
+Mexico:
+  Dimension | Official | Imputed | Diff
+  ---------------------------------------------
+        PDI |     2.00 |    0.04 |  -1.96
+        IDV |    -1.50 |   -0.02 |  +1.48
+        MAS |     1.50 |   -0.18 |  -1.68
+        UAI |     2.00 |   -0.37 |  -2.37
+        LTO |    -1.50 |    0.32 |  +1.82
+        IVR |     2.00 |    0.25 |  -1.75
+
+UAE:
+  Dimension | Official | Imputed | Diff
+  ---------------------------------------------
+        PDI |     2.00 |    0.01 |  -1.99
+        IDV |    -1.50 |    0.06 |  +1.56
+        MAS |     0.00 |   -0.08 |  -0.08
+        UAI |     1.50 |   -0.36 |  -1.86
+        LTO |    -1.50 |    0.37 |  +1.87
+        IVR |    -1.00 |    0.18 |  +1.18
+
+US:
+  Dimension | Official | Imputed | Diff
+  ---------------------------------------------
+        PDI |    -1.00 |   -0.04 |  +0.96
+        IDV |     2.00 |    0.10 |  -1.90
+        MAS |     1.00 |    0.06 |  -0.94
+        UAI |     0.00 |   -0.59 |  -0.59
+        LTO |    -1.50 |    0.54 |  +2.04
+        IVR |     1.50 |    0.25 |  -1.25
+
+6. COMPREHENSIVE COMPARISON TABLE
+----------------------------------------------------------------------------------------------------
+
+All Countries & Dimensions - Official vs Imputed Scores (Scale: -2 to +2)
+
+Country         |    PDI Off |    PDI Imp |    PDI Diff |    IDV Off |    IDV Imp |    IDV Diff |    MAS Off |    MAS Imp |    MAS Diff |    UAI Off |    UAI Imp |    UAI Diff |    LTO Off |    LTO Imp |    LTO Diff |    IVR Off |    IVR Imp |    IVR Diff
+----------------------------------------------------------------------------------------------------
+India           |       1.50 |      -0.03 |       -1.53 |       0.00 |       0.02 |       +0.02 |       1.00 |      -0.13 |       -1.13 |      -1.00 |      -0.37 |       +0.63 |       0.00 |       0.37 |       +0.37 |      -1.50 |       0.18 |       +1.68
+Japan           |       0.00 |       0.01 |       +0.01 |       0.00 |      -0.02 |       -0.02 |       2.00 |      -0.06 |       -2.06 |       2.00 |      -0.23 |       -2.23 |       2.00 |       0.27 |       -1.73 |      -1.00 |       0.11 |       +1.11
+Mexico          |       2.00 |       0.04 |       -1.96 |      -1.50 |      -0.02 |       +1.48 |       1.50 |      -0.18 |       -1.68 |       2.00 |      -0.37 |       -2.37 |      -1.50 |       0.32 |       +1.82 |       2.00 |       0.25 |       -1.75
+UAE             |       2.00 |       0.01 |       -1.99 |      -1.50 |       0.06 |       +1.56 |       0.00 |      -0.08 |       -0.08 |       1.50 |      -0.36 |       -1.86 |      -1.50 |       0.37 |       +1.87 |      -1.00 |       0.18 |       +1.18
+US              |      -1.00 |      -0.04 |       +0.96 |       2.00 |       0.10 |       -1.90 |       1.00 |       0.06 |       -0.94 |       0.00 |      -0.59 |       -0.59 |      -1.50 |       0.54 |       +2.04 |       1.50 |       0.25 |       -1.25
+
+----------------------------------------------------------------------------------------------------
+Legend: Off = Official Hofstede Score, Imp = LLM Imputed Score, Diff = Imputed - Official
+Note: Positive Diff = Overestimate, Negative Diff = Underestimate
+Scale: -2 (Very Low) to +2 (Very High)
 
 ================================================================================
 MODEL PERFORMANCE ANALYSIS
@@ -256,7 +386,7 @@ UAE:
     ↑ Respect for Authority......... +10.0%
     ↑ Stability & Security.......... +8.1%
     ↓ Work-Life Balance............. -5.6%
-    ↓ Personal Autonomy............. -5.6%
+    ↑ Tradition & Heritage.......... +5.6%
 
 ────────────────────────────────────────────────────────────────────────────────
 SHIFT MAGNITUDE SUMMARY:
